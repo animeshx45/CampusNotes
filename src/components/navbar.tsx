@@ -4,6 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Search, Upload, BookOpen, GraduationCap } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export function Navbar() {
   return (
@@ -33,9 +34,10 @@ export function Navbar() {
             <input
               type="search"
               placeholder="Search notes..."
-              className="pl-9 pr-4 py-2 text-sm bg-secondary border-none rounded-full focus:ring-2 focus:ring-primary w-40 lg:w-64 transition-all"
+              className="pl-9 pr-4 py-2 text-sm bg-secondary border-none rounded-full focus:ring-2 focus:ring-primary w-40 lg:w-48 transition-all"
             />
           </div>
+          <ThemeToggle />
           <Button asChild variant="default" className="hidden sm:flex rounded-full px-6">
             <Link href="/upload">
               <Upload className="mr-2 h-4 w-4" />
