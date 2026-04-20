@@ -6,50 +6,62 @@ import {
   doc, 
   query, 
   orderBy, 
-  Timestamp,
+  serverTimestamp,
   increment,
   updateDoc,
-  getCountFromServer
+  getCountFromServer,
+  Firestore
 } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
 import { StudyMaterial } from '@/lib/types';
 
-// Matching collection name in backend.json
+// Matching collection names in backend.json
 const MATERIALS_COLLECTION = 'studyMaterials';
 const USERS_COLLECTION = 'users';
 
-// Idempotent initialization
-const { firestore: db } = initializeFirebase();
+/**
+ * Service for interacting with Study Materials in Firestore.
+ */
+class MaterialService {
+  private db: Firestore;
 
-export const materialService = {
+  constructor() {
+    const { firestore } = initializeFirebase();
+    this.db = firestore;
+  }
+
   async getAllMaterials() {
     try {
-      const q = query(collection(db, MATERIALS_COLLECTION), orderBy('createdAt', 'desc'));
+      const q = query(collection(this.db, MATERIALS_COLLECTION), orderBy('createdAt', 'desc'));
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => {
         const data = doc.data();
         return {
           id: doc.id,
           ...data,
-          createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString().split('T')[0] : (data.createdAt || new Date().toISOString().split('T')[0])
+          createdAt: data.createdAt?.toDate 
+            ? data.createdAt.toDate().toLocaleDateString() 
+            : new Date().toLocaleDateString()
         };
       }) as StudyMaterial[];
     } catch (error) {
       console.error("Error fetching materials:", error);
       return [];
     }
-  },
+  }
 
   async getMaterialById(id: string) {
     try {
-      const docRef = doc(db, MATERIALS_COLLECTION, id);
+      const docRef = doc(this.db, MATERIALS_COLLECTION, id);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
         return {
           id: docSnap.id,
           ...data,
-          createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString().split('T')[0] : (data.createdAt || new Date().toISOString().split('T')[0])
+          createdAt: data.createdAt?.toDate 
+            ? data.createdAt.toDate().toLocaleDateString() 
+            : new Date().toLocaleDateString()
         } as StudyMaterial;
       }
       return null;
@@ -57,10 +69,11 @@ export const materialService = {
       console.error("Error fetching material by ID:", error);
       return null;
     }
-  },
+  }
 
   async uploadMaterial(material: any) {
-    const docRef = await addDoc(collection(db, MATERIALS_COLLECTION), {
+    // Note: uploaderId must match request.auth.uid per security rules
+    const docRef = await addDoc(collection(this.db, MATERIALS_COLLECTION), {
       ...material,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -68,19 +81,19 @@ export const materialService = {
       views: 0
     });
     return docRef.id;
-  },
+  }
 
   async incrementDownloadCount(id: string) {
-    const docRef = doc(db, MATERIALS_COLLECTION, id);
+    const docRef = doc(this.db, MATERIALS_COLLECTION, id);
     await updateDoc(docRef, {
       downloadCount: increment(1)
     });
-  },
+  }
 
   async getStats() {
     try {
-      const materialsCount = await getCountFromServer(collection(db, MATERIALS_COLLECTION));
-      const usersCount = await getCountFromServer(collection(db, USERS_COLLECTION));
+      const materialsCount = await getCountFromServer(collection(this.db, MATERIALS_COLLECTION));
+      const usersCount = await getCountFromServer(collection(this.db, USERS_COLLECTION));
       return {
         resources: materialsCount.data().count,
         students: usersCount.data().count
@@ -90,8 +103,6 @@ export const materialService = {
       return { resources: 0, students: 0 };
     }
   }
-};
-
-function serverTimestamp() {
-    return Timestamp.now();
 }
+
+export const materialService = new MaterialService();
