@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -9,8 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail } from 'firebase/auth';
-import { auth, db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { useAuth, useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/logo';
 
@@ -21,6 +20,8 @@ export default function LoginPage() {
   const [isResetting, setIsResetting] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const auth = useAuth();
+  const db = useFirestore();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,17 +47,18 @@ export default function LoginPage() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       
-      // Check if user profile exists, if not, create it
       const userRef = doc(db, 'users', user.uid);
       const userSnap = await getDoc(userRef);
       
       if (!userSnap.exists()) {
         await setDoc(userRef, {
-          name: user.displayName || 'Student',
+          id: user.uid,
+          externalAuthId: user.uid,
+          username: user.email?.split('@')[0] || user.uid,
+          fullName: user.displayName || 'Student',
           email: user.email,
           createdAt: serverTimestamp(),
-          branch: 'General',
-          photoUrl: user.photoURL
+          updatedAt: serverTimestamp(),
         });
       }
       

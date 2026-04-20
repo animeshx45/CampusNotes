@@ -9,16 +9,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, FileText, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Upload, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { materialService } from '@/services/material-service';
-import { useAuth } from '@/context/auth-context';
+import { useUser } from '@/firebase';
 import { Branch, MaterialType, Semester } from '@/lib/types';
 
 export default function UploadPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user } = useUser();
   
   const [isUploading, setIsUploading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -53,9 +53,12 @@ export default function UploadPage() {
     try {
       await materialService.uploadMaterial({
         ...formData,
-        uploaderId: user.uid, // Required by security rules
-        fileUrl: 'https://example.com/placeholder-pdf', // In a real app, this would be a link from Firebase Storage
-      } as any);
+        uploaderId: user.uid,
+        fileUrl: 'https://example.com/placeholder-pdf',
+        branchId: formData.branch, // Map to backend.json requirements
+        semesterId: formData.semester.toString(),
+        materialTypeId: formData.type,
+      });
       
       setIsSuccess(true);
       toast({
@@ -187,7 +190,6 @@ export default function UploadPage() {
                 </div>
                 <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" disabled />
               </div>
-              <p className="text-[10px] text-muted-foreground text-center">Note: File persistence is currently linked to metadata. Real binary storage requires Firebase Storage setup.</p>
             </div>
 
             <div className="flex items-center gap-3 bg-secondary p-4 rounded-xl text-xs text-muted-foreground">

@@ -11,12 +11,15 @@ import {
   updateDoc,
   getCountFromServer
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { initializeFirebase } from '@/firebase';
 import { StudyMaterial } from '@/lib/types';
 
 // Matching collection name in backend.json
 const MATERIALS_COLLECTION = 'studyMaterials';
 const USERS_COLLECTION = 'users';
+
+// Idempotent initialization
+const { firestore: db } = initializeFirebase();
 
 export const materialService = {
   async getAllMaterials() {
@@ -28,7 +31,6 @@ export const materialService = {
         return {
           id: doc.id,
           ...data,
-          // Handle both potential timestamp formats
           createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString().split('T')[0] : (data.createdAt || new Date().toISOString().split('T')[0])
         };
       }) as StudyMaterial[];
@@ -57,11 +59,13 @@ export const materialService = {
     }
   },
 
-  async uploadMaterial(material: Omit<StudyMaterial, 'id' | 'createdAt' | 'downloadCount'>) {
+  async uploadMaterial(material: any) {
     const docRef = await addDoc(collection(db, MATERIALS_COLLECTION), {
       ...material,
-      createdAt: Timestamp.now(),
-      downloadCount: 0
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      downloadCount: 0,
+      views: 0
     });
     return docRef.id;
   },
@@ -87,3 +91,7 @@ export const materialService = {
     }
   }
 };
+
+function serverTimestamp() {
+    return Timestamp.now();
+}

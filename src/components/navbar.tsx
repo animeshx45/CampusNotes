@@ -1,14 +1,14 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Search, UserCircle, FileText, Home, LogOut, User as UserIcon } from 'lucide-react';
+import { Search, UserCircle, FileText, Home, LogOut } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { StudyMaterial } from '@/lib/types';
-import { useAuth } from '@/context/auth-context';
+import { useUser, useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
 import { materialService } from '@/services/material-service';
 import { Logo } from '@/components/logo';
 import { 
@@ -27,7 +27,8 @@ export function Navbar() {
   const [allMaterials, setAllMaterials] = useState<StudyMaterial[]>([]);
   const router = useRouter();
   const searchRef = useRef<HTMLDivElement>(null);
-  const { user, logout } = useAuth();
+  const { user } = useUser();
+  const auth = useAuth();
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -69,6 +70,11 @@ export function Navbar() {
       router.push(`/browse?search=${encodeURIComponent(searchQuery)}`);
       setShowSuggestions(false);
     }
+  };
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push('/');
   };
 
   return (
@@ -158,7 +164,7 @@ export function Navbar() {
                   <FileText className="mr-2 h-4 w-4" />
                   <span>My Contributions</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={logout}>
+                <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -10,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
+import { useAuth, useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/logo';
 
@@ -21,6 +20,8 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const auth = useAuth();
+  const db = useFirestore();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,12 +30,14 @@ export default function SignupPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
       
-      // Create user profile in Firestore to track student count
       await setDoc(doc(db, 'users', userCredential.user.uid), {
-        name,
+        id: userCredential.user.uid,
+        externalAuthId: userCredential.user.uid,
+        username: email.split('@')[0],
+        fullName: name,
         email,
         createdAt: serverTimestamp(),
-        branch: 'General', 
+        updatedAt: serverTimestamp(),
       });
 
       toast({ title: "Account Created!", description: "Welcome to CampusNotes." });
@@ -61,11 +64,13 @@ export default function SignupPage() {
       
       if (!userSnap.exists()) {
         await setDoc(userRef, {
-          name: user.displayName || 'Student',
+          id: user.uid,
+          externalAuthId: user.uid,
+          username: user.email?.split('@')[0] || user.uid,
+          fullName: user.displayName || 'Student',
           email: user.email,
           createdAt: serverTimestamp(),
-          branch: 'General',
-          photoUrl: user.photoURL
+          updatedAt: serverTimestamp(),
         });
       }
       
