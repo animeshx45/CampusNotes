@@ -1,102 +1,28 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    /**
-     * NIT StudySync Security Rules
-     * 
-     * Core Philosophy:
-     * This ruleset implements a robust, owner-based authorization model for user profiles and 
-     * uploaded study materials, while maintaining public read access for academic metadata.
-     * Administrative actions are controlled via a dedicated role-marker collection.
-     * 
-     * Data Structure:
-     * - /users/{userId}: Private user profiles managed by the authenticated owner.
-     * - /studyMaterials/{id}: A global collection of academic resources, publicly readable, 
-     *   but writable only by the original uploader (denormalized uploaderId).
-     * - /branches, /semesters, /materialTypes: Master academic categories, publicly readable, 
-     *   writable only by designated administrators.
-     * - /roles_admin/{userId}: Marker collection for Database Access Control (DBAC).
-     */
-
-    // --- Helper Functions ---
-
-    /** @description Checks if the request is from an authenticated user. */
     function isSignedIn() {
       return request.auth != null;
     }
-
-    /** @description Checks if the authenticated user's UID matches the provided ID. */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    /** @description Checks if the authenticated user has the admin role. */
-    function isAdmin() {
-      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
-    }
-
-    /** @description Combined ownership and existence check for updates and deletes. */
-    function isExistingOwner(ownerId) {
-      return resource != null && isOwner(ownerId);
-    }
-
-    // --- Collection Rules ---
-
-    /**
-     * @description Rules for user profiles. 
-     * Allow 'list' publicly for the homepage counter. 
-     * Restrict 'get' to the owner for privacy of sensitive fields.
-     */
     match /users/{userId} {
-      allow list: if true;
-      allow get: if isOwner(userId) || isAdmin();
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if isOwner(userId) && resource != null;
+      allow list: if true; // Homepage counts
+      allow get: if isOwner(userId);
+      allow create, update: if isOwner(userId);
     }
 
-    /**
-     * @description Rules for academic branches. Publicly readable, admin writable.
-     */
-    match /branches/{branchId} {
-      allow get, list: if true;
-      allow create, update, delete: if isAdmin();
-    }
-
-    /**
-     * @description Rules for academic semesters. Publicly readable, admin writable.
-     */
-    match /semesters/{semesterId} {
-      allow get, list: if true;
-      allow create, update, delete: if isAdmin();
-    }
-
-    /**
-     * @description Rules for material types. Publicly readable, admin writable.
-     */
-    match /materialTypes/{materialTypeId} {
-      allow get, list: if true;
-      allow create, update, delete: if isAdmin();
-    }
-
-    /**
-     * @description Rules for study materials. Anyone can browse; only uploaders can edit/delete.
-     */
-    match /studyMaterials/{studyMaterialId} {
-      allow get, list: if true;
+    match /studyMaterials/{id} {
+      allow read: if true;
       allow create: if isSignedIn() && request.resource.data.uploaderId == request.auth.uid;
-      allow update: if (isExistingOwner(resource.data.uploaderId) || isAdmin()) && request.resource.data.uploaderId == resource.data.uploaderId;
-      allow delete: if isExistingOwner(resource.data.uploaderId) || isAdmin();
+      allow update, delete: if isSignedIn() && resource.data.uploaderId == request.auth.uid;
     }
 
-    /**
-     * @description Rules for the admin role marker collection.
-     */
-    match /roles_admin/{userId} {
-      allow get: if isOwner(userId) || isAdmin();
-      allow list: if isAdmin();
-      allow create, update, delete: if false;
-    }
+    match /branches/{id} { allow read: if true; }
+    match /semesters/{id} { allow read: if true; }
+    match /materialTypes/{id} { allow read: if true; }
   }
 }
