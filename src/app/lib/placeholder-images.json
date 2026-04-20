@@ -12,6 +12,24 @@
       "description": "Close up of neatly written study notes",
       "imageUrl": "https://picsum.photos/seed/notes/400/300",
       "imageHint": "study notes"
+    },
+    {
+      "id": "yatharth-photo",
+      "description": "Photo of Yatharth Pandey, Electrical Engineering Representative",
+      "imageUrl": "https://picsum.photos/seed/yatharth/400/400",
+      "imageHint": "student photo"
+    },
+    {
+      "id": "it-rep-photo",
+      "description": "Representative photo for IT department",
+      "imageUrl": "https://picsum.photos/seed/itrep/400/400",
+      "imageHint": "student group"
+    },
+    {
+      "id": "cse-rep-photo",
+      "description": "Representative photo for CSE department",
+      "imageUrl": "https://picsum.photos/seed/cserep/400/400",
+      "imageHint": "student body"
     }
   ]
 }
