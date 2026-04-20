@@ -5,6 +5,7 @@ import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { Chatbot } from '@/components/chatbot';
 
 export const metadata: Metadata = {
   title: 'CampusNotes | NIT Srinagar Study Portal',
@@ -36,6 +37,7 @@ export default function RootLayout({
               {children}
             </main>
             <Footer />
+            <Chatbot />
             <Toaster />
           </ThemeProvider>
         </FirebaseClientProvider>
