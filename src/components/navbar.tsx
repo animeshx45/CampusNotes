@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -12,12 +11,12 @@ export function Navbar() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-            <div className="bg-primary p-1.5 rounded-lg">
+            <div className="bg-primary p-1.5 rounded-lg shadow-sm">
               <GraduationCap className="h-6 w-6 text-primary-foreground" />
             </div>
             <div className="flex flex-col">
-              <span className="font-headline font-bold text-xl leading-tight tracking-tight text-primary">NIT StudySync</span>
-              <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">Srinagar Official Portal</span>
+              <span className="font-headline font-bold text-xl leading-none tracking-tight text-primary">CampusNotes</span>
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">NIT Srinagar</span>
             </div>
           </Link>
         </div>

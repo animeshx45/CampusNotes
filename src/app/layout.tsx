@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next';
 import './globals.css';
 import { Navbar } from '@/components/navbar';
@@ -7,7 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  title: 'NIT StudySync | NIT Srinagar Study Portal',
+  title: 'CampusNotes | NIT Srinagar Study Portal',
   description: 'The ultimate repository for NIT Srinagar study materials, notes, and exam preparation resources.',
 };
 

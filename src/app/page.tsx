@@ -1,4 +1,3 @@
-
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -26,7 +25,7 @@ export default function Home() {
       <section className="relative h-[600px] flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src={heroImage?.imageUrl || ''}
+            src={heroImage?.imageUrl || 'https://picsum.photos/seed/nits/1200/600'}
             alt={heroImage?.description || 'NIT Srinagar'}
             fill
             className="object-cover opacity-20 scale-105"
@@ -40,10 +39,10 @@ export default function Home() {
           <div className="space-y-8 animate-in fade-in slide-in-from-left duration-700">
             <div className="inline-flex items-center gap-2 bg-secondary px-3 py-1 rounded-full border border-primary/20">
               <span className="flex h-2 w-2 rounded-full bg-accent" />
-              <span className="text-xs font-bold uppercase tracking-wider text-primary">Now Live for All Semesters</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-primary">Official Student Resource</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-headline font-bold leading-tight text-primary">
-              Sync Your <span className="text-accent underline decoration-4 underline-offset-8">Preparation</span> for NIT Excellence.
+              Your <span className="text-accent underline decoration-4 underline-offset-8 italic">CampusNotes</span> for NIT Excellence.
             </h1>
             <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
               The premier repository for notes, assignments, and previous year papers tailored specifically for NIT Srinagar engineering curricula.
@@ -59,12 +58,12 @@ export default function Home() {
             <div className="flex items-center gap-8 pt-4 border-t border-muted w-max">
               <div>
                 <span className="block text-2xl font-bold text-primary">2,500+</span>
-                <span className="text-xs text-muted-foreground uppercase tracking-wider">Resources</span>
+                <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Resources</span>
               </div>
               <div className="w-px h-10 bg-muted" />
               <div>
                 <span className="block text-2xl font-bold text-primary">12k+</span>
-                <span className="text-xs text-muted-foreground uppercase tracking-wider">Student Users</span>
+                <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Students</span>
               </div>
             </div>
           </div>
@@ -78,8 +77,8 @@ export default function Home() {
                      <Clock className="text-primary h-6 w-6" />
                    </div>
                    <div className="text-right">
-                     <span className="block text-xs text-muted-foreground font-bold uppercase tracking-tighter">Latest Exam Paper</span>
-                     <span className="font-headline font-bold text-lg">CSE Mid-Sem 2023</span>
+                     <span className="block text-xs text-muted-foreground font-bold uppercase tracking-tighter">Latest Resource</span>
+                     <span className="font-headline font-bold text-lg">CSE Mid-Sem 2024</span>
                    </div>
                  </div>
                  <div className="space-y-4">
@@ -87,8 +86,8 @@ export default function Home() {
                     <div className="h-4 w-3/4 bg-secondary rounded-full animate-pulse" />
                     <div className="h-4 w-5/6 bg-secondary rounded-full animate-pulse" />
                  </div>
-                 <Button className="w-full rounded-xl bg-accent hover:bg-accent/90">
-                   <Download className="mr-2 h-4 w-4" /> Download Resource
+                 <Button className="w-full rounded-xl bg-accent hover:bg-accent/90 text-white font-bold">
+                   <Download className="mr-2 h-4 w-4" /> Download Now
                  </Button>
                </div>
              </div>

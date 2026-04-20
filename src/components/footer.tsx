@@ -1,4 +1,3 @@
-
 import Link from 'next/link';
 import { GraduationCap, Mail, Phone, MapPin } from 'lucide-react';
 
@@ -10,7 +9,7 @@ export function Footer() {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <GraduationCap className="h-6 w-6" />
-              <span className="font-headline font-bold text-lg">NIT StudySync</span>
+              <span className="font-headline font-bold text-lg text-white">CampusNotes</span>
             </div>
             <p className="text-sm text-primary-foreground/80 leading-relaxed">
               The official resource portal for students of NIT Srinagar. Access high-quality notes, assignments, and study materials for your semester exams.
@@ -18,7 +17,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-headline font-bold mb-4 text-sm uppercase tracking-wider">Academics</h4>
+            <h4 className="font-headline font-bold mb-4 text-sm uppercase tracking-wider text-white">Academics</h4>
             <ul className="space-y-2 text-sm text-primary-foreground/70">
               <li><Link href={`/browse?branch=${encodeURIComponent('Information Technology')}`} className="hover:text-white transition-colors">Information Technology</Link></li>
               <li><Link href={`/browse?branch=${encodeURIComponent('Computer Science & Engineering')}`} className="hover:text-white transition-colors">Computer Science</Link></li>
@@ -28,27 +27,27 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-headline font-bold mb-4 text-sm uppercase tracking-wider">Institute Links</h4>
+            <h4 className="font-headline font-bold mb-4 text-sm uppercase tracking-wider text-white">Institute Links</h4>
             <ul className="space-y-2 text-sm text-primary-foreground/70">
               <li><a href="https://nitsri.ac.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Official Website</a></li>
               <li><a href="https://nitsri.ac.in/Pages/Academic-Calendars.aspx" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Academic Calendar</a></li>
               <li><a href="https://nitsri.ac.in/Pages/Department-List.aspx" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Departments</a></li>
-              <li><Link href="/about" className="hover:text-white transition-colors">About the Portal</Link></li>
+              <li><Link href="/about" className="hover:text-white transition-colors">About NIT Srinagar</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-headline font-bold mb-4 text-sm uppercase tracking-wider">Contact</h4>
+            <h4 className="font-headline font-bold mb-4 text-sm uppercase tracking-wider text-white">Contact</h4>
             <ul className="space-y-3 text-sm text-primary-foreground/70">
               <li className="flex items-center gap-2"><MapPin className="h-4 w-4 shrink-0" /> Hazratbal, Srinagar, J&K</li>
-              <li className="flex items-center gap-2"><Mail className="h-4 w-4 shrink-0" /> support@studysync.nitsri.ac.in</li>
+              <li className="flex items-center gap-2"><Mail className="h-4 w-4 shrink-0" /> support@campusnotes.nitsri.ac.in</li>
               <li className="flex items-center gap-2"><Phone className="h-4 w-4 shrink-0" /> +91-194-2422032</li>
             </ul>
           </div>
         </div>
 
         <div className="mt-12 pt-6 border-t border-primary-foreground/10 text-center text-xs text-primary-foreground/60">
-          <p>© {new Date().getFullYear()} NIT StudySync. Designed for NIT Srinagar Students.</p>
+          <p>© {new Date().getFullYear()} CampusNotes. Designed for NIT Srinagar Students.</p>
         </div>
       </div>
     </footer>
