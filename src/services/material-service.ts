@@ -6,16 +6,17 @@ import {
   getDoc, 
   doc, 
   query, 
-  where, 
   orderBy, 
   Timestamp,
   increment,
-  updateDoc
+  updateDoc,
+  getCountFromServer
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { StudyMaterial, Branch } from '@/lib/types';
+import { StudyMaterial } from '@/lib/types';
 
 const MATERIALS_COLLECTION = 'materials';
+const USERS_COLLECTION = 'users';
 
 export const materialService = {
   async getAllMaterials() {
@@ -55,5 +56,19 @@ export const materialService = {
     await updateDoc(docRef, {
       downloadCount: increment(1)
     });
+  },
+
+  async getStats() {
+    try {
+      const materialsCount = await getCountFromServer(collection(db, MATERIALS_COLLECTION));
+      const usersCount = await getCountFromServer(collection(db, USERS_COLLECTION));
+      return {
+        resources: materialsCount.data().count,
+        students: usersCount.data().count
+      };
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+      return { resources: 0, students: 0 };
+    }
   }
 };

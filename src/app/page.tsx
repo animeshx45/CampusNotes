@@ -1,4 +1,7 @@
 
+"use client";
+
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -6,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { BRANCHES } from '@/lib/mock-data';
 import { Search, Zap, Globe, Code, Settings, FlaskConical, Construction, Download, Clock, Upload, Cpu, Layers } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { materialService } from '@/services/material-service';
 
 const BRANCH_ICONS: Record<string, any> = {
   'Information Technology': Globe,
@@ -19,7 +23,16 @@ const BRANCH_ICONS: Record<string, any> = {
 };
 
 export default function Home() {
+  const [stats, setStats] = useState({ resources: 0, students: 0 });
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-image');
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const data = await materialService.getStats();
+      setStats(data);
+    };
+    fetchStats();
+  }, []);
 
   return (
     <div className="flex flex-col gap-16 pb-20">
@@ -59,12 +72,12 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-8 pt-4 border-t border-muted w-max">
               <div>
-                <span className="block text-2xl font-bold text-primary">2,500+</span>
+                <span className="block text-2xl font-bold text-primary">{stats.resources.toLocaleString()}</span>
                 <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Resources</span>
               </div>
               <div className="w-px h-10 bg-muted" />
               <div>
-                <span className="block text-2xl font-bold text-primary">12k+</span>
+                <span className="block text-2xl font-bold text-primary">{stats.students.toLocaleString()}</span>
                 <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Students</span>
               </div>
             </div>

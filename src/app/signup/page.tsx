@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { GraduationCap, Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 
 export default function SignupPage() {
@@ -26,6 +27,15 @@ export default function SignupPage() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
+      
+      // Create user profile in Firestore to track student count
+      await setDoc(doc(db, 'users', userCredential.user.uid), {
+        name,
+        email,
+        createdAt: serverTimestamp(),
+        branch: 'General', // Default, can be updated later
+      });
+
       toast({ title: "Account Created!", description: "Welcome to CampusNotes." });
       router.push('/browse');
     } catch (error: any) {
