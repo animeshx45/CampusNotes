@@ -1,12 +1,54 @@
 
 "use client";
 
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Search, Upload, BookOpen, GraduationCap, UserCircle } from 'lucide-react';
+import { Search, GraduationCap, UserCircle, FileText, Home } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { MOCK_MATERIALS } from '@/lib/mock-data';
+import { StudyMaterial } from '@/lib/types';
 
 export function Navbar() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<StudyMaterial[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const router = useRouter();
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (searchQuery.trim().length > 1) {
+      const filtered = MOCK_MATERIALS.filter(m => 
+        m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.branch.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 5);
+      setSuggestions(filtered);
+      setShowSuggestions(true);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/browse?search=${encodeURIComponent(searchQuery)}`);
+      setShowSuggestions(false);
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
@@ -23,20 +65,67 @@ export function Navbar() {
         </div>
 
         <nav className="hidden md:flex items-center gap-6">
+          <Link href="/" className="text-sm font-medium hover:text-accent transition-colors flex items-center gap-1">
+            <Home className="h-4 w-4" /> Home
+          </Link>
           <Link href="/browse" className="text-sm font-medium hover:text-accent transition-colors">Browse</Link>
           <Link href="/upload" className="text-sm font-medium hover:text-accent transition-colors">Upload</Link>
-          <Link href="/about" className="text-sm font-medium hover:text-accent transition-colors">About NIT</Link>
+          <Link href="/about" className="text-sm font-medium hover:text-accent transition-colors">About</Link>
         </nav>
 
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <input
-              type="search"
-              placeholder="Search notes..."
-              className="pl-9 pr-4 py-2 text-sm bg-secondary border-none rounded-full focus:ring-2 focus:ring-primary w-40 lg:w-48 transition-all"
-            />
+          <div className="hidden sm:flex relative" ref={searchRef}>
+            <form onSubmit={handleSearchSubmit} className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <input
+                type="search"
+                placeholder="Search notes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => searchQuery.trim().length > 1 && setShowSuggestions(true)}
+                className="pl-9 pr-4 py-2 text-sm bg-secondary border-none rounded-full focus:ring-2 focus:ring-primary w-40 lg:w-64 transition-all"
+              />
+            </form>
+            
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute top-full left-0 w-full mt-2 bg-card border rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="p-2 border-b bg-muted/50 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Suggestions
+                </div>
+                <div className="divide-y">
+                  {suggestions.map((material) => (
+                    <button
+                      key={material.id}
+                      onClick={() => {
+                        router.push(`/material/${material.id}`);
+                        setShowSuggestions(false);
+                        setSearchQuery('');
+                      }}
+                      className="w-full text-left p-3 hover:bg-secondary transition-colors flex items-start gap-3"
+                    >
+                      <div className="bg-primary/10 p-1.5 rounded-lg shrink-0">
+                        <FileText className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="flex flex-col overflow-hidden">
+                        <span className="text-sm font-bold truncate">{material.title}</span>
+                        <span className="text-[10px] text-muted-foreground truncate">{material.branch}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <div 
+                  className="p-2 text-center border-t hover:bg-muted transition-colors cursor-pointer"
+                  onClick={() => {
+                    router.push(`/browse?search=${encodeURIComponent(searchQuery)}`);
+                    setShowSuggestions(false);
+                  }}
+                >
+                  <span className="text-xs text-primary font-bold">See all results</span>
+                </div>
+              </div>
+            )}
           </div>
+          
           <ThemeToggle />
           <div className="hidden sm:flex items-center gap-2">
             <Button asChild variant="ghost" className="rounded-full">
