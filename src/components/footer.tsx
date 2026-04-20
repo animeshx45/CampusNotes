@@ -1,5 +1,6 @@
+
 import Link from 'next/link';
-import { GraduationCap, Mail, Phone, MapPin } from 'lucide-react';
+import { GraduationCap, Mail, MapPin, ExternalLink } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -24,18 +25,17 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-primary-foreground/70">
               <li><Link href={`/browse?branch=${encodeURIComponent('Information Technology')}`} className="hover:text-white transition-colors">Information Technology</Link></li>
               <li><Link href={`/browse?branch=${encodeURIComponent('Computer Science & Engineering')}`} className="hover:text-white transition-colors">Computer Science</Link></li>
-              <li><Link href={`/browse?branch=${encodeURIComponent('Electrical Engineering')}`} className="hover:text-white transition-colors">Electrical Engineering</Link></li>
-              <li><Link href={`/browse?branch=${encodeURIComponent('Mechanical Engineering')}`} className="hover:text-white transition-colors">Mechanical Engineering</Link></li>
+              <li><Link href={`/browse?branch=${encodeURIComponent('Metallurgical & Materials Engineering')}`} className="hover:text-white transition-colors">Metallurgy</Link></li>
+              <li><Link href={`/about`} className="hover:text-white transition-colors">About the Portal</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-headline font-bold mb-4 text-sm uppercase tracking-wider text-white">Institute Links</h4>
             <ul className="space-y-2 text-sm text-primary-foreground/70">
-              <li><a href="https://nitsri.ac.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Official Website</a></li>
-              <li><a href="https://nitsri.ac.in/Pages/Academic-Calendars.aspx" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Academic Calendar</a></li>
-              <li><a href="https://nitsri.ac.in/Pages/Department-List.aspx" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Departments</a></li>
-              <li><Link href="/about" className="hover:text-white transition-colors">About the Portal</Link></li>
+              <li><a href="https://nitsri.ac.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1">Official Website <ExternalLink className="h-3 w-3" /></a></li>
+              <li><a href="https://nitsri.ac.in/Pages/Academic-Calendars.aspx" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1">Academic Calendar <ExternalLink className="h-3 w-3" /></a></li>
+              <li><a href="https://nitsri.ac.in/Department/Deptindex.aspx?page=a&ItemID=s&nDeptID=i" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1">Departments <ExternalLink className="h-3 w-3" /></a></li>
             </ul>
           </div>
 
@@ -43,8 +43,7 @@ export function Footer() {
             <h4 className="font-headline font-bold mb-4 text-sm uppercase tracking-wider text-white">Contact</h4>
             <ul className="space-y-3 text-sm text-primary-foreground/70">
               <li className="flex items-center gap-2"><MapPin className="h-4 w-4 shrink-0" /> Hazratbal, Srinagar, J&K</li>
-              <li className="flex items-center gap-2"><Mail className="h-4 w-4 shrink-0" /> support@campusnotes.nitsri.ac.in</li>
-              <li className="flex items-center gap-2"><Phone className="h-4 w-4 shrink-0" /> +91-194-2422032</li>
+              <li className="flex items-center gap-2"><Mail className="h-4 w-4 shrink-0" /> rajuranjanxbkj@gmail.com</li>
             </ul>
           </div>
         </div>

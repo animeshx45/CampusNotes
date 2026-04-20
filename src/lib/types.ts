@@ -6,7 +6,8 @@ export type Branch =
   | 'Mechanical Engineering' 
   | 'Chemical Engineering' 
   | 'Civil Engineering'
-  | 'Electronics & Communication Engineering';
+  | 'Electronics & Communication Engineering'
+  | 'Metallurgical & Materials Engineering';
 
 export type Semester = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 

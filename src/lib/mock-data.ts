@@ -8,7 +8,8 @@ export const BRANCHES: Branch[] = [
   'Mechanical Engineering',
   'Chemical Engineering',
   'Civil Engineering',
-  'Electronics & Communication Engineering'
+  'Electronics & Communication Engineering',
+  'Metallurgical & Materials Engineering'
 ];
 
 export const SEMESTERS = [1, 2, 3, 4, 5, 6, 7, 8];

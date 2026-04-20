@@ -1,9 +1,10 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { BRANCHES } from '@/lib/mock-data';
-import { Search, Zap, Globe, Code, Settings, FlaskConical, Construction, Download, Clock, Upload, Cpu } from 'lucide-react';
+import { Search, Zap, Globe, Code, Settings, FlaskConical, Construction, Download, Clock, Upload, Cpu, Layers } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const BRANCH_ICONS: Record<string, any> = {
@@ -13,7 +14,8 @@ const BRANCH_ICONS: Record<string, any> = {
   'Mechanical Engineering': Settings,
   'Chemical Engineering': FlaskConical,
   'Civil Engineering': Construction,
-  'Electronics & Communication Engineering': Cpu
+  'Electronics & Communication Engineering': Cpu,
+  'Metallurgical & Materials Engineering': Layers
 };
 
 export default function Home() {

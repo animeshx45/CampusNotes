@@ -1,8 +1,9 @@
+
 "use client";
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Search, Upload, BookOpen, GraduationCap } from 'lucide-react';
+import { Search, Upload, BookOpen, GraduationCap, UserCircle } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 export function Navbar() {
@@ -37,14 +38,18 @@ export function Navbar() {
             />
           </div>
           <ThemeToggle />
-          <Button asChild variant="default" className="hidden sm:flex rounded-full px-6">
-            <Link href="/upload">
-              <Upload className="mr-2 h-4 w-4" />
-              Contribute
+          <div className="hidden sm:flex items-center gap-2">
+            <Button asChild variant="ghost" className="rounded-full">
+              <Link href="/login">Login</Link>
+            </Button>
+            <Button asChild variant="default" className="rounded-full px-6">
+              <Link href="/signup">Sign Up</Link>
+            </Button>
+          </div>
+          <Button variant="ghost" className="md:hidden" size="icon" asChild>
+            <Link href="/login">
+              <UserCircle className="h-5 w-5" />
             </Link>
-          </Button>
-          <Button variant="ghost" className="md:hidden" size="icon">
-            <BookOpen className="h-5 w-5" />
           </Button>
         </div>
       </div>
