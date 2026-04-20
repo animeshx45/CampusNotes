@@ -1,11 +1,13 @@
-import { GraduationCap, BookOpen, Users, ShieldCheck, Heart } from 'lucide-react';
+
+import { BookOpen, Users, ShieldCheck, Heart } from 'lucide-react';
+import { Logo } from '@/components/logo';
 
 export default function AboutPage() {
   return (
     <div className="container mx-auto px-4 py-16 max-w-4xl space-y-16">
       <section className="text-center space-y-6">
-        <div className="bg-primary/10 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-8">
-          <GraduationCap className="h-10 w-10 text-primary" />
+        <div className="bg-primary/10 w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-8 p-3">
+          <Logo className="h-full w-full" />
         </div>
         <h1 className="text-4xl md:text-5xl font-headline font-bold text-primary">About CampusNotes</h1>
         <p className="text-xl text-muted-foreground leading-relaxed">
@@ -54,7 +56,7 @@ export default function AboutPage() {
           </div>
           <div className="text-center space-y-3">
             <div className="bg-white dark:bg-card w-12 h-12 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-              <GraduationCap className="text-accent h-6 w-6" />
+              <Logo className="text-accent h-6 w-6" />
             </div>
             <h3 className="font-bold">Academic Focus</h3>
             <p className="text-xs text-muted-foreground">Tailored strictly to the NIT Srinagar engineering curricula.</p>

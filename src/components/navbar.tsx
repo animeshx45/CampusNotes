@@ -5,11 +5,12 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Search, GraduationCap, UserCircle, FileText, Home, LogOut, User as UserIcon } from 'lucide-react';
+import { Search, UserCircle, FileText, Home, LogOut, User as UserIcon } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { StudyMaterial } from '@/lib/types';
 import { useAuth } from '@/context/auth-context';
 import { materialService } from '@/services/material-service';
+import { Logo } from '@/components/logo';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -75,9 +76,7 @@ export function Navbar() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-            <div className="bg-primary p-1.5 rounded-lg shadow-sm">
-              <GraduationCap className="h-6 w-6 text-primary-foreground" />
-            </div>
+            <Logo className="h-10 w-10" />
             <div className="flex flex-col">
               <span className="font-headline font-bold text-xl leading-none tracking-tight text-primary">CampusNotes</span>
               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">NIT Srinagar</span>

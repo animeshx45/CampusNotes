@@ -7,11 +7,12 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { GraduationCap, Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
+import { Logo } from '@/components/logo';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -53,8 +54,8 @@ export default function SignupPage() {
     <div className="container mx-auto px-4 py-20 flex justify-center items-center">
       <Card className="w-full max-w-md shadow-2xl border-none">
         <CardHeader className="text-center space-y-4">
-          <div className="bg-primary/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto">
-            <GraduationCap className="h-8 w-8 text-primary" />
+          <div className="bg-primary/10 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto p-2">
+            <Logo className="h-full w-full" />
           </div>
           <CardTitle className="text-3xl font-headline font-bold">Join CampusNotes</CardTitle>
           <CardDescription>Empower yourself with student resources</CardDescription>

@@ -1,6 +1,7 @@
 
 import Link from 'next/link';
-import { GraduationCap, Mail, MapPin, ExternalLink } from 'lucide-react';
+import { Mail, MapPin, ExternalLink } from 'lucide-react';
+import { Logo } from '@/components/logo';
 
 export function Footer() {
   return (
@@ -9,7 +10,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <GraduationCap className="h-6 w-6" />
+              <Logo className="h-10 w-10 text-white" />
               <div className="flex flex-col">
                 <span className="font-headline font-bold text-lg text-white leading-none">CampusNotes</span>
                 <span className="text-[10px] font-bold text-primary-foreground/60 uppercase tracking-widest mt-1">NIT Srinagar</span>
