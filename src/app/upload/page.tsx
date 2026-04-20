@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -30,7 +29,7 @@ export default function UploadPage() {
     branch: '' as Branch,
     semester: 1 as Semester,
     type: 'Note' as MaterialType,
-    author: user?.displayName || user?.email || 'Anonymous',
+    author: user?.displayName || user?.email?.split('@')[0] || 'Anonymous',
   });
 
   if (!user) {
@@ -45,7 +44,7 @@ export default function UploadPage() {
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.branch || !formData.title) {
+    if (!formData.branch || !formData.title || !formData.description) {
       toast({ title: "Error", description: "Please fill all required fields.", variant: "destructive" });
       return;
     }
@@ -54,16 +53,23 @@ export default function UploadPage() {
     try {
       await materialService.uploadMaterial({
         ...formData,
-        fileUrl: 'https://example.com/placeholder-pdf', // Real file upload would go to Firebase Storage
-      });
+        uploaderId: user.uid, // Required by security rules
+        fileUrl: 'https://example.com/placeholder-pdf', // In a real app, this would be a link from Firebase Storage
+      } as any);
+      
       setIsSuccess(true);
       toast({
         title: "Material Uploaded!",
         description: "Your contribution has been added successfully.",
       });
       setTimeout(() => router.push('/browse'), 2000);
-    } catch (error) {
-      toast({ title: "Upload Failed", description: "Something went wrong. Please try again.", variant: "destructive" });
+    } catch (error: any) {
+      console.error("Upload Error:", error);
+      toast({ 
+        title: "Upload Failed", 
+        description: error.message || "Something went wrong. Please try again.", 
+        variant: "destructive" 
+      });
     } finally {
       setIsUploading(false);
     }
@@ -108,7 +114,7 @@ export default function UploadPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="author" className="font-bold">Author Name</Label>
+                <Label htmlFor="author" className="font-bold">Author Display Name</Label>
                 <Input 
                   id="author" 
                   placeholder="Your name or anonymous" 
@@ -142,6 +148,22 @@ export default function UploadPage() {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="type" className="font-bold">Resource Type</Label>
+              <Select onValueChange={(v) => setFormData({...formData, type: v as MaterialType})} defaultValue="Note">
+                <SelectTrigger id="type">
+                  <SelectValue placeholder="Select Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Note">Note</SelectItem>
+                  <SelectItem value="Assignment">Assignment</SelectItem>
+                  <SelectItem value="Previous Year Paper">Previous Year Paper</SelectItem>
+                  <SelectItem value="Textbook">Textbook</SelectItem>
+                  <SelectItem value="Lab Manual">Lab Manual</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="description" className="font-bold">Short Description</Label>
               <Textarea 
                 id="description" 
@@ -163,8 +185,9 @@ export default function UploadPage() {
                   <p className="font-bold text-primary">Click or drag to upload</p>
                   <p className="text-xs text-muted-foreground">PDF, JPG, PNG (Max 20MB)</p>
                 </div>
-                <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" />
+                <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" disabled />
               </div>
+              <p className="text-[10px] text-muted-foreground text-center">Note: File persistence is currently linked to metadata. Real binary storage requires Firebase Storage setup.</p>
             </div>
 
             <div className="flex items-center gap-3 bg-secondary p-4 rounded-xl text-xs text-muted-foreground">

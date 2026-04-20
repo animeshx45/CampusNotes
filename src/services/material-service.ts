@@ -1,4 +1,3 @@
-
 import { 
   collection, 
   addDoc, 
@@ -15,31 +14,47 @@ import {
 import { db } from '@/lib/firebase';
 import { StudyMaterial } from '@/lib/types';
 
-const MATERIALS_COLLECTION = 'materials';
+// Matching collection name in backend.json
+const MATERIALS_COLLECTION = 'studyMaterials';
 const USERS_COLLECTION = 'users';
 
 export const materialService = {
   async getAllMaterials() {
-    const q = query(collection(db, MATERIALS_COLLECTION), orderBy('createdAt', 'desc'));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate().toISOString().split('T')[0] || new Date().toISOString().split('T')[0]
-    })) as StudyMaterial[];
+    try {
+      const q = query(collection(db, MATERIALS_COLLECTION), orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          // Handle both potential timestamp formats
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString().split('T')[0] : (data.createdAt || new Date().toISOString().split('T')[0])
+        };
+      }) as StudyMaterial[];
+    } catch (error) {
+      console.error("Error fetching materials:", error);
+      return [];
+    }
   },
 
   async getMaterialById(id: string) {
-    const docRef = doc(db, MATERIALS_COLLECTION, id);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      return {
-        id: docSnap.id,
-        ...docSnap.data(),
-        createdAt: docSnap.data().createdAt?.toDate().toISOString().split('T')[0] || new Date().toISOString().split('T')[0]
-      } as StudyMaterial;
+    try {
+      const docRef = doc(db, MATERIALS_COLLECTION, id);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        return {
+          id: docSnap.id,
+          ...data,
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString().split('T')[0] : (data.createdAt || new Date().toISOString().split('T')[0])
+        } as StudyMaterial;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error fetching material by ID:", error);
+      return null;
     }
-    return null;
   },
 
   async uploadMaterial(material: Omit<StudyMaterial, 'id' | 'createdAt' | 'downloadCount'>) {
