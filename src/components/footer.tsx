@@ -1,7 +1,6 @@
-
 import Link from 'next/link';
-import { Mail, MapPin, ExternalLink } from 'lucide-react';
-import { Logo } from '@/components/logo';
+import { Mail, MapPin, ExternalLink, GraduationCap } from 'lucide-react';
+import { BRANCHES } from '@/lib/mock-data';
 
 export function Footer() {
   return (
@@ -10,7 +9,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Logo className="h-10 w-10 text-white" />
+              <GraduationCap className="h-6 w-6" />
               <div className="flex flex-col">
                 <span className="font-headline font-bold text-lg text-white leading-none">CampusNotes</span>
                 <span className="text-[10px] font-bold text-primary-foreground/60 uppercase tracking-widest mt-1">NIT Srinagar</span>
@@ -24,10 +23,19 @@ export function Footer() {
           <div>
             <h4 className="font-headline font-bold mb-4 text-sm uppercase tracking-wider text-white">Academics</h4>
             <ul className="space-y-2 text-sm text-primary-foreground/70">
-              <li><Link href={`/browse?branch=${encodeURIComponent('Information Technology')}`} className="hover:text-white transition-colors">Information Technology</Link></li>
-              <li><Link href={`/browse?branch=${encodeURIComponent('Computer Science & Engineering')}`} className="hover:text-white transition-colors">Computer Science</Link></li>
-              <li><Link href={`/browse?branch=${encodeURIComponent('Metallurgical & Materials Engineering')}`} className="hover:text-white transition-colors">Metallurgy</Link></li>
-              <li><Link href={`/about`} className="hover:text-white transition-colors">About the Portal</Link></li>
+              {BRANCHES.map((branch) => (
+                <li key={branch}>
+                  <Link 
+                    href={`/browse?branch=${encodeURIComponent(branch)}`} 
+                    className="hover:text-white transition-colors"
+                  >
+                    {branch}
+                  </Link>
+                </li>
+              ))}
+              <li className="pt-2 border-t border-primary-foreground/10 mt-2">
+                <Link href={`/about`} className="hover:text-white transition-colors font-semibold">About the Portal</Link>
+              </li>
             </ul>
           </div>
 
