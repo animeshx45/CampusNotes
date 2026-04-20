@@ -18,7 +18,7 @@ export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'model', content: 'Hi there! I\'m your CampusNotes Assistant. How can I help you excel at NIT Srinagar today?' }
+    { role: 'model', content: 'Hi there! 👋 I\'m your CampusNotes Assistant. How can I help you excel at NIT Srinagar today? 🎓' }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -51,7 +51,7 @@ export function Chatbot() {
 
       setMessages(prev => [...prev, { role: 'model', content: response.response }]);
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'model', content: 'Sorry, I encountered an error. Please try again.' }]);
+      setMessages(prev => [...prev, { role: 'model', content: 'Sorry, I encountered an error. Please try again. 😅' }]);
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +67,7 @@ export function Chatbot() {
                 <Bot className="h-5 w-5" />
               </div>
               <div>
-                <CardTitle className="text-sm font-headline font-bold">CampusNotes AI</CardTitle>
+                <CardTitle className="text-sm font-headline font-bold">CampusNotes AI 🤖</CardTitle>
                 <p className="text-[10px] text-primary-foreground/70 uppercase tracking-widest font-bold">NIT Srinagar Guide</p>
               </div>
             </div>
@@ -92,9 +92,9 @@ export function Chatbot() {
                   </div>
                 ))}
                 {isLoading && (
-                  <div className="flex items-center gap-2 text-muted-foreground animate-pulse">
+                  <div className="flex items-center gap-2 text-muted-foreground animate-pulse px-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-xs font-medium">Assistant is thinking...</span>
+                    <span className="text-xs font-medium">Assistant is thinking... 🤔</span>
                   </div>
                 )}
               </div>
