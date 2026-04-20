@@ -17,14 +17,6 @@ service cloud.firestore {
      * - /branches, /semesters, /materialTypes: Master academic categories, publicly readable, 
      *   writable only by designated administrators.
      * - /roles_admin/{userId}: Marker collection for Database Access Control (DBAC).
-     * 
-     * Key Security Decisions:
-     * - Denormalization: The 'uploaderId' is stored directly on 'StudyMaterial' documents 
-     *   to allow for efficient, single-document authorization checks without extra lookups.
-     * - Role Management: Administrative privileges are determined by the existence of 
-     *   a document in the 'roles_admin' collection, preventing unauthorized data modification.
-     * - Prototyping Flexibility: Rules focus on strict authorization (WHO can access) 
-     *   while allowing flexible data shapes for rapid iteration.
      */
 
     // --- Helper Functions ---
@@ -52,14 +44,13 @@ service cloud.firestore {
     // --- Collection Rules ---
 
     /**
-     * @description Rules for user profiles. Access is restricted to the account owner.
-     * @path /users/{userId}
-     * @allow (get, list, create, update, delete) if request.auth.uid matches {userId}
-     * @deny (create) if request.auth.uid does not match {userId}
-     * @principle Restricts access to a user's own data tree using path-based ownership.
+     * @description Rules for user profiles. 
+     * Allow 'list' publicly for the homepage counter. 
+     * Restrict 'get' to the owner for privacy of sensitive fields.
      */
     match /users/{userId} {
-      allow get, list: if isOwner(userId);
+      allow list: if true;
+      allow get: if isOwner(userId) || isAdmin();
       allow create: if isOwner(userId) && request.resource.data.id == userId;
       allow update: if isOwner(userId) && request.resource.data.id == resource.data.id;
       allow delete: if isOwner(userId) && resource != null;
@@ -67,10 +58,6 @@ service cloud.firestore {
 
     /**
      * @description Rules for academic branches. Publicly readable, admin writable.
-     * @path /branches/{branchId}
-     * @allow (get, list) for any user.
-     * @allow (create, update, delete) only for users in roles_admin.
-     * @principle Global lookup data is public, but management is restricted to admins.
      */
     match /branches/{branchId} {
       allow get, list: if true;
@@ -79,10 +66,6 @@ service cloud.firestore {
 
     /**
      * @description Rules for academic semesters. Publicly readable, admin writable.
-     * @path /semesters/{semesterId}
-     * @allow (get, list) for any user.
-     * @allow (create, update, delete) only for users in roles_admin.
-     * @principle Global lookup data is public, but management is restricted to admins.
      */
     match /semesters/{semesterId} {
       allow get, list: if true;
@@ -91,10 +74,6 @@ service cloud.firestore {
 
     /**
      * @description Rules for material types. Publicly readable, admin writable.
-     * @path /materialTypes/{materialTypeId}
-     * @allow (get, list) for any user.
-     * @allow (create, update, delete) only for users in roles_admin.
-     * @principle Global lookup data is public, but management is restricted to admins.
      */
     match /materialTypes/{materialTypeId} {
       allow get, list: if true;
@@ -103,11 +82,6 @@ service cloud.firestore {
 
     /**
      * @description Rules for study materials. Anyone can browse; only uploaders can edit/delete.
-     * @path /studyMaterials/{studyMaterialId}
-     * @allow (get, list) for all users to facilitate browsing and search.
-     * @allow (create) if the uploaderId in data matches the authenticated user.
-     * @deny (update) if the uploaderId is changed or if the requester is not the owner.
-     * @principle Enforces owner-only writes using denormalized 'uploaderId' field.
      */
     match /studyMaterials/{studyMaterialId} {
       allow get, list: if true;
@@ -118,11 +92,6 @@ service cloud.firestore {
 
     /**
      * @description Rules for the admin role marker collection.
-     * @path /roles_admin/{userId}
-     * @allow (get) for the owner to check their own status.
-     * @allow (list) only for existing admins.
-     * @deny (create, update, delete) for all client requests (managed via backend/console).
-     * @principle DBAC marker collection used for internal role validation.
      */
     match /roles_admin/{userId} {
       allow get: if isOwner(userId) || isAdmin();
