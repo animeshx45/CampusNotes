@@ -1,0 +1,17 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-image",
+      "description": "Aerial view of a modern university campus",
+      "imageUrl": "https://picsum.photos/seed/nits/1200/600",
+      "imageHint": "university campus"
+    },
+    {
+      "id": "material-thumbnail",
+      "description": "Close up of neatly written study notes",
+      "imageUrl": "https://picsum.photos/seed/notes/400/300",
+      "imageHint": "study notes"
+    }
+  ]
+}
