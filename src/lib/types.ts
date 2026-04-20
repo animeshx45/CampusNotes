@@ -1,5 +1,12 @@
 
-export type Branch = 'Electrical' | 'IT' | 'CS' | 'Mechanical' | 'Chemical' | 'Civil';
+export type Branch = 
+  | 'Information Technology' 
+  | 'Computer Science & Engineering' 
+  | 'Electrical Engineering' 
+  | 'Mechanical Engineering' 
+  | 'Chemical Engineering' 
+  | 'Civil Engineering'
+  | 'Electronics & Communication Engineering';
 
 export type Semester = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 

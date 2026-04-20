@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import { GraduationCap, Mail, Phone, MapPin, Globe } from 'lucide-react';
+import { GraduationCap, Mail, Phone, MapPin } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -20,10 +20,10 @@ export function Footer() {
           <div>
             <h4 className="font-headline font-bold mb-4 text-sm uppercase tracking-wider">Academics</h4>
             <ul className="space-y-2 text-sm text-primary-foreground/70">
-              <li><Link href="/browse?branch=IT" className="hover:text-white transition-colors">Information Technology</Link></li>
-              <li><Link href="/browse?branch=CS" className="hover:text-white transition-colors">Computer Science</Link></li>
-              <li><Link href="/browse?branch=Electrical" className="hover:text-white transition-colors">Electrical Engineering</Link></li>
-              <li><Link href="/browse?branch=Mechanical" className="hover:text-white transition-colors">Mechanical Engineering</Link></li>
+              <li><Link href={`/browse?branch=${encodeURIComponent('Information Technology')}`} className="hover:text-white transition-colors">Information Technology</Link></li>
+              <li><Link href={`/browse?branch=${encodeURIComponent('Computer Science & Engineering')}`} className="hover:text-white transition-colors">Computer Science</Link></li>
+              <li><Link href={`/browse?branch=${encodeURIComponent('Electrical Engineering')}`} className="hover:text-white transition-colors">Electrical Engineering</Link></li>
+              <li><Link href={`/browse?branch=${encodeURIComponent('Mechanical Engineering')}`} className="hover:text-white transition-colors">Mechanical Engineering</Link></li>
             </ul>
           </div>
 

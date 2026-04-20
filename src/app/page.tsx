@@ -2,18 +2,19 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { BRANCHES } from '@/lib/mock-data';
-import { Search, Zap, Globe, Code, Settings, FlaskConical, Construction, ArrowRight, Download, Clock, Upload } from 'lucide-react';
+import { Search, Zap, Globe, Code, Settings, FlaskConical, Construction, Download, Clock, Upload, Cpu } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-const BRANCH_ICONS = {
-  'Electrical': Zap,
-  'IT': Globe,
-  'CS': Code,
-  'Mechanical': Settings,
-  'Chemical': FlaskConical,
-  'Civil': Construction
+const BRANCH_ICONS: Record<string, any> = {
+  'Information Technology': Globe,
+  'Computer Science & Engineering': Code,
+  'Electrical Engineering': Zap,
+  'Mechanical Engineering': Settings,
+  'Chemical Engineering': FlaskConical,
+  'Civil Engineering': Construction,
+  'Electronics & Communication Engineering': Cpu
 };
 
 export default function Home() {
@@ -71,14 +72,14 @@ export default function Home() {
           <div className="hidden lg:block animate-in fade-in zoom-in duration-1000">
              <div className="relative aspect-square max-w-md mx-auto">
                <div className="absolute inset-0 bg-accent/10 rounded-3xl -rotate-6 transform translate-x-4 translate-y-4" />
-               <div className="relative bg-white p-8 rounded-3xl shadow-2xl border flex flex-col gap-6">
+               <div className="relative bg-white dark:bg-card p-8 rounded-3xl shadow-2xl border flex flex-col gap-6">
                  <div className="flex items-center justify-between">
                    <div className="p-3 bg-secondary rounded-2xl">
                      <Clock className="text-primary h-6 w-6" />
                    </div>
                    <div className="text-right">
                      <span className="block text-xs text-muted-foreground font-bold uppercase tracking-tighter">Latest Exam Paper</span>
-                     <span className="font-headline font-bold text-lg">CS Mid-Sem 2023</span>
+                     <span className="font-headline font-bold text-lg">CSE Mid-Sem 2023</span>
                    </div>
                  </div>
                  <div className="space-y-4">
@@ -98,21 +99,23 @@ export default function Home() {
       {/* Branches Section */}
       <section className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-12">
-          <h2 className="text-3xl font-headline font-bold text-primary">Browse by Branch</h2>
+          <h2 className="text-3xl font-headline font-bold text-primary">Browse by Department</h2>
           <p className="text-muted-foreground">Select your engineering department to view curated materials.</p>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {BRANCHES.map((branch) => {
-            const Icon = BRANCH_ICONS[branch];
+            const Icon = BRANCH_ICONS[branch] || Globe;
             return (
-              <Link key={branch} href={`/browse?branch=${branch}`}>
-                <Card className="hover:shadow-xl hover:border-accent/50 transition-all duration-300 group cursor-pointer h-full border-none shadow-sm bg-white">
-                  <CardContent className="flex flex-col items-center justify-center p-8 gap-4">
-                    <div className="p-4 rounded-2xl bg-secondary group-hover:bg-accent group-hover:text-white transition-colors">
-                      <Icon className="h-8 w-8" />
+              <Link key={branch} href={`/browse?branch=${encodeURIComponent(branch)}`}>
+                <Card className="hover:shadow-xl hover:border-accent/50 transition-all duration-300 group cursor-pointer h-full border-none shadow-sm bg-white dark:bg-card">
+                  <CardContent className="flex flex-col items-center justify-center p-8 gap-4 h-full text-center">
+                    <div className="p-4 rounded-2xl bg-secondary group-hover:bg-accent group-hover:text-white transition-all duration-300 transform group-hover:scale-110">
+                      <Icon className="h-8 w-8 text-primary group-hover:text-white" />
                     </div>
-                    <span className="font-headline font-bold text-primary group-hover:text-accent transition-colors">{branch}</span>
+                    <span className="font-headline font-bold text-primary group-hover:text-accent transition-colors leading-tight">
+                      {branch}
+                    </span>
                   </CardContent>
                 </Card>
               </Link>
@@ -125,21 +128,21 @@ export default function Home() {
       <section className="bg-primary/5 py-16">
         <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
            <div className="flex gap-4 items-start">
-             <div className="bg-white p-3 rounded-xl shadow-sm"><Search className="text-accent" /></div>
+             <div className="bg-white dark:bg-card p-3 rounded-xl shadow-sm border border-primary/10"><Search className="text-accent" /></div>
              <div>
                <h3 className="font-headline font-bold text-primary">Robust Search</h3>
                <p className="text-sm text-muted-foreground">Find exactly what you need with advanced filters for subjects and semester.</p>
              </div>
            </div>
            <div className="flex gap-4 items-start">
-             <div className="bg-white p-3 rounded-xl shadow-sm"><Upload className="text-accent" /></div>
+             <div className="bg-white dark:bg-card p-3 rounded-xl shadow-sm border border-primary/10"><Upload className="text-accent" /></div>
              <div>
                <h3 className="font-headline font-bold text-primary">Student Driven</h3>
                <p className="text-sm text-muted-foreground">The platform is powered by contributions from students across all years.</p>
              </div>
            </div>
            <div className="flex gap-4 items-start">
-             <div className="bg-white p-3 rounded-xl shadow-sm"><Zap className="text-accent" /></div>
+             <div className="bg-white dark:bg-card p-3 rounded-xl shadow-sm border border-primary/10"><Zap className="text-accent" /></div>
              <div>
                <h3 className="font-headline font-bold text-primary">AI Study Aid</h3>
                <p className="text-sm text-muted-foreground">Generate summaries and mock exam questions instantly from any note.</p>
