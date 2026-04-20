@@ -42,7 +42,7 @@ export default function UploadPage() {
     );
   }
 
-  const handleUpload = async (e: React.FormEvent) => {
+  const handleUpload = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.branch || !formData.title || !formData.description) {
       toast({ title: "Error", description: "Please fill all required fields.", variant: "destructive" });
@@ -50,32 +50,29 @@ export default function UploadPage() {
     }
 
     setIsUploading(true);
-    try {
-      await materialService.uploadMaterial({
-        ...formData,
-        uploaderId: user.uid,
-        fileUrl: 'https://example.com/placeholder-pdf',
-        branchId: formData.branch, // Map to backend.json requirements
-        semesterId: formData.semester.toString(),
-        materialTypeId: formData.type,
-      });
-      
-      setIsSuccess(true);
-      toast({
-        title: "Material Uploaded!",
-        description: "Your contribution has been added successfully.",
-      });
-      setTimeout(() => router.push('/browse'), 2000);
-    } catch (error: any) {
-      console.error("Upload Error:", error);
-      toast({ 
-        title: "Upload Failed", 
-        description: error.message || "Something went wrong. Please try again.", 
-        variant: "destructive" 
-      });
-    } finally {
-      setIsUploading(false);
-    }
+    
+    // Using non-blocking service method
+    materialService.uploadMaterial({
+      title: formData.title,
+      description: formData.description,
+      branch: formData.branch,
+      semester: formData.semester,
+      type: formData.type,
+      author: formData.author,
+      uploaderId: user.uid,
+      fileUrl: 'https://example.com/placeholder-pdf',
+      branchId: formData.branch,
+      semesterId: formData.semester.toString(),
+      materialTypeId: formData.type,
+    });
+    
+    // We optimistically show success
+    setIsSuccess(true);
+    toast({
+      title: "Material Uploaded!",
+      description: "Your contribution has been added successfully.",
+    });
+    setTimeout(() => router.push('/browse'), 2000);
   };
 
   if (isSuccess) {

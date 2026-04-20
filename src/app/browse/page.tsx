@@ -1,47 +1,40 @@
-
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { BRANCHES, SEMESTERS } from '@/lib/mock-data';
 import { DEPARTMENT_REPRESENTATIVES } from '@/lib/department-data';
 import { StudyMaterial, Branch } from '@/lib/types';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { FileText, Download, User, Calendar, Search, SlidersHorizontal, ArrowRight, BrainCircuit, Loader2, Mail, Linkedin } from 'lucide-react';
+import { Calendar, Search, SlidersHorizontal, ArrowRight, BrainCircuit, Loader2, Mail, Linkedin } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { materialService } from '@/services/material-service';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy, Timestamp } from 'firebase/firestore';
 
 export default function BrowsePage() {
   const searchParams = useSearchParams();
   const initialBranch = searchParams.get('branch') as Branch;
   const initialSearch = searchParams.get('search') || '';
   
-  const [materials, setMaterials] = useState<StudyMaterial[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const db = useFirestore();
   const [selectedBranch, setSelectedBranch] = useState<string>(initialBranch || 'all');
   const [selectedSemester, setSelectedSemester] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState(initialSearch);
 
-  useEffect(() => {
-    const fetchMaterials = async () => {
-      try {
-        const data = await materialService.getAllMaterials();
-        setMaterials(data);
-      } catch (error) {
-        console.error("Error fetching materials:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchMaterials();
-  }, []);
+  const materialsQuery = useMemoFirebase(() => {
+    if (!db) return null;
+    return query(collection(db, 'studyMaterials'), orderBy('createdAt', 'desc'));
+  }, [db]);
+
+  const { data: materials, isLoading } = useCollection<StudyMaterial>(materialsQuery);
 
   const filteredMaterials = useMemo(() => {
+    if (!materials) return [];
     return materials.filter(m => {
       const branchMatch = selectedBranch === 'all' || m.branch === selectedBranch;
       const semMatch = selectedSemester === 'all' || m.semester.toString() === selectedSemester;
@@ -55,6 +48,12 @@ export default function BrowsePage() {
     if (selectedBranch === 'all') return null;
     return DEPARTMENT_REPRESENTATIVES.find(r => r.branch === selectedBranch);
   }, [selectedBranch]);
+
+  const formatDate = (date: any) => {
+    if (date instanceof Timestamp) return date.toDate().toLocaleDateString();
+    if (typeof date === 'string') return new Date(date).toLocaleDateString();
+    return new Date().toLocaleDateString();
+  };
 
   if (isLoading) {
     return (
@@ -190,7 +189,7 @@ export default function BrowsePage() {
                       {material.type}
                     </Badge>
                     <span className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Calendar className="h-3 w-3" /> {material.createdAt}
+                      <Calendar className="h-3 w-3" /> {formatDate(material.createdAt)}
                     </span>
                   </div>
                   <CardTitle className="text-xl font-headline group-hover:text-primary transition-colors">
@@ -209,7 +208,7 @@ export default function BrowsePage() {
                 <CardFooter className="pt-4 border-t flex items-center justify-between">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <div className="h-6 w-6 rounded-full bg-secondary flex items-center justify-center text-primary font-bold">
-                      {material.author.charAt(0)}
+                      {material.author?.charAt(0) || 'A'}
                     </div>
                     {material.author}
                   </div>

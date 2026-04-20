@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Search, UserCircle, FileText, Home, LogOut } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { StudyMaterial } from '@/lib/types';
-import { useUser, useAuth } from '@/firebase';
+import { useUser, useAuth, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { signOut } from 'firebase/auth';
-import { materialService } from '@/services/material-service';
+import { collection, query, orderBy } from 'firebase/firestore';
 import { Logo } from '@/components/logo';
 import { 
   DropdownMenu, 
@@ -22,37 +22,35 @@ import {
 
 export function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [suggestions, setSuggestions] = useState<StudyMaterial[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [allMaterials, setAllMaterials] = useState<StudyMaterial[]>([]);
   const router = useRouter();
   const searchRef = useRef<HTMLDivElement>(null);
   const { user } = useUser();
   const auth = useAuth();
+  const db = useFirestore();
 
-  useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const data = await materialService.getAllMaterials();
-        setAllMaterials(data);
-      } catch (e) {}
-    };
-    fetchAll();
-  }, []);
+  const materialsQuery = useMemoFirebase(() => {
+    if (!db) return null;
+    return query(collection(db, 'studyMaterials'), orderBy('createdAt', 'desc'));
+  }, [db]);
+
+  const { data: allMaterials } = useCollection<StudyMaterial>(materialsQuery);
+
+  const suggestions = useMemo(() => {
+    if (!allMaterials || searchQuery.trim().length <= 1) return [];
+    return allMaterials.filter(m => 
+      m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      m.branch.toLowerCase().includes(searchQuery.toLowerCase())
+    ).slice(0, 5);
+  }, [searchQuery, allMaterials]);
 
   useEffect(() => {
     if (searchQuery.trim().length > 1) {
-      const filtered = allMaterials.filter(m => 
-        m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.branch.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 5);
-      setSuggestions(filtered);
       setShowSuggestions(true);
     } else {
-      setSuggestions([]);
       setShowSuggestions(false);
     }
-  }, [searchQuery, allMaterials]);
+  }, [searchQuery]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

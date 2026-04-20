@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, use, useEffect } from 'react';
@@ -13,31 +12,31 @@ import { generateExamQuestions } from '@/ai/flows/generate-exam-questions-flow';
 import { useToast } from '@/hooks/use-toast';
 import { materialService } from '@/services/material-service';
 import Link from 'next/link';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc, Timestamp } from 'firebase/firestore';
 
 export default function MaterialDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { toast } = useToast();
+  const db = useFirestore();
 
-  const [material, setMaterial] = useState<StudyMaterial | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const materialRef = useMemoFirebase(() => {
+    if (!db || !id) return null;
+    return doc(db, 'studyMaterials', id);
+  }, [db, id]);
+
+  const { data: material, isLoading } = useDoc<StudyMaterial>(materialRef);
+
   const [summary, setSummary] = useState<string | null>(null);
   const [questions, setQuestions] = useState<string[] | null>(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
 
   useEffect(() => {
-    const fetchMaterial = async () => {
-      try {
-        const data = await materialService.getMaterialById(id);
-        setMaterial(data);
-      } catch (error) {
-        console.error("Error fetching material:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchMaterial();
-  }, [id]);
+    if (material) {
+      materialService.incrementViewCount(id);
+    }
+  }, [material, id]);
 
   if (isLoading) {
     return (
@@ -57,14 +56,9 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     );
   }
 
-  const handleDownload = async () => {
-    try {
-      await materialService.incrementDownloadCount(id);
-      window.open(material.fileUrl, '_blank');
-      setMaterial(prev => prev ? { ...prev, downloadCount: prev.downloadCount + 1 } : null);
-    } catch (error) {
-      console.error("Download error:", error);
-    }
+  const handleDownload = () => {
+    materialService.incrementDownloadCount(id);
+    window.open(material.fileUrl, '_blank');
   };
 
   const handleGenerateSummary = async () => {
@@ -95,6 +89,12 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     }
   };
 
+  const formatDate = (date: any) => {
+    if (date instanceof Timestamp) return date.toDate().toLocaleDateString();
+    if (typeof date === 'string') return new Date(date).toLocaleDateString();
+    return new Date().toLocaleDateString();
+  };
+
   return (
     <div className="container mx-auto px-4 py-12 flex flex-col gap-8 max-w-6xl">
       <div className="flex flex-col md:flex-row justify-between items-start gap-6 border-b pb-8">
@@ -107,8 +107,8 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
           <h1 className="text-4xl font-headline font-bold text-primary leading-tight">{material.title}</h1>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1"><FileText className="h-4 w-4" /> Shared by {material.author}</div>
-            <div className="flex items-center gap-1"><Info className="h-4 w-4" /> {material.createdAt}</div>
-            <div className="flex items-center gap-1"><Download className="h-4 w-4" /> {material.downloadCount} downloads</div>
+            <div className="flex items-center gap-1"><Info className="h-4 w-4" /> {formatDate(material.createdAt)}</div>
+            <div className="flex items-center gap-1"><Download className="h-4 w-4" /> {material.downloadCount || 0} downloads</div>
           </div>
         </div>
         <div className="flex gap-3 shrink-0">

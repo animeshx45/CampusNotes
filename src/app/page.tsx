@@ -1,15 +1,15 @@
-
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { BRANCHES } from '@/lib/mock-data';
-import { Search, Zap, Globe, Code, Settings, FlaskConical, Construction, Download, Clock, Upload, Cpu, Layers } from 'lucide-react';
+import { Search, Zap, Globe, Code, Settings, FlaskConical, Construction, Download, Clock, Upload, Cpu, Layers, Loader2 } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { materialService } from '@/services/material-service';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 const BRANCH_ICONS: Record<string, any> = {
   'Information Technology': Globe,
@@ -23,16 +23,26 @@ const BRANCH_ICONS: Record<string, any> = {
 };
 
 export default function Home() {
-  const [stats, setStats] = useState({ resources: 0, students: 0 });
+  const db = useFirestore();
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-image');
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      const data = await materialService.getStats();
-      setStats(data);
-    };
-    fetchStats();
-  }, []);
+  const materialsQuery = useMemoFirebase(() => {
+    if (!db) return null;
+    return collection(db, 'studyMaterials');
+  }, [db]);
+
+  const usersQuery = useMemoFirebase(() => {
+    if (!db) return null;
+    return collection(db, 'users');
+  }, [db]);
+
+  const { data: materials, isLoading: materialsLoading } = useCollection(materialsQuery);
+  const { data: users, isLoading: usersLoading } = useCollection(usersQuery);
+
+  const stats = useMemo(() => ({
+    resources: materials?.length || 0,
+    students: users?.length || 0
+  }), [materials, users]);
 
   return (
     <div className="flex flex-col gap-16 pb-20">
@@ -72,12 +82,16 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-8 pt-4 border-t border-muted w-max">
               <div>
-                <span className="block text-2xl font-bold text-primary">{stats.resources.toLocaleString()}</span>
+                <span className="block text-2xl font-bold text-primary">
+                  {materialsLoading ? <Loader2 className="h-4 w-4 animate-spin inline" /> : stats.resources.toLocaleString()}
+                </span>
                 <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Resources</span>
               </div>
               <div className="w-px h-10 bg-muted" />
               <div>
-                <span className="block text-2xl font-bold text-primary">{stats.students.toLocaleString()}</span>
+                <span className="block text-2xl font-bold text-primary">
+                  {usersLoading ? <Loader2 className="h-4 w-4 animate-spin inline" /> : stats.students.toLocaleString()}
+                </span>
                 <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Students</span>
               </div>
             </div>
@@ -101,8 +115,10 @@ export default function Home() {
                     <div className="h-4 w-3/4 bg-secondary rounded-full animate-pulse" />
                     <div className="h-4 w-5/6 bg-secondary rounded-full animate-pulse" />
                  </div>
-                 <Button className="w-full rounded-xl bg-accent hover:bg-accent/90 text-white font-bold">
-                   <Download className="mr-2 h-4 w-4" /> Download Now
+                 <Button asChild className="w-full rounded-xl bg-accent hover:bg-accent/90 text-white font-bold">
+                   <Link href="/browse">
+                     <Download className="mr-2 h-4 w-4" /> Download Now
+                   </Link>
                  </Button>
                </div>
              </div>
