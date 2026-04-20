@@ -1,42 +1,69 @@
 
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { BRANCHES, SEMESTERS, MOCK_MATERIALS } from '@/lib/mock-data';
+import { BRANCHES, SEMESTERS } from '@/lib/mock-data';
 import { StudyMaterial, Branch } from '@/lib/types';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { FileText, Download, User, Calendar, Search, SlidersHorizontal, ArrowRight, BrainCircuit } from 'lucide-react';
+import { FileText, Download, User, Calendar, Search, SlidersHorizontal, ArrowRight, BrainCircuit, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { materialService } from '@/services/material-service';
 
 export default function BrowsePage() {
   const searchParams = useSearchParams();
   const initialBranch = searchParams.get('branch') as Branch;
+  const initialSearch = searchParams.get('search') || '';
   
+  const [materials, setMaterials] = useState<StudyMaterial[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedBranch, setSelectedBranch] = useState<string>(initialBranch || 'all');
   const [selectedSemester, setSelectedSemester] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+
+  useEffect(() => {
+    const fetchMaterials = async () => {
+      try {
+        const data = await materialService.getAllMaterials();
+        setMaterials(data);
+      } catch (error) {
+        console.error("Error fetching materials:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMaterials();
+  }, []);
 
   const filteredMaterials = useMemo(() => {
-    return MOCK_MATERIALS.filter(m => {
+    return materials.filter(m => {
       const branchMatch = selectedBranch === 'all' || m.branch === selectedBranch;
       const semMatch = selectedSemester === 'all' || m.semester.toString() === selectedSemester;
       const searchMatch = m.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           m.description.toLowerCase().includes(searchQuery.toLowerCase());
       return branchMatch && semMatch && searchMatch;
     });
-  }, [selectedBranch, selectedSemester, searchQuery]);
+  }, [selectedBranch, selectedSemester, searchQuery, materials]);
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center gap-4">
+        <Loader2 className="h-10 w-10 text-primary animate-spin" />
+        <p className="text-muted-foreground animate-pulse">Loading amazing resources...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12 flex flex-col gap-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-8">
         <div>
           <h1 className="text-4xl font-headline font-bold text-primary">Browse Materials</h1>
-          <p className="text-muted-foreground">Find the best resources shared by your peers.</p>
+          <p className="text-muted-foreground">Find the best resources shared by your peers at NIT Srinagar.</p>
         </div>
         <Button asChild className="rounded-full">
            <Link href="/upload">Contribute New</Link>
@@ -44,9 +71,8 @@ export default function BrowsePage() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sidebar Filters */}
         <aside className="w-full lg:w-72 flex flex-col gap-6 shrink-0">
-          <div className="bg-white p-6 rounded-2xl border shadow-sm space-y-6 sticky top-24">
+          <div className="bg-white dark:bg-card p-6 rounded-2xl border shadow-sm space-y-6 sticky top-24">
             <div className="flex items-center gap-2 font-headline font-bold text-primary">
               <SlidersHorizontal className="h-4 w-4" />
               <span>Filters</span>
@@ -105,7 +131,6 @@ export default function BrowsePage() {
           </div>
         </aside>
 
-        {/* Main Content */}
         <div className="flex-1 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold uppercase text-muted-foreground tracking-widest">
@@ -115,7 +140,7 @@ export default function BrowsePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredMaterials.map((material) => (
-              <Card key={material.id} className="hover:shadow-lg transition-all duration-300 border-none shadow-sm flex flex-col">
+              <Card key={material.id} className="hover:shadow-lg transition-all duration-300 border-none shadow-sm flex flex-col bg-white dark:bg-card">
                 <CardHeader>
                   <div className="flex justify-between items-start mb-2">
                     <Badge variant="secondary" className="bg-accent/10 text-accent border-none rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
@@ -151,9 +176,11 @@ export default function BrowsePage() {
                         <BrainCircuit className="h-4 w-4 mr-1" /> AI Aid
                       </Link>
                     </Button>
-                    <Button size="sm" className="rounded-full bg-primary hover:bg-primary/90">
-                      View
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                    <Button size="sm" className="rounded-full bg-primary hover:bg-primary/90" asChild>
+                      <Link href={`/material/${material.id}`}>
+                        View
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
                     </Button>
                   </div>
                 </CardFooter>
@@ -161,7 +188,7 @@ export default function BrowsePage() {
             ))}
 
             {filteredMaterials.length === 0 && (
-              <div className="col-span-full py-20 text-center space-y-4 bg-white rounded-3xl border border-dashed border-muted">
+              <div className="col-span-full py-20 text-center space-y-4 bg-white dark:bg-card rounded-3xl border border-dashed border-muted">
                 <div className="bg-secondary w-16 h-16 rounded-full flex items-center justify-center mx-auto">
                   <Search className="h-8 w-8 text-muted-foreground" />
                 </div>

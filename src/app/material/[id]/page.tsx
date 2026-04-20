@@ -1,8 +1,8 @@
 
 "use client";
 
-import { useState, use } from 'react';
-import { MOCK_MATERIALS } from '@/lib/mock-data';
+import { useState, use, useEffect } from 'react';
+import { StudyMaterial } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,20 +11,61 @@ import { BrainCircuit, Download, FileText, Share2, MessageSquare, Info, Sparkles
 import { generateStudyMaterialSummary } from '@/ai/flows/generate-study-material-summary';
 import { generateExamQuestions } from '@/ai/flows/generate-exam-questions-flow';
 import { useToast } from '@/hooks/use-toast';
+import { materialService } from '@/services/material-service';
+import Link from 'next/link';
 
 export default function MaterialDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const material = MOCK_MATERIALS.find(m => m.id === id);
   const { toast } = useToast();
 
+  const [material, setMaterial] = useState<StudyMaterial | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [summary, setSummary] = useState<string | null>(null);
   const [questions, setQuestions] = useState<string[] | null>(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
 
-  if (!material) {
-    return <div className="container mx-auto py-20 text-center">Material not found.</div>;
+  useEffect(() => {
+    const fetchMaterial = async () => {
+      try {
+        const data = await materialService.getMaterialById(id);
+        setMaterial(data);
+      } catch (error) {
+        console.error("Error fetching material:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMaterial();
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center gap-4">
+        <Loader2 className="h-10 w-10 text-primary animate-spin" />
+        <p className="text-muted-foreground animate-pulse">Fetching details...</p>
+      </div>
+    );
   }
+
+  if (!material) {
+    return (
+      <div className="container mx-auto py-20 text-center space-y-4">
+        <h1 className="text-2xl font-bold">Material not found</h1>
+        <Button asChild><Link href="/browse">Back to Browse</Link></Button>
+      </div>
+    );
+  }
+
+  const handleDownload = async () => {
+    try {
+      await materialService.incrementDownloadCount(id);
+      window.open(material.fileUrl, '_blank');
+      setMaterial(prev => prev ? { ...prev, downloadCount: prev.downloadCount + 1 } : null);
+    } catch (error) {
+      console.error("Download error:", error);
+    }
+  };
 
   const handleGenerateSummary = async () => {
     setIsLoadingSummary(true);
@@ -34,11 +75,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
       });
       setSummary(result.summary);
     } catch (error) {
-      toast({
-        title: "Error generating summary",
-        description: "Please try again later.",
-        variant: "destructive"
-      });
+      toast({ title: "Error generating summary", description: "Please try again later.", variant: "destructive" });
     } finally {
       setIsLoadingSummary(false);
     }
@@ -52,11 +89,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
       });
       setQuestions(result.examQuestions);
     } catch (error) {
-      toast({
-        title: "Error generating questions",
-        description: "Please try again later.",
-        variant: "destructive"
-      });
+      toast({ title: "Error generating questions", description: "Please try again later.", variant: "destructive" });
     } finally {
       setIsLoadingQuestions(false);
     }
@@ -80,7 +113,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
         </div>
         <div className="flex gap-3 shrink-0">
           <Button variant="outline" size="icon" className="rounded-full"><Share2 className="h-4 w-4" /></Button>
-          <Button size="lg" className="rounded-full px-8 shadow-lg shadow-primary/20">
+          <Button size="lg" className="rounded-full px-8 shadow-lg shadow-primary/20" onClick={handleDownload}>
             <Download className="mr-2 h-5 w-5" /> Download PDF
           </Button>
         </div>
@@ -88,7 +121,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-          <Card className="border-none shadow-sm">
+          <Card className="border-none shadow-sm bg-white dark:bg-card">
             <CardHeader>
               <CardTitle className="font-headline font-bold">Description</CardTitle>
             </CardHeader>
@@ -103,7 +136,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-sm">
+          <Card className="border-none shadow-sm bg-white dark:bg-card">
             <CardHeader>
               <CardTitle className="font-headline font-bold">Material Preview</CardTitle>
               <CardDescription>A snippet of the content is available below.</CardDescription>
@@ -190,22 +223,6 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
                   )}
                 </TabsContent>
               </Tabs>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Related Materials</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="divide-y">
-                {MOCK_MATERIALS.filter(m => m.id !== material.id && m.branch === material.branch).slice(0, 3).map(m => (
-                  <Link key={m.id} href={`/material/${m.id}`} className="block p-4 hover:bg-secondary transition-colors group">
-                    <h4 className="text-sm font-bold group-hover:text-accent transition-colors mb-1">{m.title}</h4>
-                    <span className="text-[10px] text-muted-foreground uppercase">{m.type}</span>
-                  </Link>
-                ))}
-              </div>
             </CardContent>
           </Card>
         </div>

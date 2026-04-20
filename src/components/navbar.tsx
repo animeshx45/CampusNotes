@@ -5,21 +5,42 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Search, GraduationCap, UserCircle, FileText, Home } from 'lucide-react';
+import { Search, GraduationCap, UserCircle, FileText, Home, LogOut, User as UserIcon } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { MOCK_MATERIALS } from '@/lib/mock-data';
 import { StudyMaterial } from '@/lib/types';
+import { useAuth } from '@/context/auth-context';
+import { materialService } from '@/services/material-service';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 
 export function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<StudyMaterial[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [allMaterials, setAllMaterials] = useState<StudyMaterial[]>([]);
   const router = useRouter();
   const searchRef = useRef<HTMLDivElement>(null);
+  const { user, logout } = useAuth();
+
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        const data = await materialService.getAllMaterials();
+        setAllMaterials(data);
+      } catch (e) {}
+    };
+    fetchAll();
+  }, []);
 
   useEffect(() => {
     if (searchQuery.trim().length > 1) {
-      const filtered = MOCK_MATERIALS.filter(m => 
+      const filtered = allMaterials.filter(m => 
         m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         m.branch.toLowerCase().includes(searchQuery.toLowerCase())
       ).slice(0, 5);
@@ -29,7 +50,7 @@ export function Navbar() {
       setSuggestions([]);
       setShowSuggestions(false);
     }
-  }, [searchQuery]);
+  }, [searchQuery, allMaterials]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -113,30 +134,50 @@ export function Navbar() {
                     </button>
                   ))}
                 </div>
-                <div 
-                  className="p-2 text-center border-t hover:bg-muted transition-colors cursor-pointer"
-                  onClick={() => {
-                    router.push(`/browse?search=${encodeURIComponent(searchQuery)}`);
-                    setShowSuggestions(false);
-                  }}
-                >
-                  <span className="text-xs text-primary font-bold">See all results</span>
-                </div>
               </div>
             )}
           </div>
           
           <ThemeToggle />
-          <div className="hidden sm:flex items-center gap-2">
-            <Button asChild variant="ghost" className="rounded-full">
-              <Link href="/login">Login</Link>
-            </Button>
-            <Button asChild variant="default" className="rounded-full px-6">
-              <Link href="/signup">Sign Up</Link>
-            </Button>
-          </div>
+
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <UserCircle className="h-6 w-6 text-primary" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="right" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{user.displayName || 'Student'}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => router.push('/upload')}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  <span>My Contributions</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div className="hidden sm:flex items-center gap-2">
+              <Button asChild variant="ghost" className="rounded-full">
+                <Link href="/login">Login</Link>
+              </Button>
+              <Button asChild variant="default" className="rounded-full px-6">
+                <Link href="/signup">Sign Up</Link>
+              </Button>
+            </div>
+          )}
+
           <Button variant="ghost" className="md:hidden" size="icon" asChild>
-            <Link href="/login">
+            <Link href={user ? "/upload" : "/login"}>
               <UserCircle className="h-5 w-5" />
             </Link>
           </Button>

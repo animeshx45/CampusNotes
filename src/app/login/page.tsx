@@ -3,19 +3,38 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { GraduationCap, Mail, Lock, ArrowRight } from 'lucide-react';
+import { GraduationCap, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Auth logic will go here
-    console.log('Logging in with:', email);
+    setIsLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      toast({ title: "Welcome back!", description: "Successfully logged in." });
+      router.push('/browse');
+    } catch (error: any) {
+      toast({ 
+        title: "Login Failed", 
+        description: error.message || "Invalid email or password.", 
+        variant: "destructive" 
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -61,7 +80,8 @@ export default function LoginPage() {
                 />
               </div>
             </div>
-            <Button type="submit" className="w-full h-12 rounded-xl text-lg font-bold">
+            <Button type="submit" className="w-full h-12 rounded-xl text-lg font-bold" disabled={isLoading}>
+              {isLoading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
               Sign In
             </Button>
           </form>

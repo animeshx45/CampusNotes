@@ -12,29 +12,61 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Upload, FileText, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { materialService } from '@/services/material-service';
+import { useAuth } from '@/context/auth-context';
+import { Branch, MaterialType, Semester } from '@/lib/types';
 
 export default function UploadPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useAuth();
+  
   const [isUploading, setIsUploading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    branch: '' as Branch,
+    semester: 1 as Semester,
+    type: 'Note' as MaterialType,
+    author: user?.displayName || user?.email || 'Anonymous',
+  });
 
-  const handleUpload = (e: React.FormEvent) => {
+  if (!user) {
+    return (
+      <div className="container mx-auto py-32 text-center space-y-6">
+        <h1 className="text-3xl font-headline font-bold text-primary">Sign in to Upload</h1>
+        <p className="text-muted-foreground">You need to be logged in to contribute study materials.</p>
+        <Button onClick={() => router.push('/login')} className="rounded-full">Go to Login</Button>
+      </div>
+    );
+  }
+
+  const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.branch || !formData.title) {
+      toast({ title: "Error", description: "Please fill all required fields.", variant: "destructive" });
+      return;
+    }
+
     setIsUploading(true);
-    
-    // Simulate upload delay
-    setTimeout(() => {
-      setIsUploading(false);
+    try {
+      await materialService.uploadMaterial({
+        ...formData,
+        fileUrl: 'https://example.com/placeholder-pdf', // Real file upload would go to Firebase Storage
+      });
       setIsSuccess(true);
       toast({
         title: "Material Uploaded!",
-        description: "Your contribution has been added and will be visible after a quick review.",
+        description: "Your contribution has been added successfully.",
       });
-      
-      // Redirect after success
       setTimeout(() => router.push('/browse'), 2000);
-    }, 2000);
+    } catch (error) {
+      toast({ title: "Upload Failed", description: "Something went wrong. Please try again.", variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   if (isSuccess) {
@@ -44,7 +76,7 @@ export default function UploadPage() {
           <CheckCircle2 className="h-12 w-12 text-green-600" />
         </div>
         <h1 className="text-3xl font-headline font-bold text-primary">Contribution Successful!</h1>
-        <p className="text-muted-foreground max-w-md">Thank you for helping your peers. Your material will be reviewed and published shortly.</p>
+        <p className="text-muted-foreground max-w-md">Thank you for helping your peers. Your material is now live.</p>
         <Button onClick={() => router.push('/browse')} className="rounded-full">Go to Browse</Button>
       </div>
     );
@@ -67,15 +99,27 @@ export default function UploadPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="title" className="font-bold">Resource Title</Label>
-                <Input id="title" placeholder="e.g. Applied Physics II Complete Notes" required />
+                <Input 
+                  id="title" 
+                  placeholder="e.g. Applied Physics II Complete Notes" 
+                  value={formData.title}
+                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  required 
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="author" className="font-bold">Author Name</Label>
-                <Input id="author" placeholder="Your name or anonymous" required />
+                <Input 
+                  id="author" 
+                  placeholder="Your name or anonymous" 
+                  value={formData.author}
+                  onChange={(e) => setFormData({...formData, author: e.target.value})}
+                  required 
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="branch" className="font-bold">Academic Branch</Label>
-                <Select required>
+                <Select onValueChange={(v) => setFormData({...formData, branch: v as Branch})} required>
                   <SelectTrigger id="branch">
                     <SelectValue placeholder="Select Branch" />
                   </SelectTrigger>
@@ -86,7 +130,7 @@ export default function UploadPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="semester" className="font-bold">Semester</Label>
-                <Select required>
+                <Select onValueChange={(v) => setFormData({...formData, semester: parseInt(v) as Semester})} required>
                   <SelectTrigger id="semester">
                     <SelectValue placeholder="Select Semester" />
                   </SelectTrigger>
@@ -101,15 +145,17 @@ export default function UploadPage() {
               <Label htmlFor="description" className="font-bold">Short Description</Label>
               <Textarea 
                 id="description" 
-                placeholder="Briefly describe what's inside these notes (chapters covered, importance for exams, etc.)"
+                placeholder="Briefly describe what's inside these notes"
                 className="min-h-[120px]"
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
                 required
               />
             </div>
 
             <div className="space-y-4">
               <Label className="font-bold">File Upload</Label>
-              <div className="border-2 border-dashed border-muted-foreground/20 rounded-2xl p-12 text-center space-y-4 hover:border-accent hover:bg-accent/5 transition-all group cursor-pointer">
+              <div className="border-2 border-dashed border-muted-foreground/20 rounded-2xl p-12 text-center space-y-4 hover:border-accent hover:bg-accent/5 transition-all group cursor-pointer relative">
                 <div className="bg-secondary p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto group-hover:bg-accent group-hover:text-white transition-colors">
                   <Upload className="h-8 w-8" />
                 </div>
@@ -117,7 +163,7 @@ export default function UploadPage() {
                   <p className="font-bold text-primary">Click or drag to upload</p>
                   <p className="text-xs text-muted-foreground">PDF, JPG, PNG (Max 20MB)</p>
                 </div>
-                <input type="file" className="hidden" id="file-input" />
+                <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" />
               </div>
             </div>
 
@@ -130,7 +176,7 @@ export default function UploadPage() {
               {isUploading ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Uploading Resource...
+                  Publishing Resource...
                 </>
               ) : (
                 "Publish Study Material"
