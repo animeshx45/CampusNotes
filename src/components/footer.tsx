@@ -9,7 +9,10 @@ export function Footer() {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <GraduationCap className="h-6 w-6" />
-              <span className="font-headline font-bold text-lg text-white">CampusNotes</span>
+              <div className="flex flex-col">
+                <span className="font-headline font-bold text-lg text-white leading-none">CampusNotes</span>
+                <span className="text-[10px] font-bold text-primary-foreground/60 uppercase tracking-widest mt-1">NIT Srinagar</span>
+              </div>
             </div>
             <p className="text-sm text-primary-foreground/80 leading-relaxed">
               The official resource portal for students of NIT Srinagar. Access high-quality notes, assignments, and study materials for your semester exams.
@@ -32,7 +35,7 @@ export function Footer() {
               <li><a href="https://nitsri.ac.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Official Website</a></li>
               <li><a href="https://nitsri.ac.in/Pages/Academic-Calendars.aspx" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Academic Calendar</a></li>
               <li><a href="https://nitsri.ac.in/Pages/Department-List.aspx" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Departments</a></li>
-              <li><Link href="/about" className="hover:text-white transition-colors">About NIT Srinagar</Link></li>
+              <li><Link href="/about" className="hover:text-white transition-colors">About the Portal</Link></li>
             </ul>
           </div>
 
