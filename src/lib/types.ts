@@ -25,3 +25,13 @@ export interface StudyMaterial {
   createdAt: string;
   downloadCount: number;
 }
+
+export interface DepartmentRepresentative {
+  branch: Branch;
+  name: string;
+  year: string;
+  email: string;
+  linkedin: string;
+  imageUrl: string;
+  message: string;
+}
