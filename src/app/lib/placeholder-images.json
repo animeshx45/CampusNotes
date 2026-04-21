@@ -30,6 +30,36 @@
       "description": "Representative photo for CSE department",
       "imageUrl": "https://picsum.photos/seed/cserep/400/400",
       "imageHint": "student body"
+    },
+    {
+      "id": "mech-rep-photo",
+      "description": "Representative photo for Mechanical Engineering",
+      "imageUrl": "https://picsum.photos/seed/mechrep/400/400",
+      "imageHint": "engineering students"
+    },
+    {
+      "id": "chem-rep-photo",
+      "description": "Representative photo for Chemical Engineering",
+      "imageUrl": "https://picsum.photos/seed/chemrep/400/400",
+      "imageHint": "science lab"
+    },
+    {
+      "id": "civil-rep-photo",
+      "description": "Representative photo for Civil Engineering",
+      "imageUrl": "https://picsum.photos/seed/civilrep/400/400",
+      "imageHint": "construction site"
+    },
+    {
+      "id": "ece-rep-photo",
+      "description": "Representative photo for ECE department",
+      "imageUrl": "https://picsum.photos/seed/ecerep/400/400",
+      "imageHint": "electronics lab"
+    },
+    {
+      "id": "meta-rep-photo",
+      "description": "Representative photo for Metallurgy department",
+      "imageUrl": "https://picsum.photos/seed/metarep/400/400",
+      "imageHint": "metallurgy factory"
     }
   ]
 }

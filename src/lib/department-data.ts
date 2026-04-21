@@ -12,7 +12,7 @@ export const DEPARTMENT_REPRESENTATIVES: DepartmentRepresentative[] = [
     name: 'Yatharth Pandey',
     year: '2025-2029',
     email: 'yatharthpandey8505@gmail.com',
-    linkedin: 'https://www.linkedin.com/in/yatharth-pandey-6b5baa300?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app',
+    linkedin: 'https://www.linkedin.com/in/yatharth-pandey-6b5baa300',
     imageUrl: getPlaceholder('yatharth-photo'),
     message: "Feel free to reach out for any queries regarding Electrical department resources or course details!"
   },
@@ -33,5 +33,50 @@ export const DEPARTMENT_REPRESENTATIVES: DepartmentRepresentative[] = [
     linkedin: '#',
     imageUrl: getPlaceholder('cse-rep-photo'),
     message: "Join our coding circles and access the best CSE resources."
+  },
+  {
+    branch: 'Mechanical Engineering',
+    name: 'Mechanical Student Body',
+    year: '2023-2027',
+    email: 'mech-rep@nitsri.ac.in',
+    linkedin: '#',
+    imageUrl: getPlaceholder('mech-rep-photo'),
+    message: "Coordinating resources for thermodynamics, fluid mechanics, and manufacturing tech."
+  },
+  {
+    branch: 'Chemical Engineering',
+    name: 'Chemical Student Body',
+    year: '2023-2027',
+    email: 'chem-rep@nitsri.ac.in',
+    linkedin: '#',
+    imageUrl: getPlaceholder('chem-rep-photo'),
+    message: "Access curated notes for mass transfer, heat transfer, and process control."
+  },
+  {
+    branch: 'Civil Engineering',
+    name: 'Civil Student Body',
+    year: '2023-2027',
+    email: 'civil-rep@nitsri.ac.in',
+    linkedin: '#',
+    imageUrl: getPlaceholder('civil-rep-photo'),
+    message: "Everything from structural analysis to geotechnical engineering resources."
+  },
+  {
+    branch: 'Electronics & Communication Engineering',
+    name: 'ECE Student Body',
+    year: '2023-2027',
+    email: 'ece-rep@nitsri.ac.in',
+    linkedin: '#',
+    imageUrl: getPlaceholder('ece-rep-photo'),
+    message: "Connecting you with quality materials for digital electronics and signals."
+  },
+  {
+    branch: 'Metallurgical & Materials Engineering',
+    name: 'Metallurgy Student Body',
+    year: '2023-2027',
+    email: 'meta-rep@nitsri.ac.in',
+    linkedin: '#',
+    imageUrl: getPlaceholder('meta-rep-photo'),
+    message: "Your source for extractive metallurgy and material science notes."
   }
 ];
