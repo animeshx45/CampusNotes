@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { BRANCHES } from '@/lib/mock-data';
 import { 
   Globe, Code, Zap, Settings, FlaskConical, Construction, Cpu, Layers, 
-  Search, ArrowRight, ChevronLeft, ChevronRight 
+  Search, ArrowRight, ChevronLeft, ChevronRight, GraduationCap, MapPin, ExternalLink
 } from 'lucide-react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
@@ -197,6 +197,46 @@ export default function Home() {
             );
           })}
         </div>
+      </section>
+
+      {/* Institute Wiki Section */}
+      <section className="container mx-auto px-4">
+        <Card className="overflow-hidden border-none shadow-2xl rounded-[2rem] md:rounded-[3rem] bg-card flex flex-col lg:flex-row">
+          <div className="relative w-full lg:w-1/2 min-h-[300px] md:min-h-[400px]">
+            <Image 
+              src="https://nitsri.ac.in/upload/slide-1-new.jpg"
+              alt="NIT Srinagar Campus"
+              fill
+              className="object-cover"
+              unoptimized
+              data-ai-hint="university campus"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-background/40 to-transparent lg:from-transparent" />
+          </div>
+          <div className="w-full lg:w-1/2 p-8 md:p-16 flex flex-col justify-center space-y-6 md:space-y-8 bg-gradient-to-br from-card to-primary/[0.03]">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-primary">
+                <GraduationCap className="h-6 w-6" />
+                <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">Institute Spotlight</span>
+              </div>
+              <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground leading-tight">
+                National Institute of Technology, <span className="text-primary italic">Srinagar</span>
+              </h2>
+              <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
+                <MapPin className="h-4 w-4 text-primary" />
+                Hazratbal, Srinagar, Jammu & Kashmir
+              </div>
+            </div>
+            <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
+              Established in 1960, NIT Srinagar is one of the premier technical institutes in North India. Located on the western bank of the world-famous Dal Lake, the institute has a long-standing legacy of academic excellence and research in engineering and technology.
+            </p>
+            <Button asChild size="lg" className="w-fit rounded-full px-8 h-12 md:h-14 font-bold shadow-lg shadow-primary/20 group">
+              <a href="https://en.wikipedia.org/wiki/National_Institute_of_Technology,_Srinagar" target="_blank" rel="noopener noreferrer">
+                Explore on Wikipedia <ExternalLink className="ml-2 h-4 w-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </a>
+            </Button>
+          </div>
+        </Card>
       </section>
 
       {/* CTA Section */}
