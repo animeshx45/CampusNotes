@@ -230,11 +230,18 @@ export default function Home() {
             <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
               Established in 1960, NIT Srinagar is one of the premier technical institutes in North India. Located on the western bank of the world-famous Dal Lake, the institute has a long-standing legacy of academic excellence and research in engineering and technology.
             </p>
-            <Button asChild size="lg" className="w-fit rounded-full px-8 h-12 md:h-14 font-bold shadow-lg shadow-primary/20 group">
-              <a href="https://en.wikipedia.org/wiki/National_Institute_of_Technology,_Srinagar" target="_blank" rel="noopener noreferrer">
-                Explore on Wikipedia <ExternalLink className="ml-2 h-4 w-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-              </a>
-            </Button>
+            <div className="flex flex-wrap gap-4">
+              <Button asChild size="lg" className="rounded-full px-8 h-12 md:h-14 font-bold shadow-lg shadow-primary/20 group">
+                <a href="https://nitsri.ac.in/" target="_blank" rel="noopener noreferrer">
+                  Official Website <Globe className="ml-2 h-4 w-4 group-hover:rotate-12 transition-transform" />
+                </a>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="rounded-full px-8 h-12 md:h-14 font-bold border-primary/20 hover:bg-primary/5 group">
+                <a href="https://en.wikipedia.org/wiki/National_Institute_of_Technology,_Srinagar" target="_blank" rel="noopener noreferrer">
+                  Wikipedia <ExternalLink className="ml-2 h-4 w-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </a>
+              </Button>
+            </div>
           </div>
         </Card>
       </section>
