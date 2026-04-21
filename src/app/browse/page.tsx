@@ -12,8 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { 
-  Search, SlidersHorizontal, ArrowRight, Loader2, Mail, Linkedin, 
-  FileText, GraduationCap, Clock, Sparkles, Filter, Youtube
+  Search, SlidersHorizontal, ArrowRight, Mail, Linkedin, 
+  FileText, GraduationCap, Clock, Filter, Youtube, Archive
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -46,6 +46,22 @@ const BRANCH_IMAGE_MAP: Record<string, string[]> = {
   'Electronics & Communication Engineering': ['branch-ece-1', 'branch-ece-2', 'hero-campus-1'],
   'Metallurgical & Materials Engineering': ['branch-meta-1', 'branch-meta-2', 'hero-campus-2']
 };
+
+const LoadingState = () => (
+  <div className="py-40 flex flex-col items-center justify-center gap-8 animate-in fade-in duration-700">
+    <div className="relative">
+      <div className="h-24 w-24 rounded-3xl border-4 border-primary/20 flex items-center justify-center">
+        <Archive className="h-10 w-10 text-primary animate-pulse" />
+      </div>
+      <div className="absolute inset-0 h-24 w-24 rounded-3xl border-t-4 border-primary animate-spin" />
+      <div className="absolute -inset-4 border border-primary/5 rounded-[2rem] animate-ping opacity-20" />
+    </div>
+    <div className="space-y-2 text-center">
+      <h3 className="text-xl font-headline font-bold text-primary animate-pulse tracking-tight">Scanning Archives</h3>
+      <p className="text-xs text-muted-foreground uppercase tracking-[0.2em] font-black opacity-60">Gathering NIT Srinagar Resources</p>
+    </div>
+  </div>
+);
 
 export default function BrowsePage() {
   const searchParams = useSearchParams();
@@ -96,12 +112,7 @@ export default function BrowsePage() {
     return 'Recently';
   };
 
-  if (isLoading) return (
-    <div className="py-32 flex flex-col items-center justify-center gap-4">
-      <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      <p className="text-muted-foreground animate-pulse font-medium">Scanning archives...</p>
-    </div>
-  );
+  if (isLoading) return <LoadingState />;
 
   const FilterContent = ({ isMobile = false }) => (
     <div className={`space-y-8 ${isMobile ? 'pt-6' : ''}`}>

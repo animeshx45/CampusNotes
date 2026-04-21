@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { BRANCHES } from '@/lib/mock-data';
 import { 
   Globe, Code, Zap, Settings, FlaskConical, Construction, Cpu, Layers, 
-  Loader2, Search, ArrowRight, ChevronLeft, ChevronRight 
+  Search, ArrowRight, ChevronLeft, ChevronRight 
 } from 'lucide-react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
@@ -133,16 +133,24 @@ export default function Home() {
           <div className="container mx-auto px-4 pb-6 md:pb-12">
             <div className="bg-background/80 backdrop-blur-xl border border-primary/10 rounded-[1.5rem] md:rounded-[2rem] p-4 md:p-8 max-w-sm md:max-w-lg flex items-center justify-around md:justify-start gap-4 md:gap-10 shadow-2xl pointer-events-auto animate-in fade-in slide-in-from-left duration-700">
               <div className="text-center md:text-left">
-                <span className="block text-2xl md:text-4xl font-headline font-bold text-primary">
-                  {materialsLoading ? <Loader2 className="h-5 w-5 animate-spin inline" /> : stats.resources}
-                </span>
+                {materialsLoading ? (
+                  <div className="h-8 md:h-10 w-16 bg-primary/10 animate-pulse rounded-lg mb-1" />
+                ) : (
+                  <span className="block text-2xl md:text-4xl font-headline font-bold text-primary">
+                    {stats.resources}
+                  </span>
+                )}
                 <span className="text-[9px] md:text-xs text-muted-foreground uppercase font-black tracking-tighter">Verified Resources</span>
               </div>
               <div className="w-px h-8 md:h-12 bg-primary/10" />
               <div className="text-center md:text-left">
-                <span className="block text-2xl md:text-4xl font-headline font-bold text-primary">
-                  {usersLoading ? <Loader2 className="h-5 w-5 animate-spin inline" /> : stats.students}
-                </span>
+                {usersLoading ? (
+                  <div className="h-8 md:h-10 w-16 bg-primary/10 animate-pulse rounded-lg mb-1" />
+                ) : (
+                  <span className="block text-2xl md:text-4xl font-headline font-bold text-primary">
+                    {stats.students}
+                  </span>
+                )}
                 <span className="text-[9px] md:text-xs text-muted-foreground uppercase font-black tracking-tighter">Active NITians</span>
               </div>
             </div>

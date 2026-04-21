@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, use, useEffect } from 'react';
@@ -6,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BrainCircuit, Download, FileText, Share2, MessageSquare, Info, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
+import { BrainCircuit, Download, FileText, Share2, MessageSquare, Info, Sparkles, AlertCircle, Loader2, Zap } from 'lucide-react';
 import { generateStudyMaterialSummary } from '@/ai/flows/generate-study-material-summary';
 import { generateExamQuestions } from '@/ai/flows/generate-exam-questions-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -14,6 +15,21 @@ import { materialService } from '@/services/material-service';
 import Link from 'next/link';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc, Timestamp } from 'firebase/firestore';
+
+const ModernLoader = ({ message }: { message: string }) => (
+  <div className="container mx-auto px-4 py-40 flex flex-col items-center justify-center gap-6 animate-in fade-in duration-500">
+    <div className="relative h-20 w-20">
+      <div className="absolute inset-0 rounded-full border-b-2 border-primary animate-spin" />
+      <div className="absolute inset-2 rounded-full border-r-2 border-accent animate-spin [animation-duration:1.5s]" />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <Zap className="h-8 w-8 text-primary animate-pulse" />
+      </div>
+    </div>
+    <p className="text-muted-foreground font-headline font-bold uppercase tracking-widest text-xs animate-pulse">
+      {message}
+    </p>
+  </div>
+);
 
 export default function MaterialDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -38,20 +54,13 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     }
   }, [material, id]);
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center gap-4">
-        <Loader2 className="h-10 w-10 text-primary animate-spin" />
-        <p className="text-muted-foreground animate-pulse">Fetching details...</p>
-      </div>
-    );
-  }
+  if (isLoading) return <ModernLoader message="Decoding material..." />;
 
   if (!material) {
     return (
       <div className="container mx-auto py-20 text-center space-y-4">
-        <h1 className="text-2xl font-bold">Material not found</h1>
-        <Button asChild><Link href="/browse">Back to Browse</Link></Button>
+        <h1 className="text-2xl font-bold text-primary">Material not found</h1>
+        <Button asChild className="rounded-full"><Link href="/browse">Back to Browse</Link></Button>
       </div>
     );
   }
@@ -121,7 +130,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-          <Card className="border-none shadow-sm bg-white dark:bg-card">
+          <Card className="border-none shadow-sm bg-white dark:bg-card rounded-[2rem]">
             <CardHeader>
               <CardTitle className="font-headline font-bold">Description</CardTitle>
             </CardHeader>
@@ -136,13 +145,13 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-sm bg-white dark:bg-card">
+          <Card className="border-none shadow-sm bg-white dark:bg-card rounded-[2rem]">
             <CardHeader>
               <CardTitle className="font-headline font-bold">Material Preview</CardTitle>
               <CardDescription>A snippet of the content is available below.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="aspect-[4/3] bg-muted rounded-xl flex items-center justify-center border-2 border-dashed">
+              <div className="aspect-[4/3] bg-muted rounded-[2rem] flex items-center justify-center border-2 border-dashed">
                 <div className="text-center space-y-2">
                   <FileText className="h-12 w-12 text-muted-foreground mx-auto" />
                   <p className="text-sm text-muted-foreground">Preview not available for this format.</p>
@@ -153,7 +162,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
         </div>
 
         <div className="space-y-6">
-          <Card className="bg-primary text-primary-foreground border-none shadow-xl overflow-hidden relative">
+          <Card className="bg-primary text-primary-foreground border-none shadow-xl overflow-hidden relative rounded-[2rem]">
             <div className="absolute top-0 right-0 p-2 opacity-10">
               <BrainCircuit className="h-24 w-24" />
             </div>
@@ -168,9 +177,9 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
             </CardHeader>
             <CardContent className="space-y-6">
               <Tabs defaultValue="summary" className="w-full">
-                <TabsList className="w-full grid grid-cols-2 bg-primary-foreground/10 mb-4 border-none">
-                  <TabsTrigger value="summary" className="data-[state=active]:bg-accent data-[state=active]:text-white">Summary</TabsTrigger>
-                  <TabsTrigger value="questions" className="data-[state=active]:bg-accent data-[state=active]:text-white">Mock Qs</TabsTrigger>
+                <TabsList className="w-full grid grid-cols-2 bg-primary-foreground/10 mb-4 border-none p-1 rounded-xl">
+                  <TabsTrigger value="summary" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-white">Summary</TabsTrigger>
+                  <TabsTrigger value="questions" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-white">Mock Qs</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="summary" className="min-h-[200px]">
