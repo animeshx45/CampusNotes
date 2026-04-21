@@ -18,12 +18,12 @@ export const DEPARTMENT_REPRESENTATIVES: DepartmentRepresentative[] = [
   },
   {
     branch: 'Information Technology',
-    name: 'IT Student Body',
+    name: 'Animesh Kumar',
     year: '2023-2027',
-    email: 'it-rep@nitsri.ac.in',
-    linkedin: '#',
+    email: 'rajuranjanxbkj@gmail.com',
+    linkedin: 'https://www.linkedin.com/in/animesh-kumar-771b60228/',
     imageUrl: getPlaceholder('it-rep-photo'),
-    message: "We're here to help you navigate IT courses and projects."
+    message: "We're here to help you navigate IT courses and projects. Feel free to reach out for resources!"
   },
   {
     branch: 'Computer Science & Engineering',
