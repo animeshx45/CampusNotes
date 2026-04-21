@@ -35,14 +35,14 @@ const BRANCH_ICONS: Record<string, any> = {
 
 const SLIDES = [
   { id: 'hero-campus-1', title: 'NIT Srinagar Excellence', subtitle: 'Building the engineers of tomorrow.' },
-  { id: 'branch-it', title: 'Information Technology', subtitle: 'Empowering digital transformation and network security.' },
-  { id: 'branch-cse', title: 'Computer Science', subtitle: 'Innovating through algorithms, AI, and data science.' },
-  { id: 'branch-electrical', title: 'Electrical Engineering', subtitle: 'Powering the future with sustainable energy systems.' },
-  { id: 'branch-mechanical', title: 'Mechanical Engineering', subtitle: 'Designing tomorrow\'s advanced robotics and machines.' },
-  { id: 'branch-ece', title: 'Electronics & Comm.', subtitle: 'Mastering the signals that connect our global world.' },
-  { id: 'branch-civil', title: 'Civil Engineering', subtitle: 'Constructing resilient and modern infrastructure.' },
-  { id: 'branch-chemical', title: 'Chemical Engineering', subtitle: 'Advancing industrial processes and chemical research.' },
-  { id: 'branch-meta', title: 'Metallurgy & Materials', subtitle: 'Developing the fundamental materials of modern tech.' },
+  { id: 'branch-it-1', title: 'Information Technology', subtitle: 'Empowering digital transformation and network security.' },
+  { id: 'branch-cse-1', title: 'Computer Science', subtitle: 'Innovating through algorithms, AI, and data science.' },
+  { id: 'branch-electrical-1', title: 'Electrical Engineering', subtitle: 'Powering the future with sustainable energy systems.' },
+  { id: 'branch-mechanical-1', title: 'Mechanical Engineering', subtitle: 'Designing tomorrow\'s advanced robotics and machines.' },
+  { id: 'branch-ece-1', title: 'Electronics & Comm.', subtitle: 'Mastering the signals that connect our global world.' },
+  { id: 'branch-civil-1', title: 'Civil Engineering', subtitle: 'Constructing resilient and modern infrastructure.' },
+  { id: 'branch-chemical-1', title: 'Chemical Engineering', subtitle: 'Advancing industrial processes and chemical research.' },
+  { id: 'branch-meta-1', title: 'Metallurgy & Materials', subtitle: 'Developing the fundamental materials of modern tech.' },
   { id: 'hero-campus-3', title: 'Majestic Campus', subtitle: 'Study amidst the beauty of Srinagar\'s mountains.' }
 ];
 
@@ -69,27 +69,28 @@ export default function Home() {
     if (!api) return;
     const intervalId = setInterval(() => {
       api.scrollNext();
-    }, 5000);
+    }, 6000);
     return () => clearInterval(intervalId);
   }, [api]);
 
   return (
-    <div className="flex flex-col gap-24 pb-20 bg-background transition-colors duration-300">
+    <div className="flex flex-col gap-12 md:gap-24 pb-20 bg-background transition-colors duration-300">
       {/* Hero Slideshow Section */}
-      <section className="relative w-full h-[600px] md:h-[700px] overflow-hidden">
+      <section className="relative w-full h-[500px] md:h-[700px] overflow-hidden">
         <Carousel setApi={setApi} className="w-full h-full" opts={{ loop: true }}>
           <CarouselContent className="h-full -ml-0">
-            {SLIDES.map((slide) => {
+            {SLIDES.map((slide, index) => {
               const imageData = getImageData(slide.id);
               return (
-                <CarouselItem key={slide.id} className="relative h-[600px] md:h-[700px] pl-0">
+                <CarouselItem key={slide.id} className="relative h-[500px] md:h-[700px] pl-0">
                   <div className="absolute inset-0 z-0">
                     <Image 
                       src={imageData?.imageUrl || `https://picsum.photos/seed/${slide.id}/1600/800`} 
                       alt={slide.title}
                       fill
                       className="object-cover"
-                      priority
+                      priority={index === 0}
+                      sizes="100vw"
                       data-ai-hint={imageData?.imageHint || "university architecture"}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10" />
@@ -97,21 +98,21 @@ export default function Home() {
                   </div>
                   
                   <div className="container mx-auto px-4 h-full flex flex-col justify-center relative z-20">
-                    <div className="max-w-3xl space-y-6 animate-in fade-in slide-in-from-bottom-10 duration-700">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/30 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest border border-white/20">
+                    <div className="max-w-3xl space-y-4 md:space-y-6 animate-in fade-in slide-in-from-bottom-10 duration-700">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/30 backdrop-blur-md text-white text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-white/20">
                         National Institute of Technology, Srinagar
                       </div>
-                      <h1 className="text-5xl md:text-7xl font-headline font-bold leading-tight text-white drop-shadow-2xl">
+                      <h1 className="text-3xl md:text-7xl font-headline font-bold leading-tight text-white drop-shadow-2xl">
                         {slide.title}
                       </h1>
-                      <p className="text-xl text-white/90 max-w-lg leading-relaxed font-medium drop-shadow-lg">
+                      <p className="text-base md:text-xl text-white/90 max-w-lg leading-relaxed font-medium drop-shadow-lg">
                         {slide.subtitle}
                       </p>
-                      <div className="flex flex-wrap gap-4 pt-4">
-                        <Button asChild size="lg" className="rounded-full px-8 shadow-xl shadow-primary/20 h-14 text-lg bg-primary hover:bg-primary/90">
+                      <div className="flex flex-wrap gap-3 md:gap-4 pt-2 md:pt-4">
+                        <Button asChild size="lg" className="rounded-full px-6 md:px-8 shadow-xl shadow-primary/20 h-12 md:h-14 text-sm md:text-lg bg-primary hover:bg-primary/90">
                           <Link href="/browse">Access Materials</Link>
                         </Button>
-                        <Button asChild variant="outline" size="lg" className="rounded-full px-8 h-14 text-lg bg-white/10 backdrop-blur-md border-white/30 text-white hover:bg-white/20">
+                        <Button asChild variant="outline" size="lg" className="rounded-full px-6 md:px-8 h-12 md:h-14 text-sm md:text-lg bg-white/10 backdrop-blur-md border-white/30 text-white hover:bg-white/20">
                           <Link href="/upload">Share Notes</Link>
                         </Button>
                       </div>
@@ -121,7 +122,7 @@ export default function Home() {
               );
             })}
           </CarouselContent>
-          <div className="absolute bottom-8 right-8 z-30 flex gap-2">
+          <div className="hidden md:flex absolute bottom-8 right-8 z-30 flex gap-2">
             <CarouselPrevious className="static translate-y-0 h-12 w-12 rounded-full border-white/20 bg-black/40 text-white hover:bg-primary" />
             <CarouselNext className="static translate-y-0 h-12 w-12 rounded-full border-white/20 bg-black/40 text-white hover:bg-primary" />
           </div>
@@ -129,20 +130,20 @@ export default function Home() {
 
         {/* Floating Stats Overlay */}
         <div className="absolute bottom-0 left-0 w-full z-30 pointer-events-none">
-          <div className="container mx-auto px-4 pb-12">
-            <div className="bg-background/80 backdrop-blur-xl border border-primary/10 rounded-[2rem] p-8 max-w-lg flex items-center gap-10 shadow-2xl pointer-events-auto animate-in fade-in slide-in-from-left duration-700">
-              <div>
-                <span className="block text-4xl font-headline font-bold text-primary">
-                  {materialsLoading ? <Loader2 className="h-6 w-6 animate-spin inline" /> : stats.resources}
+          <div className="container mx-auto px-4 pb-6 md:pb-12">
+            <div className="bg-background/80 backdrop-blur-xl border border-primary/10 rounded-[1.5rem] md:rounded-[2rem] p-4 md:p-8 max-w-sm md:max-w-lg flex items-center justify-around md:justify-start gap-4 md:gap-10 shadow-2xl pointer-events-auto animate-in fade-in slide-in-from-left duration-700">
+              <div className="text-center md:text-left">
+                <span className="block text-2xl md:text-4xl font-headline font-bold text-primary">
+                  {materialsLoading ? <Loader2 className="h-5 w-5 animate-spin inline" /> : stats.resources}
                 </span>
-                <span className="text-xs text-muted-foreground uppercase font-black tracking-tighter">Verified Resources</span>
+                <span className="text-[9px] md:text-xs text-muted-foreground uppercase font-black tracking-tighter">Verified Resources</span>
               </div>
-              <div className="w-px h-12 bg-primary/10" />
-              <div>
-                <span className="block text-4xl font-headline font-bold text-primary">
-                  {usersLoading ? <Loader2 className="h-6 w-6 animate-spin inline" /> : stats.students}
+              <div className="w-px h-8 md:h-12 bg-primary/10" />
+              <div className="text-center md:text-left">
+                <span className="block text-2xl md:text-4xl font-headline font-bold text-primary">
+                  {usersLoading ? <Loader2 className="h-5 w-5 animate-spin inline" /> : stats.students}
                 </span>
-                <span className="text-xs text-muted-foreground uppercase font-black tracking-tighter">Active NITians</span>
+                <span className="text-[9px] md:text-xs text-muted-foreground uppercase font-black tracking-tighter">Active NITians</span>
               </div>
             </div>
           </div>
@@ -150,31 +151,31 @@ export default function Home() {
       </section>
 
       {/* Department Section */}
-      <section className="container mx-auto px-4 space-y-12">
-        <div className="text-center space-y-4">
-          <h2 className="text-4xl md:text-5xl font-headline font-bold text-foreground">
+      <section className="container mx-auto px-4 space-y-8 md:space-y-12">
+        <div className="text-center space-y-3 md:space-y-4">
+          <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground">
             Explore <span className="text-primary italic">Departments</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-lg leading-relaxed">
             Direct access to specialized academic materials curated for NIT Srinagar's premier engineering curricula.
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {BRANCHES.map((branch) => {
             const Icon = BRANCH_ICONS[branch] || Globe;
             return (
               <Link key={branch} href={`/browse?branch=${encodeURIComponent(branch)}`}>
-                <Card className="group relative overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 border border-primary/5 bg-card cursor-pointer h-full rounded-[2.5rem]">
+                <Card className="group relative overflow-hidden transition-all duration-500 hover:shadow-2xl md:hover:-translate-y-2 border border-primary/5 bg-card cursor-pointer h-full rounded-[1.5rem] md:rounded-[2.5rem]">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <CardContent className="flex flex-col items-center justify-center p-10 gap-6 text-center relative z-10">
-                    <div className="p-6 rounded-3xl bg-secondary group-hover:bg-primary transition-all duration-500 scale-100 group-hover:rotate-6 shadow-sm group-hover:shadow-lg group-hover:shadow-primary/30">
-                      <Icon className="h-12 w-12 text-primary group-hover:text-primary-foreground transition-colors" />
+                  <CardContent className="flex flex-col items-center justify-center p-6 md:p-10 gap-4 md:gap-6 text-center relative z-10">
+                    <div className="p-4 md:p-6 rounded-2xl md:rounded-3xl bg-secondary group-hover:bg-primary transition-all duration-500 scale-100 group-hover:rotate-6 shadow-sm group-hover:shadow-lg group-hover:shadow-primary/30">
+                      <Icon className="h-8 w-8 md:h-12 md:h-12 text-primary group-hover:text-primary-foreground transition-colors" />
                     </div>
-                    <div className="space-y-3">
-                      <span className="block font-headline font-bold text-xl text-foreground leading-tight group-hover:text-primary transition-colors">
+                    <div className="space-y-2 md:space-y-3">
+                      <span className="block font-headline font-bold text-lg md:text-xl text-foreground leading-tight group-hover:text-primary transition-colors">
                         {branch}
                       </span>
-                      <div className="flex items-center justify-center gap-1 text-[10px] text-muted-foreground uppercase tracking-widest font-black opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                      <div className="flex items-center justify-center gap-1 text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-widest font-black opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
                         View Resources <ArrowRight className="h-3 w-3" />
                       </div>
                     </div>
@@ -187,20 +188,20 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="container mx-auto px-4 py-16">
-        <Card className="bg-primary border-none text-primary-foreground rounded-[3rem] p-12 overflow-hidden relative shadow-2xl shadow-primary/30">
-          <div className="absolute top-0 right-0 p-12 opacity-10">
+      <section className="container mx-auto px-4 py-8 md:py-16">
+        <Card className="bg-primary border-none text-primary-foreground rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 overflow-hidden relative shadow-2xl shadow-primary/30">
+          <div className="absolute top-0 right-0 p-12 opacity-10 hidden md:block">
             <Cpu className="w-80 h-80" />
           </div>
-          <div className="relative z-10 max-w-2xl space-y-8">
-            <h2 className="text-4xl md:text-6xl font-headline font-bold leading-tight">
+          <div className="relative z-10 max-w-2xl space-y-4 md:space-y-8">
+            <h2 className="text-3xl md:text-6xl font-headline font-bold leading-tight">
               Empower the community.
             </h2>
-            <p className="text-xl text-primary-foreground/90 leading-relaxed font-medium">
+            <p className="text-base md:text-xl text-primary-foreground/90 leading-relaxed font-medium">
               Join hundreds of NIT Srinagar students sharing their knowledge. Your contributions make academic excellence accessible to all.
             </p>
-            <div className="flex gap-4 pt-4">
-              <Button asChild size="lg" variant="secondary" className="rounded-full px-10 font-bold h-16 text-lg hover:scale-105 transition-transform">
+            <div className="flex gap-4 pt-2 md:pt-4">
+              <Button asChild size="lg" variant="secondary" className="rounded-full px-8 md:px-10 font-bold h-12 md:h-16 text-sm md:text-lg hover:scale-105 transition-transform">
                 <Link href="/upload">Upload Material</Link>
               </Button>
             </div>
