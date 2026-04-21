@@ -53,7 +53,7 @@ const LoadingState = () => (
       <div className="h-24 w-24 rounded-3xl border-4 border-primary/20 flex items-center justify-center">
         <Archive className="h-10 w-10 text-primary animate-pulse" />
       </div>
-      <div className="absolute inset-0 h-24 w-24 rounded-3xl border-t-4 border-primary animate-spin" />
+      <div className="absolute inset-0 bg-transparent h-24 w-24 rounded-3xl border-t-4 border-primary animate-spin" />
       <div className="absolute -inset-4 border border-primary/5 rounded-[2rem] animate-ping opacity-20" />
     </div>
     <div className="space-y-2 text-center">
@@ -129,7 +129,7 @@ export default function BrowsePage() {
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <label className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Search Keywords</label>
+          <label className="text-sm font-bold px-1">Search Keywords</label>
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input 
@@ -142,7 +142,7 @@ export default function BrowsePage() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Department</label>
+          <label className="text-sm font-bold px-1">Department</label>
           <select 
             value={selectedBranch} 
             onChange={(e) => setSelectedBranch(e.target.value)}
@@ -154,7 +154,7 @@ export default function BrowsePage() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Semester</label>
+          <label className="text-sm font-bold px-1">Semester</label>
           <select 
             value={selectedSemester} 
             onChange={(e) => setSelectedSemester(e.target.value)}
@@ -164,15 +164,6 @@ export default function BrowsePage() {
             {SEMESTERS.map(s => <option key={s} value={s.toString()}>Semester {s}</option>)}
           </select>
         </div>
-      </div>
-
-      <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 space-y-2">
-        <p className="text-xs font-bold text-primary flex items-center gap-2">
-          <GraduationCap className="h-4 w-4" /> Academic Tip
-        </p>
-        <p className="text-[11px] leading-relaxed text-muted-foreground italic">
-          "Check out the YouTube Playlists section for structured video courses from top educators."
-        </p>
       </div>
     </div>
   );
@@ -187,7 +178,7 @@ export default function BrowsePage() {
                 {branchSlides.map((slideId, index) => {
                   const imageData = placeholderData.placeholderImages.find(img => img.id === slideId);
                   const imageUrl = imageData?.imageUrl || `https://picsum.photos/seed/${slideId}/1600/800`;
-                  const isExternal = imageUrl.includes('nitsri.ac.in') || imageUrl.includes('pixabay.com');
+                  const isExternal = imageUrl.includes('nitsri.ac.in') || imageUrl.includes('pixabay.com') || imageUrl.includes('cdn.pixabay.com');
 
                   return (
                     <CarouselItem key={slideId} className="relative h-[300px] md:h-[450px] pl-0">

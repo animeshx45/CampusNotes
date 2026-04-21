@@ -82,7 +82,7 @@ export default function Home() {
             {SLIDES.map((slide, index) => {
               const imageData = getImageData(slide.id);
               const imageUrl = imageData?.imageUrl || `https://picsum.photos/seed/${slide.id}/1600/800`;
-              const isExternal = imageUrl.includes('nitsri.ac.in') || imageUrl.includes('pixabay.com');
+              const isExternal = imageUrl.includes('nitsri.ac.in') || imageUrl.includes('pixabay.com') || imageUrl.includes('cdn.pixabay.com');
 
               return (
                 <CarouselItem key={slide.id} className="relative h-[500px] md:h-[700px] pl-0">
