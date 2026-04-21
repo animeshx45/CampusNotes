@@ -2,6 +2,12 @@
 {
   "placeholderImages": [
     {
+      "id": "hero-nitsri-official",
+      "description": "Official slide image of NIT Srinagar campus",
+      "imageUrl": "https://nitsri.ac.in/upload/slide-1-new.jpg",
+      "imageHint": "university campus"
+    },
+    {
       "id": "hero-campus-1",
       "description": "High-quality view of NIT Srinagar campus main building",
       "imageUrl": "https://picsum.photos/seed/nits1/1600/800",

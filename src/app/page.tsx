@@ -34,7 +34,7 @@ const BRANCH_ICONS: Record<string, any> = {
 };
 
 const SLIDES = [
-  { id: 'hero-campus-1', title: 'NIT Srinagar Excellence', subtitle: 'Building the engineers of tomorrow.' },
+  { id: 'hero-nitsri-official', title: 'NIT Srinagar Excellence', subtitle: 'Leading the way in engineering and research.' },
   { id: 'branch-it-1', title: 'Information Technology', subtitle: 'Empowering digital transformation and network security.' },
   { id: 'branch-cse-1', title: 'Computer Science', subtitle: 'Innovating through algorithms, AI, and data science.' },
   { id: 'branch-electrical-1', title: 'Electrical Engineering', subtitle: 'Powering the future with sustainable energy systems.' },
@@ -209,7 +209,7 @@ export default function Home() {
               Join hundreds of NIT Srinagar students sharing their knowledge. Your contributions make academic excellence accessible to all.
             </p>
             <div className="flex gap-4 pt-2 md:pt-4">
-              <Button asChild size="lg" variant="secondary" className="rounded-full px-8 md:px-10 font-bold h-12 md:h-16 text-sm md:text-lg hover:scale-105 transition-transform">
+              <Button asChild size="lg" variant="secondary" className="rounded-full px-8 md:px-10 font-bold h-12 md:h-16 text-sm md:text-lg hover:scale-[1.05] transition-transform">
                 <Link href="/upload">Upload Material</Link>
               </Button>
             </div>
