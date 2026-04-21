@@ -2,76 +2,82 @@
 {
   "placeholderImages": [
     {
-      "id": "hero-image",
-      "description": "Aerial view of a modern university campus",
-      "imageUrl": "https://picsum.photos/seed/nits/1200/600",
-      "imageHint": "university campus"
+      "id": "hero-campus-1",
+      "description": "High-quality view of NIT Srinagar campus main building",
+      "imageUrl": "https://picsum.photos/seed/nits1/1600/800",
+      "imageHint": "university architecture"
     },
     {
-      "id": "material-thumbnail",
-      "description": "Close up of neatly written study notes",
-      "imageUrl": "https://picsum.photos/seed/notes/400/300",
-      "imageHint": "study notes"
+      "id": "hero-campus-2",
+      "description": "Modern library and study spaces at NIT Srinagar",
+      "imageUrl": "https://picsum.photos/seed/nits2/1600/800",
+      "imageHint": "library interior"
     },
     {
-      "id": "yatharth-photo",
-      "description": "Photo of Yatharth Pandey, Electrical Engineering Representative",
-      "imageUrl": "https://picsum.photos/seed/yatharth/400/400",
-      "imageHint": "student photo"
+      "id": "branch-it",
+      "description": "Software development and modern IT infrastructure",
+      "imageUrl": "https://picsum.photos/seed/it-branch/1600/800",
+      "imageHint": "software development"
+    },
+    {
+      "id": "branch-cse",
+      "description": "Artificial intelligence and data science visualization",
+      "imageUrl": "https://picsum.photos/seed/cse-branch/1600/800",
+      "imageHint": "computer science"
+    },
+    {
+      "id": "branch-electrical",
+      "description": "Power systems and renewable energy technology",
+      "imageUrl": "https://picsum.photos/seed/ee-branch/1600/800",
+      "imageHint": "electrical engineering"
+    },
+    {
+      "id": "branch-mechanical",
+      "description": "Advanced robotics and mechanical systems",
+      "imageUrl": "https://picsum.photos/seed/me-branch/1600/800",
+      "imageHint": "mechanical engineering"
+    },
+    {
+      "id": "branch-chemical",
+      "description": "Industrial chemical processing and research",
+      "imageUrl": "https://picsum.photos/seed/che-branch/1600/800",
+      "imageHint": "chemical laboratory"
+    },
+    {
+      "id": "branch-civil",
+      "description": "Large scale civil infrastructure and design",
+      "imageUrl": "https://picsum.photos/seed/ce-branch/1600/800",
+      "imageHint": "civil construction"
+    },
+    {
+      "id": "branch-ece",
+      "description": "Microchip design and communication signals",
+      "imageUrl": "https://picsum.photos/seed/ece-branch/1600/800",
+      "imageHint": "electronics signal"
+    },
+    {
+      "id": "branch-meta",
+      "description": "Metallurgical testing and material science",
+      "imageUrl": "https://picsum.photos/seed/meta-branch/1600/800",
+      "imageHint": "material science"
     },
     {
       "id": "animesh-photo",
-      "description": "Photo of Animesh Kumar, IT Representative",
+      "description": "Photo of Animesh Kumar",
       "imageUrl": "https://picsum.photos/seed/animesh/400/400",
       "imageHint": "student profile"
     },
     {
       "id": "vansh-photo",
-      "description": "Photo of Vansh Chandna, IT Representative",
+      "description": "Photo of Vansh Chandna",
       "imageUrl": "https://picsum.photos/seed/vansh/400/400",
       "imageHint": "student portrait"
     },
     {
-      "id": "it-rep-photo",
-      "description": "Representative photo for IT department",
-      "imageUrl": "https://picsum.photos/seed/itrep/400/400",
-      "imageHint": "student group"
-    },
-    {
-      "id": "cse-rep-photo",
-      "description": "Representative photo for CSE department",
-      "imageUrl": "https://picsum.photos/seed/cserep/400/400",
-      "imageHint": "student body"
-    },
-    {
-      "id": "mech-rep-photo",
-      "description": "Representative photo for Mechanical Engineering",
-      "imageUrl": "https://picsum.photos/seed/mechrep/400/400",
-      "imageHint": "engineering students"
-    },
-    {
-      "id": "chem-rep-photo",
-      "description": "Representative photo for Chemical Engineering",
-      "imageUrl": "https://picsum.photos/seed/chemrep/400/400",
-      "imageHint": "science lab"
-    },
-    {
-      "id": "civil-rep-photo",
-      "description": "Representative photo for Civil Engineering",
-      "imageUrl": "https://picsum.photos/seed/civilrep/400/400",
-      "imageHint": "construction site"
-    },
-    {
-      "id": "ece-rep-photo",
-      "description": "Representative photo for ECE department",
-      "imageUrl": "https://picsum.photos/seed/ecerep/400/400",
-      "imageHint": "electronics lab"
-    },
-    {
-      "id": "meta-rep-photo",
-      "description": "Representative photo for Metallurgy department",
-      "imageUrl": "https://picsum.photos/seed/metarep/400/400",
-      "imageHint": "metallurgy factory"
+      "id": "yatharth-photo",
+      "description": "Photo of Yatharth Pandey",
+      "imageUrl": "https://picsum.photos/seed/yatharth/400/400",
+      "imageHint": "student photo"
     }
   ]
 }
