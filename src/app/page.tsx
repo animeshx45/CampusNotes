@@ -42,7 +42,7 @@ const SLIDES = [
   { id: 'branch-ece-official', title: 'Electronics & Communication', subtitle: 'Innovating in circuit design and signal processing.' },
   { id: 'branch-civil-official', title: 'Civil Engineering', subtitle: 'Constructing resilient and modern infrastructure.' },
   { id: 'branch-chemical-1', title: 'Chemical Engineering', subtitle: 'Advancing industrial processes and chemical research.' },
-  { id: 'branch-meta-1', title: 'Metallurgy & Materials', subtitle: 'Developing the fundamental materials of modern tech.' },
+  { id: 'branch-meta-official', title: 'Metallurgy & Materials', subtitle: 'Developing the fundamental materials of modern tech.' },
   { id: 'hero-campus-3', title: 'Majestic Campus', subtitle: 'Study amidst the beauty of Srinagar\'s mountains.' }
 ];
 

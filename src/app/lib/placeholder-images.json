@@ -146,6 +146,12 @@
       "imageHint": "satellite antenna"
     },
     {
+      "id": "branch-meta-official",
+      "description": "Official Metallurgical Department photo from NIT Srinagar",
+      "imageUrl": "https://nitsri.ac.in/upload/department/met.jpg",
+      "imageHint": "metallurgy engineering"
+    },
+    {
       "id": "branch-meta-1",
       "description": "Metallurgical testing and material science",
       "imageUrl": "https://picsum.photos/seed/meta-branch-1/1600/800",
