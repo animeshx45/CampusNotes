@@ -35,13 +35,13 @@
       "id": "branch-electrical",
       "description": "Power systems and renewable energy technology",
       "imageUrl": "https://picsum.photos/seed/ee-branch/1600/800",
-      "imageHint": "power lines"
+      "imageHint": "power electronics"
     },
     {
       "id": "branch-mechanical",
       "description": "Advanced robotics and mechanical systems",
       "imageUrl": "https://picsum.photos/seed/me-branch/1600/800",
-      "imageHint": "mechanical gears"
+      "imageHint": "industrial machinery"
     },
     {
       "id": "branch-chemical",
@@ -59,7 +59,7 @@
       "id": "branch-ece",
       "description": "Microchip design and communication signals",
       "imageUrl": "https://picsum.photos/seed/ece-branch/1600/800",
-      "imageHint": "microchip electronics"
+      "imageHint": "microchip circuit"
     },
     {
       "id": "branch-meta",
