@@ -8,15 +8,6 @@ const getPlaceholder = (id: string) => {
 
 export const DEPARTMENT_REPRESENTATIVES: DepartmentRepresentative[] = [
   {
-    branch: 'Electrical Engineering',
-    name: 'Yatharth Pandey',
-    year: '2025-2029',
-    email: 'yatharthpandey8505@gmail.com',
-    linkedin: 'https://www.linkedin.com/in/yatharth-pandey-6b5baa300',
-    imageUrl: getPlaceholder('yatharth-photo'),
-    message: "Feel free to reach out for any queries regarding Electrical department resources or course details!"
-  },
-  {
     branch: 'Information Technology',
     name: 'Animesh Kumar',
     year: '2025-2029',
@@ -33,6 +24,15 @@ export const DEPARTMENT_REPRESENTATIVES: DepartmentRepresentative[] = [
     linkedin: 'https://www.linkedin.com/in/vansh-chandna-8ab11136a/',
     imageUrl: getPlaceholder('vansh-photo'),
     message: "Co-representative for IT department. Always ready to help fellow students with quality study materials."
+  },
+  {
+    branch: 'Electrical Engineering',
+    name: 'Yatharth Pandey',
+    year: '2025-2029',
+    email: 'yatharthpandey8505@gmail.com',
+    linkedin: 'https://www.linkedin.com/in/yatharth-pandey-6b5baa300',
+    imageUrl: getPlaceholder('yatharth-photo'),
+    message: "Feel free to reach out for any queries regarding Electrical department resources or course details!"
   },
   {
     branch: 'Computer Science & Engineering',
