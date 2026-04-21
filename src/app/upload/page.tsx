@@ -31,7 +31,7 @@ export default function UploadPage() {
     branch: '' as Branch,
     semester: 1 as Semester,
     type: 'Note' as MaterialType,
-    author: user?.displayName || user?.email?.split('@')[0] || '',
+    author: '',
     fileUrl: '',
   });
 
@@ -43,6 +43,7 @@ export default function UploadPage() {
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!formData.branch || !formData.title || !formData.description) {
       toast({ title: "Validation Error", description: "Please fill all required fields.", variant: "destructive" });
       return;
@@ -56,13 +57,10 @@ export default function UploadPage() {
     setIsUploading(true);
     
     try {
-      // Allow anonymous uploaderId if user is not logged in
       const uploaderId = user?.uid || 'anonymous';
-      const authorName = formData.author || 'Anonymous Student';
+      const authorName = formData.author || user?.displayName || user?.email?.split('@')[0] || 'Anonymous Student';
 
-      // Simulate a small delay for realistic UX
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
+      // Actual publishing to Firestore
       await materialService.uploadMaterial({
         title: formData.title,
         description: formData.description,
@@ -82,14 +80,16 @@ export default function UploadPage() {
         title: "Material Published!",
         description: "Your contribution has been added to the vault.",
       });
-      setTimeout(() => router.push('/browse'), 2500);
+      
+      // Delay redirection to show success state
+      setTimeout(() => router.push('/browse'), 2000);
     } catch (error: any) {
+      console.error("Upload error:", error);
       toast({
         title: "Upload Failed",
-        description: error.message || "An unexpected error occurred.",
+        description: error.message || "An unexpected error occurred while publishing.",
         variant: "destructive"
       });
-    } finally {
       setIsUploading(false);
     }
   };
@@ -105,11 +105,11 @@ export default function UploadPage() {
         </div>
         <div className="space-y-2">
           <h1 className="text-4xl font-headline font-bold text-primary">Contribution Successful!</h1>
-          <p className="text-muted-foreground max-w-md mx-auto">Thank you for helping the NIT Srinagar community. Your material is now being indexed and will be live in seconds.</p>
+          <p className="text-muted-foreground max-w-md mx-auto">Thank you for helping the NIT Srinagar community. Your material is now live in the vault.</p>
         </div>
         <div className="flex gap-4">
           <Button onClick={() => router.push('/browse')} className="rounded-full px-10 h-14 text-lg font-bold shadow-xl shadow-primary/20">Go to Vault</Button>
-          <Button variant="outline" onClick={() => setIsSuccess(false)} className="rounded-full px-10 h-14 text-lg font-bold border-primary/20">Upload Another</Button>
+          <Button variant="outline" onClick={() => { setIsSuccess(false); setFormData({...formData, title: '', description: ''}); setSelectedFile(null); }} className="rounded-full px-10 h-14 text-lg font-bold border-primary/20">Upload Another</Button>
         </div>
       </div>
     );

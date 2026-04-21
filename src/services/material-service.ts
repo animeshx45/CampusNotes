@@ -27,12 +27,13 @@ class MaterialService {
 
   /**
    * Initiates a material upload.
+   * Matches the StudyMaterial schema in backend.json.
    * @param material The material data to upload.
    */
-  uploadMaterial(material: any) {
+  async uploadMaterial(material: any) {
     return addDocumentNonBlocking(collection(this.db, MATERIALS_COLLECTION), {
       ...material,
-      createdAt: serverTimestamp(),
+      uploadedAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       downloadCount: 0,
       views: 0
