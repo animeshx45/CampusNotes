@@ -19,7 +19,7 @@ export const DEPARTMENT_REPRESENTATIVES: DepartmentRepresentative[] = [
   {
     branch: 'Information Technology',
     name: 'Animesh Kumar',
-    year: '2023-2027',
+    year: '2025-2029',
     email: 'rajuranjanxbkj@gmail.com',
     linkedin: 'https://www.linkedin.com/in/animesh-kumar-771b60228/',
     imageUrl: getPlaceholder('it-rep-photo'),
