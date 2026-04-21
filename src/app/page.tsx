@@ -35,11 +35,15 @@ const BRANCH_ICONS: Record<string, any> = {
 
 const SLIDES = [
   { id: 'hero-campus-1', title: 'NIT Srinagar Excellence', subtitle: 'Building the engineers of tomorrow.' },
-  { id: 'branch-it', title: 'Information Technology', subtitle: 'Empowering digital transformation.' },
-  { id: 'branch-cse', title: 'Computer Science', subtitle: 'Innovating through algorithms.' },
-  { id: 'branch-electrical', title: 'Electrical Engineering', subtitle: 'Powering the future of NIT.' },
-  { id: 'branch-mechanical', title: 'Mechanical Engineering', subtitle: 'Designing tomorrow\'s machines.' },
-  { id: 'hero-campus-2', title: 'Collaborative Study', subtitle: 'Access peer-verified resources.' }
+  { id: 'branch-it', title: 'Information Technology', subtitle: 'Empowering digital transformation and network security.' },
+  { id: 'branch-cse', title: 'Computer Science', subtitle: 'Innovating through algorithms, AI, and data science.' },
+  { id: 'branch-electrical', title: 'Electrical Engineering', subtitle: 'Powering the future with sustainable energy systems.' },
+  { id: 'branch-mechanical', title: 'Mechanical Engineering', subtitle: 'Designing tomorrow\'s advanced robotics and machines.' },
+  { id: 'branch-ece', title: 'Electronics & Comm.', subtitle: 'Mastering the signals that connect our global world.' },
+  { id: 'branch-civil', title: 'Civil Engineering', subtitle: 'Constructing resilient and modern infrastructure.' },
+  { id: 'branch-chemical', title: 'Chemical Engineering', subtitle: 'Advancing industrial processes and chemical research.' },
+  { id: 'branch-meta', title: 'Metallurgy & Materials', subtitle: 'Developing the fundamental materials of modern tech.' },
+  { id: 'hero-campus-3', title: 'Majestic Campus', subtitle: 'Study amidst the beauty of Srinagar\'s mountains.' }
 ];
 
 export default function Home() {
@@ -57,8 +61,8 @@ export default function Home() {
     students: users?.length || 0
   }), [materials, users]);
 
-  const getImageUrl = (id: string) => {
-    return placeholderData.placeholderImages.find(img => img.id === id)?.imageUrl || `https://picsum.photos/seed/${id}/1600/800`;
+  const getImageData = (id: string) => {
+    return placeholderData.placeholderImages.find(img => img.id === id);
   };
 
   useEffect(() => {
@@ -75,44 +79,47 @@ export default function Home() {
       <section className="relative w-full h-[600px] md:h-[700px] overflow-hidden">
         <Carousel setApi={setApi} className="w-full h-full" opts={{ loop: true }}>
           <CarouselContent className="h-full -ml-0">
-            {SLIDES.map((slide) => (
-              <CarouselItem key={slide.id} className="relative h-[600px] md:h-[700px] pl-0">
-                <div className="absolute inset-0 z-0">
-                  <Image 
-                    src={getImageUrl(slide.id)} 
-                    alt={slide.title}
-                    fill
-                    className="object-cover"
-                    priority
-                    data-ai-hint="university campus engineering"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10" />
-                  <div className="absolute inset-0 bg-primary/10 mix-blend-multiply z-10" />
-                </div>
-                
-                <div className="container mx-auto px-4 h-full flex flex-col justify-center relative z-20">
-                  <div className="max-w-3xl space-y-6 animate-in fade-in slide-in-from-bottom-10 duration-700">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 backdrop-blur-md text-primary-foreground text-xs font-bold uppercase tracking-wider border border-primary/30">
-                      National Institute of Technology, Srinagar
-                    </div>
-                    <h1 className="text-5xl md:text-7xl font-bold leading-tight text-white drop-shadow-2xl">
-                      {slide.title}
-                    </h1>
-                    <p className="text-xl text-white/90 max-w-lg leading-relaxed font-medium drop-shadow-lg">
-                      {slide.subtitle}
-                    </p>
-                    <div className="flex flex-wrap gap-4 pt-4">
-                      <Button asChild size="lg" className="rounded-full px-8 shadow-xl shadow-primary/20 h-14 text-lg bg-primary hover:bg-primary/90">
-                        <Link href="/browse">Get Study Materials</Link>
-                      </Button>
-                      <Button asChild variant="outline" size="lg" className="rounded-full px-8 h-14 text-lg bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20">
-                        <Link href="/upload">Contribute Notes</Link>
-                      </Button>
+            {SLIDES.map((slide) => {
+              const imageData = getImageData(slide.id);
+              return (
+                <CarouselItem key={slide.id} className="relative h-[600px] md:h-[700px] pl-0">
+                  <div className="absolute inset-0 z-0">
+                    <Image 
+                      src={imageData?.imageUrl || `https://picsum.photos/seed/${slide.id}/1600/800`} 
+                      alt={slide.title}
+                      fill
+                      className="object-cover"
+                      priority
+                      data-ai-hint={imageData?.imageHint || "university architecture"}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10" />
+                    <div className="absolute inset-0 bg-primary/20 mix-blend-multiply z-10" />
+                  </div>
+                  
+                  <div className="container mx-auto px-4 h-full flex flex-col justify-center relative z-20">
+                    <div className="max-w-3xl space-y-6 animate-in fade-in slide-in-from-bottom-10 duration-700">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/30 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest border border-white/20">
+                        National Institute of Technology, Srinagar
+                      </div>
+                      <h1 className="text-5xl md:text-7xl font-headline font-bold leading-tight text-white drop-shadow-2xl">
+                        {slide.title}
+                      </h1>
+                      <p className="text-xl text-white/90 max-w-lg leading-relaxed font-medium drop-shadow-lg">
+                        {slide.subtitle}
+                      </p>
+                      <div className="flex flex-wrap gap-4 pt-4">
+                        <Button asChild size="lg" className="rounded-full px-8 shadow-xl shadow-primary/20 h-14 text-lg bg-primary hover:bg-primary/90">
+                          <Link href="/browse">Access Materials</Link>
+                        </Button>
+                        <Button asChild variant="outline" size="lg" className="rounded-full px-8 h-14 text-lg bg-white/10 backdrop-blur-md border-white/30 text-white hover:bg-white/20">
+                          <Link href="/upload">Share Notes</Link>
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CarouselItem>
-            ))}
+                </CarouselItem>
+              );
+            })}
           </CarouselContent>
           <div className="absolute bottom-8 right-8 z-30 flex gap-2">
             <CarouselPrevious className="static translate-y-0 h-12 w-12 rounded-full border-white/20 bg-black/40 text-white hover:bg-primary" />
@@ -123,19 +130,19 @@ export default function Home() {
         {/* Floating Stats Overlay */}
         <div className="absolute bottom-0 left-0 w-full z-30 pointer-events-none">
           <div className="container mx-auto px-4 pb-12">
-            <div className="bg-background/80 backdrop-blur-xl border border-border/50 rounded-[2rem] p-8 max-w-lg flex items-center gap-10 shadow-2xl pointer-events-auto animate-in fade-in slide-in-from-left duration-700">
+            <div className="bg-background/80 backdrop-blur-xl border border-primary/10 rounded-[2rem] p-8 max-w-lg flex items-center gap-10 shadow-2xl pointer-events-auto animate-in fade-in slide-in-from-left duration-700">
               <div>
-                <span className="block text-4xl font-bold text-primary">
+                <span className="block text-4xl font-headline font-bold text-primary">
                   {materialsLoading ? <Loader2 className="h-6 w-6 animate-spin inline" /> : stats.resources}
                 </span>
-                <span className="text-xs text-muted-foreground uppercase font-black tracking-tighter">Resources Shared</span>
+                <span className="text-xs text-muted-foreground uppercase font-black tracking-tighter">Verified Resources</span>
               </div>
-              <div className="w-px h-12 bg-border" />
+              <div className="w-px h-12 bg-primary/10" />
               <div>
-                <span className="block text-4xl font-bold text-primary">
+                <span className="block text-4xl font-headline font-bold text-primary">
                   {usersLoading ? <Loader2 className="h-6 w-6 animate-spin inline" /> : stats.students}
                 </span>
-                <span className="text-xs text-muted-foreground uppercase font-black tracking-tighter">Active Students</span>
+                <span className="text-xs text-muted-foreground uppercase font-black tracking-tighter">Active NITians</span>
               </div>
             </div>
           </div>
@@ -145,11 +152,11 @@ export default function Home() {
       {/* Department Section */}
       <section className="container mx-auto px-4 space-y-12">
         <div className="text-center space-y-4">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground">
-            Browse by <span className="text-primary italic underline underline-offset-8">Department</span>
+          <h2 className="text-4xl md:text-5xl font-headline font-bold text-foreground">
+            Explore <span className="text-primary italic">Departments</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Access specialized resources curated for each of NIT Srinagar's premier engineering branches.
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
+            Direct access to specialized academic materials curated for NIT Srinagar's premier engineering curricula.
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -157,7 +164,7 @@ export default function Home() {
             const Icon = BRANCH_ICONS[branch] || Globe;
             return (
               <Link key={branch} href={`/browse?branch=${encodeURIComponent(branch)}`}>
-                <Card className="group relative overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 border border-border/50 bg-card cursor-pointer h-full">
+                <Card className="group relative overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 border border-primary/5 bg-card cursor-pointer h-full rounded-[2.5rem]">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   <CardContent className="flex flex-col items-center justify-center p-10 gap-6 text-center relative z-10">
                     <div className="p-6 rounded-3xl bg-secondary group-hover:bg-primary transition-all duration-500 scale-100 group-hover:rotate-6 shadow-sm group-hover:shadow-lg group-hover:shadow-primary/30">
@@ -186,15 +193,15 @@ export default function Home() {
             <Cpu className="w-80 h-80" />
           </div>
           <div className="relative z-10 max-w-2xl space-y-8">
-            <h2 className="text-4xl md:text-6xl font-bold leading-tight">
-              Ready to contribute to the community?
+            <h2 className="text-4xl md:text-6xl font-headline font-bold leading-tight">
+              Empower the community.
             </h2>
             <p className="text-xl text-primary-foreground/90 leading-relaxed font-medium">
-              Join hundreds of NITians sharing their knowledge. Your notes could be the key to someone else's success.
+              Join hundreds of NIT Srinagar students sharing their knowledge. Your contributions make academic excellence accessible to all.
             </p>
             <div className="flex gap-4 pt-4">
               <Button asChild size="lg" variant="secondary" className="rounded-full px-10 font-bold h-16 text-lg hover:scale-105 transition-transform">
-                <Link href="/upload">Upload Material Now</Link>
+                <Link href="/upload">Upload Material</Link>
               </Button>
             </div>
           </div>

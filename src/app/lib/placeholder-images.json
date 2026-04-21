@@ -14,28 +14,34 @@
       "imageHint": "library interior"
     },
     {
+      "id": "hero-campus-3",
+      "description": "Lush greenery and scenic mountain view of NIT Srinagar campus",
+      "imageUrl": "https://picsum.photos/seed/nits3/1600/800",
+      "imageHint": "mountain landscape"
+    },
+    {
       "id": "branch-it",
       "description": "Software development and modern IT infrastructure",
       "imageUrl": "https://picsum.photos/seed/it-branch/1600/800",
-      "imageHint": "software development"
+      "imageHint": "software coding"
     },
     {
       "id": "branch-cse",
       "description": "Artificial intelligence and data science visualization",
       "imageUrl": "https://picsum.photos/seed/cse-branch/1600/800",
-      "imageHint": "computer science"
+      "imageHint": "artificial intelligence"
     },
     {
       "id": "branch-electrical",
       "description": "Power systems and renewable energy technology",
       "imageUrl": "https://picsum.photos/seed/ee-branch/1600/800",
-      "imageHint": "electrical engineering"
+      "imageHint": "power lines"
     },
     {
       "id": "branch-mechanical",
       "description": "Advanced robotics and mechanical systems",
       "imageUrl": "https://picsum.photos/seed/me-branch/1600/800",
-      "imageHint": "mechanical engineering"
+      "imageHint": "mechanical gears"
     },
     {
       "id": "branch-chemical",
@@ -47,25 +53,25 @@
       "id": "branch-civil",
       "description": "Large scale civil infrastructure and design",
       "imageUrl": "https://picsum.photos/seed/ce-branch/1600/800",
-      "imageHint": "civil construction"
+      "imageHint": "bridge construction"
     },
     {
       "id": "branch-ece",
       "description": "Microchip design and communication signals",
       "imageUrl": "https://picsum.photos/seed/ece-branch/1600/800",
-      "imageHint": "electronics signal"
+      "imageHint": "microchip electronics"
     },
     {
       "id": "branch-meta",
       "description": "Metallurgical testing and material science",
       "imageUrl": "https://picsum.photos/seed/meta-branch/1600/800",
-      "imageHint": "material science"
+      "imageHint": "molten metal"
     },
     {
       "id": "animesh-photo",
       "description": "Photo of Animesh Kumar",
       "imageUrl": "https://picsum.photos/seed/animesh/400/400",
-      "imageHint": "student profile"
+      "imageHint": "student portrait"
     },
     {
       "id": "vansh-photo",
@@ -77,7 +83,7 @@
       "id": "yatharth-photo",
       "description": "Photo of Yatharth Pandey",
       "imageUrl": "https://picsum.photos/seed/yatharth/400/400",
-      "imageHint": "student photo"
+      "imageHint": "student portrait"
     }
   ]
 }
