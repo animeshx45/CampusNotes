@@ -20,52 +20,100 @@
       "imageHint": "mountain landscape"
     },
     {
-      "id": "branch-it",
+      "id": "branch-it-1",
       "description": "Software development and modern IT infrastructure",
-      "imageUrl": "https://picsum.photos/seed/it-branch/1600/800",
+      "imageUrl": "https://picsum.photos/seed/it-branch-1/1600/800",
       "imageHint": "software coding"
     },
     {
-      "id": "branch-cse",
+      "id": "branch-it-2",
+      "description": "Cybersecurity and network operations",
+      "imageUrl": "https://picsum.photos/seed/it-branch-2/1600/800",
+      "imageHint": "cyber security"
+    },
+    {
+      "id": "branch-cse-1",
       "description": "Artificial intelligence and data science visualization",
-      "imageUrl": "https://picsum.photos/seed/cse-branch/1600/800",
+      "imageUrl": "https://picsum.photos/seed/cse-branch-1/1600/800",
       "imageHint": "artificial intelligence"
     },
     {
-      "id": "branch-electrical",
+      "id": "branch-cse-2",
+      "description": "High-performance computing clusters",
+      "imageUrl": "https://picsum.photos/seed/cse-branch-2/1600/800",
+      "imageHint": "server room"
+    },
+    {
+      "id": "branch-electrical-1",
       "description": "Power systems and renewable energy technology",
-      "imageUrl": "https://picsum.photos/seed/ee-branch/1600/800",
+      "imageUrl": "https://picsum.photos/seed/ee-branch-1/1600/800",
       "imageHint": "power electronics"
     },
     {
-      "id": "branch-mechanical",
+      "id": "branch-electrical-2",
+      "description": "Electrical grid and smart meters",
+      "imageUrl": "https://picsum.photos/seed/ee-branch-2/1600/800",
+      "imageHint": "electric grid"
+    },
+    {
+      "id": "branch-mechanical-1",
       "description": "Advanced robotics and mechanical systems",
-      "imageUrl": "https://picsum.photos/seed/me-branch/1600/800",
+      "imageUrl": "https://picsum.photos/seed/me-branch-1/1600/800",
       "imageHint": "industrial machinery"
     },
     {
-      "id": "branch-chemical",
+      "id": "branch-mechanical-2",
+      "description": "Automotive engineering and design",
+      "imageUrl": "https://picsum.photos/seed/me-branch-2/1600/800",
+      "imageHint": "car engine"
+    },
+    {
+      "id": "branch-chemical-1",
       "description": "Industrial chemical processing and research",
-      "imageUrl": "https://picsum.photos/seed/che-branch/1600/800",
+      "imageUrl": "https://picsum.photos/seed/che-branch-1/1600/800",
       "imageHint": "chemical laboratory"
     },
     {
-      "id": "branch-civil",
+      "id": "branch-chemical-2",
+      "description": "Petrochemical refinery at night",
+      "imageUrl": "https://picsum.photos/seed/che-branch-2/1600/800",
+      "imageHint": "oil refinery"
+    },
+    {
+      "id": "branch-civil-1",
       "description": "Large scale civil infrastructure and design",
-      "imageUrl": "https://picsum.photos/seed/ce-branch/1600/800",
+      "imageUrl": "https://picsum.photos/seed/ce-branch-1/1600/800",
       "imageHint": "bridge construction"
     },
     {
-      "id": "branch-ece",
+      "id": "branch-civil-2",
+      "description": "Urban planning and skyscraper architecture",
+      "imageUrl": "https://picsum.photos/seed/ce-branch-2/1600/800",
+      "imageHint": "skyscraper city"
+    },
+    {
+      "id": "branch-ece-1",
       "description": "Microchip design and communication signals",
-      "imageUrl": "https://picsum.photos/seed/ece-branch/1600/800",
+      "imageUrl": "https://picsum.photos/seed/ece-branch-1/1600/800",
       "imageHint": "microchip circuit"
     },
     {
-      "id": "branch-meta",
+      "id": "branch-ece-2",
+      "description": "Satellite communications and antennas",
+      "imageUrl": "https://picsum.photos/seed/ece-branch-2/1600/800",
+      "imageHint": "satellite antenna"
+    },
+    {
+      "id": "branch-meta-1",
       "description": "Metallurgical testing and material science",
-      "imageUrl": "https://picsum.photos/seed/meta-branch/1600/800",
+      "imageUrl": "https://picsum.photos/seed/meta-branch-1/1600/800",
       "imageHint": "molten metal"
+    },
+    {
+      "id": "branch-meta-2",
+      "description": "Nanotechnology and crystal structures",
+      "imageUrl": "https://picsum.photos/seed/meta-branch-2/1600/800",
+      "imageHint": "microscopic crystal"
     },
     {
       "id": "animesh-photo",

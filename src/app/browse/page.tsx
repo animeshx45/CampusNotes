@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { BRANCHES, SEMESTERS } from '@/lib/mock-data';
 import { DEPARTMENT_REPRESENTATIVES } from '@/lib/department-data';
@@ -11,15 +11,38 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Search, SlidersHorizontal, ArrowRight, Loader2, Mail, Linkedin, FileText, GraduationCap, Clock } from 'lucide-react';
+import { 
+  Search, SlidersHorizontal, ArrowRight, Loader2, Mail, Linkedin, 
+  FileText, GraduationCap, Clock, Sparkles
+} from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
+import { 
+  Carousel, 
+  CarouselContent, 
+  CarouselItem, 
+  CarouselNext, 
+  CarouselPrevious 
+} from '@/components/ui/carousel';
+import placeholderData from '@/app/lib/placeholder-images.json';
+
+const BRANCH_IMAGE_MAP: Record<string, string[]> = {
+  'Information Technology': ['branch-it-1', 'branch-it-2', 'hero-campus-1'],
+  'Computer Science & Engineering': ['branch-cse-1', 'branch-cse-2', 'hero-campus-2'],
+  'Electrical Engineering': ['branch-electrical-1', 'branch-electrical-2', 'hero-campus-3'],
+  'Mechanical Engineering': ['branch-mechanical-1', 'branch-mechanical-2', 'hero-campus-1'],
+  'Chemical Engineering': ['branch-chemical-1', 'branch-chemical-2', 'hero-campus-2'],
+  'Civil Engineering': ['branch-civil-1', 'branch-civil-2', 'hero-campus-3'],
+  'Electronics & Communication Engineering': ['branch-ece-1', 'branch-ece-2', 'hero-campus-1'],
+  'Metallurgical & Materials Engineering': ['branch-meta-1', 'branch-meta-2', 'hero-campus-2']
+};
 
 export default function BrowsePage() {
   const searchParams = useSearchParams();
   const db = useFirestore();
+  const [api, setApi] = useState<any>();
   
   const [selectedBranch, setSelectedBranch] = useState<string>(searchParams.get('branch') || 'all');
   const [selectedSemester, setSelectedSemester] = useState<string>('all');
@@ -43,6 +66,19 @@ export default function BrowsePage() {
     return DEPARTMENT_REPRESENTATIVES.filter(r => r.branch === selectedBranch);
   }, [selectedBranch]);
 
+  const branchSlides = useMemo(() => {
+    if (selectedBranch === 'all') return null;
+    return BRANCH_IMAGE_MAP[selectedBranch] || ['hero-campus-1', 'hero-campus-2', 'hero-campus-3'];
+  }, [selectedBranch]);
+
+  useEffect(() => {
+    if (!api) return;
+    const intervalId = setInterval(() => {
+      api.scrollNext();
+    }, 5000);
+    return () => clearInterval(intervalId);
+  }, [api]);
+
   if (isLoading) return (
     <div className="py-32 flex flex-col items-center justify-center gap-4">
       <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -52,25 +88,71 @@ export default function BrowsePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header Section */}
-      <div className="bg-primary/5 border-b border-primary/10">
-        <div className="container mx-auto px-4 py-12">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div className="space-y-2">
-              <h1 className="text-4xl md:text-5xl font-headline font-bold text-primary">
-                Resource <span className="text-foreground">Vault</span>
-              </h1>
-              <p className="text-muted-foreground text-lg">
-                Explore thousands of student-verified materials across all NIT Srinagar departments.
-              </p>
-            </div>
-            <Button asChild size="lg" className="rounded-full shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
-              <Link href="/upload">
-                Share Material <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
+      {/* Dynamic Header Section */}
+      <div className="relative overflow-hidden border-b border-primary/10">
+        {selectedBranch !== 'all' && branchSlides ? (
+          <div className="h-[350px] md:h-[450px] relative">
+            <Carousel setApi={setApi} className="w-full h-full" opts={{ loop: true }}>
+              <CarouselContent className="h-full -ml-0">
+                {branchSlides.map((slideId) => {
+                  const imageData = placeholderData.placeholderImages.find(img => img.id === slideId);
+                  return (
+                    <CarouselItem key={slideId} className="relative h-[350px] md:h-[450px] pl-0">
+                      <Image 
+                        src={imageData?.imageUrl || `https://picsum.photos/seed/${slideId}/1600/800`}
+                        alt={selectedBranch}
+                        fill
+                        className="object-cover"
+                        priority
+                        data-ai-hint={imageData?.imageHint || "engineering"}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent z-10" />
+                      <div className="absolute inset-0 bg-primary/10 mix-blend-multiply z-10" />
+                      
+                      <div className="container mx-auto px-4 h-full flex flex-col justify-center relative z-20">
+                        <div className="max-w-2xl space-y-4 animate-in fade-in slide-in-from-bottom-6 duration-700">
+                          <Badge className="bg-primary text-white border-none px-4 py-1 text-xs uppercase tracking-widest font-black rounded-full shadow-lg">
+                            {selectedBranch}
+                          </Badge>
+                          <h1 className="text-4xl md:text-6xl font-headline font-bold text-white drop-shadow-2xl">
+                            {selectedBranch.split(' ')[0]} <span className="text-primary italic">Resource hub</span>
+                          </h1>
+                          <p className="text-lg text-white/90 font-medium max-w-lg drop-shadow-md">
+                            Browse specialized materials curated by your department seniors and representatives.
+                          </p>
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              <div className="absolute bottom-6 right-6 z-30 flex gap-2">
+                <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-white/20 bg-black/40 text-white hover:bg-primary" />
+                <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-white/20 bg-black/40 text-white hover:bg-primary" />
+              </div>
+            </Carousel>
           </div>
-        </div>
+        ) : (
+          <div className="bg-primary/5 py-16">
+            <div className="container mx-auto px-4">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div className="space-y-2">
+                  <h1 className="text-4xl md:text-5xl font-headline font-bold text-primary">
+                    Resource <span className="text-foreground">Vault</span>
+                  </h1>
+                  <p className="text-muted-foreground text-lg">
+                    Explore thousands of student-verified materials across all NIT Srinagar departments.
+                  </p>
+                </div>
+                <Button asChild size="lg" className="rounded-full shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
+                  <Link href="/upload">
+                    Share Material <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="container mx-auto px-4 py-12">
