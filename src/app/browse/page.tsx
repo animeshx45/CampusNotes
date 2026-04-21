@@ -178,7 +178,11 @@ export default function BrowsePage() {
                 {branchSlides.map((slideId, index) => {
                   const imageData = placeholderData.placeholderImages.find(img => img.id === slideId);
                   const imageUrl = imageData?.imageUrl || `https://picsum.photos/seed/${slideId}/1600/800`;
-                  const isExternal = imageUrl.includes('nitsri.ac.in') || imageUrl.includes('pixabay.com') || imageUrl.includes('cdn.pixabay.com');
+                  const isExternal = 
+                    imageUrl.includes('nitsri.ac.in') || 
+                    imageUrl.includes('pixabay.com') || 
+                    imageUrl.includes('cdn.pixabay.com') ||
+                    imageUrl.includes('bing.net');
 
                   return (
                     <CarouselItem key={slideId} className="relative h-[300px] md:h-[450px] pl-0">

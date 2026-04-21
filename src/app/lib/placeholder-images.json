@@ -21,8 +21,8 @@
     },
     {
       "id": "hero-campus-3",
-      "description": "Lush greenery and scenic mountain view of NIT Srinagar campus",
-      "imageUrl": "https://picsum.photos/seed/nits3/1600/800",
+      "description": "Majestic scenic view of NIT Srinagar campus",
+      "imageUrl": "https://tse1.mm.bing.net/th/id/OIP.PdiM4ShiU3ndj405IMDaEAHaEJ?rs=1&pid=ImgDetMain&o=7&rm=3",
       "imageHint": "mountain landscape"
     },
     {
@@ -90,12 +90,6 @@
       "description": "Official Mechanical Engineering Slider Photo from NIT Srinagar",
       "imageUrl": "https://nitsri.ac.in/SliderPhoto/4860.jpg",
       "imageHint": "mechanical laboratory"
-    },
-    {
-      "id": "branch-mechanical-1",
-      "description": "Advanced robotics and mechanical systems",
-      "imageUrl": "https://pixabay.com/images/download/ly452740370-mechanical-engineering-2540521_1920.jpg",
-      "imageHint": "industrial machinery"
     },
     {
       "id": "branch-mechanical-2",
