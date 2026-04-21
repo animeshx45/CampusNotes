@@ -40,7 +40,7 @@ const SLIDES = [
   { id: 'branch-it-1', title: 'Information Technology', subtitle: 'Empowering digital transformation and network security.' },
   { id: 'branch-mechanical-official', title: 'Mechanical Engineering', subtitle: 'Mastering the tools of the future with verified student resources.' },
   { id: 'branch-cse-programming', title: 'Modern Programming', subtitle: 'Mastering code with official NIT Srinagar department resources.' },
-  { id: 'branch-civil-1', title: 'Civil Engineering', subtitle: 'Constructing resilient and modern infrastructure.' },
+  { id: 'branch-civil-official', title: 'Civil Engineering', subtitle: 'Constructing resilient and modern infrastructure.' },
   { id: 'branch-chemical-1', title: 'Chemical Engineering', subtitle: 'Advancing industrial processes and chemical research.' },
   { id: 'branch-meta-1', title: 'Metallurgy & Materials', subtitle: 'Developing the fundamental materials of modern tech.' },
   { id: 'hero-campus-3', title: 'Majestic Campus', subtitle: 'Study amidst the beauty of Srinagar\'s mountains.' }

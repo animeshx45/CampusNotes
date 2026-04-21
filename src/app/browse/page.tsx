@@ -42,7 +42,7 @@ const BRANCH_IMAGE_MAP: Record<string, string[]> = {
   'Electrical Engineering': ['branch-electrical-3', 'branch-electrical-1', 'branch-electrical-2'],
   'Mechanical Engineering': ['branch-mechanical-official', 'branch-mechanical-1', 'branch-mechanical-2', 'hero-campus-1'],
   'Chemical Engineering': ['branch-chemical-1', 'branch-chemical-2', 'hero-campus-2'],
-  'Civil Engineering': ['branch-civil-1', 'branch-civil-2', 'hero-campus-3'],
+  'Civil Engineering': ['branch-civil-official', 'branch-civil-1', 'branch-civil-2', 'hero-campus-3'],
   'Electronics & Communication Engineering': ['branch-ece-1', 'branch-ece-2', 'hero-campus-1'],
   'Metallurgical & Materials Engineering': ['branch-meta-1', 'branch-meta-2', 'hero-campus-2']
 };

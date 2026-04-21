@@ -110,6 +110,12 @@
       "imageHint": "oil refinery"
     },
     {
+      "id": "branch-civil-official",
+      "description": "Official Civil Engineering Slider Photo from NIT Srinagar",
+      "imageUrl": "https://nitsri.ac.in/SliderPhoto/3189.jpg",
+      "imageHint": "civil laboratory"
+    },
+    {
       "id": "branch-civil-1",
       "description": "Large scale civil infrastructure and design",
       "imageUrl": "https://pixabay.com/images/download/x-8198882_1920.jpg",
