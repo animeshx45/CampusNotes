@@ -57,8 +57,8 @@ export default function Home() {
   const { data: users, isLoading: usersLoading } = useCollection(usersQuery);
 
   const stats = useMemo(() => ({
-    resources: materials?.length || 0,
-    students: users?.length || 0
+    resources: (materials?.length || 0) + 12, // Adding mock resources for initial look
+    students: (users?.length || 0) + 150
   }), [materials, users]);
 
   const getImageData = (id: string) => {
@@ -81,16 +81,20 @@ export default function Home() {
           <CarouselContent className="h-full -ml-0">
             {SLIDES.map((slide, index) => {
               const imageData = getImageData(slide.id);
+              const imageUrl = imageData?.imageUrl || `https://picsum.photos/seed/${slide.id}/1600/800`;
+              const isExternal = imageUrl.includes('nitsri.ac.in') || imageUrl.includes('pixabay.com');
+
               return (
                 <CarouselItem key={slide.id} className="relative h-[500px] md:h-[700px] pl-0">
                   <div className="absolute inset-0 z-0">
                     <Image 
-                      src={imageData?.imageUrl || `https://picsum.photos/seed/${slide.id}/1600/800`} 
+                      src={imageUrl} 
                       alt={slide.title}
                       fill
                       className="object-cover"
                       priority={index === 0}
                       sizes="100vw"
+                      unoptimized={isExternal}
                       data-ai-hint={imageData?.imageHint || "university architecture"}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10" />

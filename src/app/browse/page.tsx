@@ -72,7 +72,7 @@ export default function BrowsePage() {
   const [selectedSemester, setSelectedSemester] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
 
-  const materialsQuery = useMemoFirebase(() => db ? query(collection(db, 'studyMaterials'), orderBy('createdAt', 'desc')) : null, [db]);
+  const materialsQuery = useMemoFirebase(() => db ? query(collection(db, 'studyMaterials'), orderBy('uploadedAt', 'desc')) : null, [db]);
   const { data: materials, isLoading } = useCollection<StudyMaterial>(materialsQuery);
 
   const filteredMaterials = useMemo(() => {
@@ -188,15 +188,19 @@ export default function BrowsePage() {
               <CarouselContent className="h-full -ml-0">
                 {branchSlides.map((slideId, index) => {
                   const imageData = placeholderData.placeholderImages.find(img => img.id === slideId);
+                  const imageUrl = imageData?.imageUrl || `https://picsum.photos/seed/${slideId}/1600/800`;
+                  const isExternal = imageUrl.includes('nitsri.ac.in') || imageUrl.includes('pixabay.com');
+
                   return (
                     <CarouselItem key={slideId} className="relative h-[300px] md:h-[450px] pl-0">
                       <Image 
-                        src={imageData?.imageUrl || `https://picsum.photos/seed/${slideId}/1600/800`}
+                        src={imageUrl}
                         alt={selectedBranch}
                         fill
                         className="object-cover"
                         priority={index === 0}
                         sizes="100vw"
+                        unoptimized={isExternal}
                         data-ai-hint={imageData?.imageHint || "engineering"}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent z-10" />
@@ -319,7 +323,7 @@ export default function BrowsePage() {
                           {material.type}
                         </Badge>
                         <div className="flex items-center gap-1.5 text-[9px] md:text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
-                          <Clock className="h-3 w-3" /> {formatDate(material.createdAt)}
+                          <Clock className="h-3 w-3" /> {formatDate(material.createdAt || material.uploadedAt)}
                         </div>
                       </div>
                       <CardTitle className="text-lg md:text-xl font-headline font-bold group-hover:text-primary transition-colors leading-tight line-clamp-2">
