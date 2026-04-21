@@ -18,7 +18,7 @@ import {
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, Timestamp } from 'firebase/firestore';
 import { 
   Carousel, 
   CarouselContent, 
@@ -33,6 +33,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { cn } from '@/lib/utils';
 import placeholderData from '@/app/lib/placeholder-images.json';
 
 const BRANCH_IMAGE_MAP: Record<string, string[]> = {
@@ -59,7 +60,6 @@ export default function BrowsePage() {
   const { data: materials, isLoading } = useCollection<StudyMaterial>(materialsQuery);
 
   const filteredMaterials = useMemo(() => {
-    // Merge Firestore data with Mock Data (Playlists)
     const combined = [...(materials || []), ...MOCK_MATERIALS];
     
     return combined.filter(m => {
@@ -89,6 +89,12 @@ export default function BrowsePage() {
     }, 5000);
     return () => clearInterval(intervalId);
   }, [api]);
+
+  const formatDate = (date: any) => {
+    if (date instanceof Timestamp) return date.toDate().toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    if (typeof date === 'string') return new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    return 'Recently';
+  };
 
   if (isLoading) return (
     <div className="py-32 flex flex-col items-center justify-center gap-4">
@@ -164,7 +170,6 @@ export default function BrowsePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Dynamic Header Section */}
       <div className="relative overflow-hidden border-b border-primary/10">
         {selectedBranch !== 'all' && branchSlides ? (
           <div className="h-[300px] md:h-[450px] relative">
@@ -234,7 +239,6 @@ export default function BrowsePage() {
 
       <div className="container mx-auto px-4 py-8 md:py-12">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Mobile Filter Trigger */}
           <div className="lg:hidden flex justify-between items-center mb-4">
              <div className="flex items-center gap-2">
                <Filter className="h-4 w-4 text-primary" />
@@ -255,16 +259,13 @@ export default function BrowsePage() {
              </Sheet>
           </div>
 
-          {/* Filters Sidebar (Desktop) */}
           <aside className="hidden lg:block w-80 shrink-0">
             <div className="bg-card p-6 rounded-[2rem] border border-primary/10 shadow-xl space-y-8 sticky top-24">
               <FilterContent />
             </div>
           </aside>
 
-          {/* Main Content Area */}
           <div className="flex-1 space-y-8">
-            {/* Reps Highlight */}
             {selectedReps.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {selectedReps.map((rep, idx) => (
@@ -293,7 +294,6 @@ export default function BrowsePage() {
               </div>
             )}
 
-            {/* Materials Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {filteredMaterials.length > 0 ? (
                 filteredMaterials.map((material) => (
@@ -308,7 +308,7 @@ export default function BrowsePage() {
                           {material.type}
                         </Badge>
                         <div className="flex items-center gap-1.5 text-[9px] md:text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
-                          <Clock className="h-3 w-3" /> {new Date(material.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                          <Clock className="h-3 w-3" /> {formatDate(material.createdAt)}
                         </div>
                       </div>
                       <CardTitle className="text-lg md:text-xl font-headline font-bold group-hover:text-primary transition-colors leading-tight line-clamp-2">
