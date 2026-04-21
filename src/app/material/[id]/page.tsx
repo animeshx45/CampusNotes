@@ -1,13 +1,14 @@
 
 "use client";
 
-import { useState, use, useEffect } from 'react';
+import { useState, use, useEffect, useMemo } from 'react';
 import { StudyMaterial } from '@/lib/types';
+import { MOCK_MATERIALS } from '@/lib/mock-data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BrainCircuit, Download, FileText, Share2, MessageSquare, Info, Sparkles, AlertCircle, Loader2, Zap } from 'lucide-react';
+import { BrainCircuit, Download, FileText, Share2, MessageSquare, Info, Sparkles, AlertCircle, Loader2, Zap, ArrowLeft } from 'lucide-react';
 import { generateStudyMaterialSummary } from '@/ai/flows/generate-study-material-summary';
 import { generateExamQuestions } from '@/ai/flows/generate-exam-questions-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -36,12 +37,18 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
   const { toast } = useToast();
   const db = useFirestore();
 
+  // First, try to find in mock data
+  const mockMaterial = useMemo(() => MOCK_MATERIALS.find(m => m.id === id), [id]);
+
   const materialRef = useMemoFirebase(() => {
-    if (!db || !id) return null;
+    if (!db || !id || id.startsWith('yt-')) return null;
     return doc(db, 'studyMaterials', id);
   }, [db, id]);
 
-  const { data: material, isLoading } = useDoc<StudyMaterial>(materialRef);
+  const { data: dbMaterial, isLoading } = useDoc<StudyMaterial>(materialRef);
+
+  // Determine final material object
+  const material = mockMaterial || dbMaterial;
 
   const [summary, setSummary] = useState<string | null>(null);
   const [questions, setQuestions] = useState<string[] | null>(null);
@@ -54,13 +61,21 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     }
   }, [material, id]);
 
-  if (isLoading) return <ModernLoader message="Decoding material..." />;
+  if (isLoading && !mockMaterial) return <ModernLoader message="Decoding material..." />;
 
   if (!material) {
     return (
-      <div className="container mx-auto py-20 text-center space-y-4">
-        <h1 className="text-2xl font-bold text-primary">Material not found</h1>
-        <Button asChild className="rounded-full"><Link href="/browse">Back to Browse</Link></Button>
+      <div className="container mx-auto py-20 text-center space-y-6">
+        <div className="bg-primary/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto">
+          <AlertCircle className="h-10 w-10 text-primary" />
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-headline font-bold text-primary">Material not found</h1>
+          <p className="text-muted-foreground">The resource you're looking for might have been moved or deleted.</p>
+        </div>
+        <Button asChild className="rounded-full px-8 h-12">
+          <Link href="/browse"><ArrowLeft className="mr-2 h-4 w-4" /> Back to Vault</Link>
+        </Button>
       </div>
     );
   }
@@ -99,30 +114,31 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
   };
 
   const formatDate = (date: any) => {
+    if (!date) return 'Recently';
     if (date instanceof Timestamp) return date.toDate().toLocaleDateString();
     if (typeof date === 'string') return new Date(date).toLocaleDateString();
     return new Date().toLocaleDateString();
   };
 
   return (
-    <div className="container mx-auto px-4 py-12 flex flex-col gap-8 max-w-6xl">
-      <div className="flex flex-col md:flex-row justify-between items-start gap-6 border-b pb-8">
+    <div className="container mx-auto px-4 py-12 flex flex-col gap-8 max-w-6xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col md:flex-row justify-between items-start gap-6 border-b border-primary/10 pb-8">
         <div className="space-y-4 flex-grow">
-          <div className="flex items-center gap-3">
-            <Badge className="bg-accent text-white border-none">{material.branch}</Badge>
-            <Badge variant="outline">Semester {material.semester}</Badge>
-            <Badge variant="secondary">{material.type}</Badge>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge className="bg-primary text-white border-none">{material.branch}</Badge>
+            <Badge variant="outline" className="border-primary/20">Sem {material.semester}</Badge>
+            <Badge variant="secondary" className="bg-secondary text-primary font-bold">{material.type}</Badge>
           </div>
-          <h1 className="text-4xl font-headline font-bold text-primary leading-tight">{material.title}</h1>
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1"><FileText className="h-4 w-4" /> Shared by {material.author}</div>
-            <div className="flex items-center gap-1"><Info className="h-4 w-4" /> {formatDate(material.createdAt)}</div>
-            <div className="flex items-center gap-1"><Download className="h-4 w-4" /> {material.downloadCount || 0} downloads</div>
+          <h1 className="text-3xl md:text-5xl font-headline font-bold text-primary leading-tight">{material.title}</h1>
+          <div className="flex flex-wrap items-center gap-4 text-xs md:text-sm text-muted-foreground">
+            <div className="flex items-center gap-1.5"><FileText className="h-4 w-4" /> Shared by <span className="font-bold text-foreground">{material.author}</span></div>
+            <div className="flex items-center gap-1.5"><Info className="h-4 w-4" /> {formatDate(material.createdAt)}</div>
+            <div className="flex items-center gap-1.5"><Download className="h-4 w-4" /> {material.downloadCount || 0} downloads</div>
           </div>
         </div>
-        <div className="flex gap-3 shrink-0">
-          <Button variant="outline" size="icon" className="rounded-full"><Share2 className="h-4 w-4" /></Button>
-          <Button size="lg" className="rounded-full px-8 shadow-lg shadow-primary/20" onClick={handleDownload}>
+        <div className="flex gap-3 shrink-0 w-full md:w-auto">
+          <Button variant="outline" size="icon" className="rounded-full border-primary/20 hover:bg-primary/5 h-12 w-12"><Share2 className="h-5 w-5" /></Button>
+          <Button size="lg" className="rounded-full px-8 h-12 shadow-lg shadow-primary/20 flex-1 md:flex-none font-bold text-base" onClick={handleDownload}>
             <Download className="mr-2 h-5 w-5" /> Download PDF
           </Button>
         </div>
@@ -130,31 +146,38 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-          <Card className="border-none shadow-sm bg-white dark:bg-card rounded-[2rem]">
-            <CardHeader>
-              <CardTitle className="font-headline font-bold">Description</CardTitle>
+          <Card className="border-none shadow-xl bg-card rounded-[2rem] overflow-hidden">
+            <CardHeader className="bg-primary/5 border-b border-primary/10">
+              <CardTitle className="font-headline font-bold text-primary flex items-center gap-2">
+                <FileText className="h-5 w-5" /> Resource Overview
+              </CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground leading-relaxed">
+            <CardContent className="p-8">
+              <p className="text-muted-foreground leading-relaxed text-lg">
                 {material.description}
               </p>
-              <div className="mt-8 bg-secondary p-6 rounded-2xl flex items-center gap-4 text-sm">
-                <AlertCircle className="text-primary shrink-0" />
-                <p>Ensure you check the syllabus version before relying solely on these notes for exams.</p>
+              <div className="mt-8 bg-secondary/50 p-6 rounded-2xl flex items-center gap-4 text-sm border border-primary/10">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                   <AlertCircle className="text-primary h-6 w-6" />
+                </div>
+                <p className="font-medium">Ensure you verify this content with your current academic syllabus before examinations.</p>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-sm bg-white dark:bg-card rounded-[2rem]">
-            <CardHeader>
-              <CardTitle className="font-headline font-bold">Material Preview</CardTitle>
-              <CardDescription>A snippet of the content is available below.</CardDescription>
+          <Card className="border-none shadow-xl bg-card rounded-[2rem] overflow-hidden">
+            <CardHeader className="bg-primary/5 border-b border-primary/10">
+              <CardTitle className="font-headline font-bold text-primary">Material Preview</CardTitle>
+              <CardDescription>Visual snippet of the resource.</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="aspect-[4/3] bg-muted rounded-[2rem] flex items-center justify-center border-2 border-dashed">
-                <div className="text-center space-y-2">
-                  <FileText className="h-12 w-12 text-muted-foreground mx-auto" />
-                  <p className="text-sm text-muted-foreground">Preview not available for this format.</p>
+            <CardContent className="p-8">
+              <div className="aspect-[16/10] bg-muted/30 rounded-[1.5rem] flex items-center justify-center border-2 border-dashed border-primary/10 group hover:border-primary/40 transition-colors">
+                <div className="text-center space-y-3">
+                  <div className="h-16 w-16 bg-primary/5 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                    <FileText className="h-8 w-8 text-primary opacity-50" />
+                  </div>
+                  <p className="text-sm font-bold text-muted-foreground">Interactive preview is loading...</p>
+                  <p className="text-[10px] uppercase tracking-widest font-black text-muted-foreground/60">PDF Viewer Component Active</p>
                 </div>
               </div>
             </CardContent>
@@ -162,71 +185,76 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
         </div>
 
         <div className="space-y-6">
-          <Card className="bg-primary text-primary-foreground border-none shadow-xl overflow-hidden relative rounded-[2rem]">
-            <div className="absolute top-0 right-0 p-2 opacity-10">
-              <BrainCircuit className="h-24 w-24" />
+          <Card className="bg-primary text-primary-foreground border-none shadow-2xl overflow-hidden relative rounded-[2rem] group">
+            <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:scale-110 transition-transform duration-700">
+              <BrainCircuit className="h-32 w-32" />
             </div>
-            <CardHeader>
-              <CardTitle className="font-headline font-bold flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-accent" />
-                AI Study Aid
+            <CardHeader className="relative z-10 border-b border-white/10 pb-6">
+              <CardTitle className="font-headline font-bold text-xl flex items-center gap-2">
+                <Sparkles className="h-6 w-6 text-accent animate-pulse" />
+                AI Study Engine
               </CardTitle>
-              <CardDescription className="text-primary-foreground/70">
-                Leverage AI to help you revise faster.
+              <CardDescription className="text-primary-foreground/70 font-medium">
+                Deep analysis & revision tools.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 pt-6 relative z-10">
               <Tabs defaultValue="summary" className="w-full">
-                <TabsList className="w-full grid grid-cols-2 bg-primary-foreground/10 mb-4 border-none p-1 rounded-xl">
-                  <TabsTrigger value="summary" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-white">Summary</TabsTrigger>
-                  <TabsTrigger value="questions" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-white">Mock Qs</TabsTrigger>
+                <TabsList className="w-full grid grid-cols-2 bg-primary-foreground/10 mb-6 border-none p-1 rounded-xl h-11">
+                  <TabsTrigger value="summary" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-white font-bold transition-all">Summary</TabsTrigger>
+                  <TabsTrigger value="questions" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-white font-bold transition-all">Mock Qs</TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="summary" className="min-h-[200px]">
+                <TabsContent value="summary" className="min-h-[250px] focus-visible:ring-0">
                   {summary ? (
-                    <div className="text-sm bg-white/10 p-4 rounded-xl leading-relaxed whitespace-pre-wrap animate-in fade-in zoom-in duration-300">
+                    <div className="text-sm bg-white/10 p-5 rounded-2xl leading-relaxed whitespace-pre-wrap animate-in fade-in zoom-in duration-500 border border-white/5 shadow-inner">
                       {summary}
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-10 gap-4 text-center">
-                      <BrainCircuit className="h-10 w-10 opacity-30" />
-                      <p className="text-sm text-primary-foreground/60">Generate a concise summary of these notes.</p>
+                    <div className="flex flex-col items-center justify-center py-12 gap-6 text-center">
+                      <div className="bg-white/10 p-4 rounded-full">
+                        <BrainCircuit className="h-12 w-12 opacity-40" />
+                      </div>
+                      <p className="text-sm text-primary-foreground/60 max-w-[200px] font-medium">Compress these notes into a concise, high-impact summary.</p>
                       <Button 
                         variant="secondary" 
-                        size="sm" 
-                        className="rounded-full px-6"
+                        size="lg" 
+                        className="rounded-full px-8 font-bold h-12 shadow-lg"
                         onClick={handleGenerateSummary}
                         disabled={isLoadingSummary}
                       >
                         {isLoadingSummary ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
-                        Generate Summary
+                        Run Summarizer
                       </Button>
                     </div>
                   )}
                 </TabsContent>
 
-                <TabsContent value="questions" className="min-h-[200px]">
+                <TabsContent value="questions" className="min-h-[250px] focus-visible:ring-0">
                   {questions ? (
-                    <ul className="space-y-3 animate-in fade-in slide-in-from-bottom duration-300">
+                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom duration-500">
                       {questions.map((q, i) => (
-                        <li key={i} className="text-sm bg-white/10 p-3 rounded-xl flex gap-2">
-                          <span className="font-bold text-accent">Q{i+1}:</span> {q}
-                        </li>
+                        <div key={i} className="text-sm bg-white/10 p-4 rounded-2xl flex gap-3 border border-white/5 group/q hover:bg-white/15 transition-colors">
+                          <span className="font-black text-accent group-hover/q:scale-110 transition-transform">Q{i+1}</span> 
+                          <span className="leading-relaxed">{q}</span>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-10 gap-4 text-center">
-                      <MessageSquare className="h-10 w-10 opacity-30" />
-                      <p className="text-sm text-primary-foreground/60">Generate potential exam questions from this material.</p>
+                    <div className="flex flex-col items-center justify-center py-12 gap-6 text-center">
+                      <div className="bg-white/10 p-4 rounded-full">
+                        <MessageSquare className="h-12 w-12 opacity-40" />
+                      </div>
+                      <p className="text-sm text-primary-foreground/60 max-w-[200px] font-medium">Predict potential examination questions from this text.</p>
                       <Button 
                         variant="secondary" 
-                        size="sm" 
-                        className="rounded-full px-6"
+                        size="lg" 
+                        className="rounded-full px-8 font-bold h-12 shadow-lg"
                         onClick={handleGenerateQuestions}
                         disabled={isLoadingQuestions}
                       >
                         {isLoadingQuestions ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
-                        Generate Questions
+                        Predict Questions
                       </Button>
                     </div>
                   )}

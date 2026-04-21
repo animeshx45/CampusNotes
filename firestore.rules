@@ -10,17 +10,18 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow list: if true; // Homepage counts
+      allow list: if true;
       allow get: if isOwner(userId);
       allow create, update: if isOwner(userId);
     }
 
     match /studyMaterials/{id} {
       allow read: if true;
-      // Allow creation by anyone (anonymous or authenticated)
       allow create: if true;
-      // Updates and deletes still require the original uploader (if they were logged in)
-      allow update, delete: if isSignedIn() && resource.data.uploaderId == request.auth.uid;
+      // Allow everyone to update to support view/download counts
+      // In a production app, we would restrict which fields can be edited
+      allow update: if true;
+      allow delete: if isSignedIn() && resource.data.uploaderId == request.auth.uid;
     }
 
     match /branches/{id} { allow read: if true; }

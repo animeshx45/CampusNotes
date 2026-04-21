@@ -1,10 +1,9 @@
+
 'use client';
 
 import { 
   collection, 
   doc, 
-  query, 
-  orderBy, 
   serverTimestamp,
   increment,
   Firestore
@@ -13,11 +12,10 @@ import { initializeFirebase } from '@/firebase';
 import { addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 const MATERIALS_COLLECTION = 'studyMaterials';
-const USERS_COLLECTION = 'users';
 
 /**
  * Service for interacting with Study Materials in Firestore.
- * Refactored to follow non-blocking patterns.
+ * Refactored to follow non-blocking patterns and handle mock IDs gracefully.
  */
 class MaterialService {
   private db: Firestore;
@@ -43,9 +41,11 @@ class MaterialService {
 
   /**
    * Initiates an increment for the download count.
+   * Only attempts if the ID does not start with 'yt-' (curated playlists).
    * @param id The material ID.
    */
   incrementDownloadCount(id: string) {
+    if (id.startsWith('yt-')) return;
     const docRef = doc(this.db, MATERIALS_COLLECTION, id);
     updateDocumentNonBlocking(docRef, {
       downloadCount: increment(1)
@@ -54,9 +54,11 @@ class MaterialService {
 
   /**
    * Initiates a view count increment.
+   * Only attempts if the ID does not start with 'yt-' (curated playlists).
    * @param id The material ID.
    */
   incrementViewCount(id: string) {
+    if (id.startsWith('yt-')) return;
     const docRef = doc(this.db, MATERIALS_COLLECTION, id);
     updateDocumentNonBlocking(docRef, {
       views: increment(1)

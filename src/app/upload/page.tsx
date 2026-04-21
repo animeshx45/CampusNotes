@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, CheckCircle2, AlertCircle, Loader2, UserCircle } from 'lucide-react';
+import { Upload, CheckCircle2, AlertCircle, Loader2, UserCircle, FileText, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { materialService } from '@/services/material-service';
 import { useUser } from '@/firebase';
@@ -23,6 +23,7 @@ export default function UploadPage() {
   
   const [isUploading, setIsUploading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -30,152 +31,184 @@ export default function UploadPage() {
     branch: '' as Branch,
     semester: 1 as Semester,
     type: 'Note' as MaterialType,
-    author: user?.displayName || user?.email?.split('@')[0] || 'Anonymous',
+    author: user?.displayName || user?.email?.split('@')[0] || '',
     fileUrl: '',
   });
 
-  const handleUpload = (e: React.FormEvent) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.branch || !formData.title || !formData.description) {
-      toast({ title: "Error", description: "Please fill all required fields.", variant: "destructive" });
+      toast({ title: "Validation Error", description: "Please fill all required fields.", variant: "destructive" });
+      return;
+    }
+
+    if (formData.type !== 'YouTube Playlist' && !selectedFile) {
+      toast({ title: "File Required", description: "Please select a PDF or image file to upload.", variant: "destructive" });
       return;
     }
 
     setIsUploading(true);
     
-    // Allow anonymous uploaderId if user is not logged in
-    const uploaderId = user?.uid || 'anonymous';
+    try {
+      // Allow anonymous uploaderId if user is not logged in
+      const uploaderId = user?.uid || 'anonymous';
+      const authorName = formData.author || 'Anonymous Student';
 
-    materialService.uploadMaterial({
-      title: formData.title,
-      description: formData.description,
-      branch: formData.branch,
-      semester: formData.semester,
-      type: formData.type,
-      author: formData.author,
-      uploaderId: uploaderId,
-      fileUrl: formData.type === 'YouTube Playlist' ? formData.fileUrl : 'https://placehold.co/600x400/064e3b/ffffff?text=PDF+Material',
-      branchId: formData.branch,
-      semesterId: formData.semester.toString(),
-      materialTypeId: formData.type,
-    });
-    
-    setIsSuccess(true);
-    toast({
-      title: "Material Published!",
-      description: "Your contribution has been added successfully.",
-    });
-    setTimeout(() => router.push('/browse'), 2000);
+      // Simulate a small delay for realistic UX
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      await materialService.uploadMaterial({
+        title: formData.title,
+        description: formData.description,
+        branch: formData.branch,
+        semester: formData.semester,
+        type: formData.type,
+        author: authorName,
+        uploaderId: uploaderId,
+        fileUrl: formData.type === 'YouTube Playlist' ? formData.fileUrl : 'https://placehold.co/600x400/064e3b/ffffff?text=PDF+Material',
+        branchId: formData.branch,
+        semesterId: formData.semester.toString(),
+        materialTypeId: formData.type,
+      });
+      
+      setIsSuccess(true);
+      toast({
+        title: "Material Published!",
+        description: "Your contribution has been added to the vault.",
+      });
+      setTimeout(() => router.push('/browse'), 2500);
+    } catch (error: any) {
+      toast({
+        title: "Upload Failed",
+        description: error.message || "An unexpected error occurred.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   if (isSuccess) {
     return (
-      <div className="container mx-auto py-20 flex flex-col items-center justify-center text-center gap-6 animate-in fade-in zoom-in duration-500">
-        <div className="h-24 w-24 bg-primary/10 rounded-full flex items-center justify-center">
-          <CheckCircle2 className="h-12 w-12 text-primary" />
+      <div className="container mx-auto py-20 flex flex-col items-center justify-center text-center gap-8 animate-in fade-in zoom-in duration-700">
+        <div className="relative">
+          <div className="h-32 w-32 bg-primary/10 rounded-full flex items-center justify-center animate-pulse">
+            <CheckCircle2 className="h-16 w-16 text-primary" />
+          </div>
+          <div className="absolute -inset-4 border border-primary/20 rounded-full animate-ping opacity-20" />
         </div>
-        <h1 className="text-3xl font-headline font-bold text-primary">Contribution Successful!</h1>
-        <p className="text-muted-foreground max-w-md">Thank you for helping your peers. Your material is now live in the repository.</p>
-        <Button onClick={() => router.push('/browse')} className="rounded-full px-8 h-12 text-lg font-bold">Go to Browse</Button>
+        <div className="space-y-2">
+          <h1 className="text-4xl font-headline font-bold text-primary">Contribution Successful!</h1>
+          <p className="text-muted-foreground max-w-md mx-auto">Thank you for helping the NIT Srinagar community. Your material is now being indexed and will be live in seconds.</p>
+        </div>
+        <div className="flex gap-4">
+          <Button onClick={() => router.push('/browse')} className="rounded-full px-10 h-14 text-lg font-bold shadow-xl shadow-primary/20">Go to Vault</Button>
+          <Button variant="outline" onClick={() => setIsSuccess(false)} className="rounded-full px-10 h-14 text-lg font-bold border-primary/20">Upload Another</Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-4xl">
+    <div className="container mx-auto px-4 py-12 max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="text-center space-y-4 mb-12">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20 mb-4">
-          Community Contribution
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] border border-primary/20 mb-4 shadow-sm">
+          <Zap className="h-3 w-3" /> Community Resource
         </div>
-        <h1 className="text-4xl md:text-5xl font-headline font-bold text-primary">Share Study Material</h1>
-        <p className="text-muted-foreground text-sm md:text-lg max-w-2xl mx-auto">
-          Help your fellow NITians excel. You can now contribute resources anonymously or sign in to track your impact.
+        <h1 className="text-4xl md:text-6xl font-headline font-bold text-primary">Share Study <span className="text-foreground italic">Material</span></h1>
+        <p className="text-muted-foreground text-sm md:text-lg max-w-2xl mx-auto leading-relaxed">
+          Contribute to the largest peer-to-peer repository for NIT Srinagar. Your single share helps hundreds of peers.
         </p>
       </div>
 
       {!user && (
-        <Card className="mb-8 border-dashed border-primary/20 bg-primary/5">
-          <CardContent className="flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
+        <Card className="mb-10 border-dashed border-primary/30 bg-primary/[0.02] rounded-[1.5rem] overflow-hidden">
+          <CardContent className="flex flex-col sm:flex-row items-center justify-between p-6 gap-6">
             <div className="flex items-center gap-4">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <UserCircle className="h-6 w-6 text-primary" />
+              <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center shadow-inner">
+                <UserCircle className="h-7 w-7 text-primary" />
               </div>
               <div className="text-center sm:text-left">
-                <p className="font-bold text-primary">Sharing Anonymously</p>
-                <p className="text-xs text-muted-foreground">Your upload will be visible to everyone, but you won't be able to edit it later.</p>
+                <p className="font-bold text-primary text-lg">Anonymous Contribution Enabled</p>
+                <p className="text-xs text-muted-foreground max-w-xs">Sharing without an account is supported. Log in to track downloads and edit your uploads later.</p>
               </div>
             </div>
-            <Button variant="outline" size="sm" onClick={() => router.push('/login')} className="rounded-full border-primary/20 hover:bg-primary hover:text-white">
-              Sign in to track impact
+            <Button variant="outline" size="lg" onClick={() => router.push('/login')} className="rounded-full border-primary/30 hover:bg-primary hover:text-white transition-all font-bold px-8">
+              Sign In to Track
             </Button>
           </CardContent>
         </Card>
       )}
 
-      <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-card">
-        <CardHeader className="bg-primary text-primary-foreground p-8 md:p-12 relative overflow-hidden">
-           <div className="absolute top-0 right-0 p-8 opacity-10">
-              <Upload className="h-32 w-32" />
+      <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-card border border-primary/5">
+        <CardHeader className="bg-primary text-primary-foreground p-8 md:p-14 relative overflow-hidden">
+           <div className="absolute -top-10 -right-10 p-8 opacity-10">
+              <Upload className="h-64 w-64" />
            </div>
-           <CardTitle className="font-headline text-2xl md:text-3xl relative z-10">Material Details</CardTitle>
-           <CardDescription className="text-primary-foreground/70 relative z-10">Accurate categorization helps other students find your notes faster.</CardDescription>
+           <CardTitle className="font-headline text-3xl md:text-4xl relative z-10">Resource Details</CardTitle>
+           <CardDescription className="text-primary-foreground/80 relative z-10 text-base">Accurate metadata ensures your notes are discovered by the right students.</CardDescription>
         </CardHeader>
-        <CardContent className="p-8 md:p-12">
-          <form onSubmit={handleUpload} className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-2">
-                <Label htmlFor="title" className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Resource Title</Label>
+        <CardContent className="p-8 md:p-14">
+          <form onSubmit={handleUpload} className="space-y-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <div className="space-y-3">
+                <Label htmlFor="title" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground px-1">Resource Title</Label>
                 <Input 
                   id="title" 
-                  placeholder="e.g. Applied Physics II Complete Notes" 
+                  placeholder="e.g. Applied Physics II Mid-Sem Notes" 
                   value={formData.title}
                   onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  className="bg-secondary/50 border-none rounded-xl h-12 focus-visible:ring-primary"
+                  className="bg-secondary/40 border-primary/5 rounded-2xl h-14 focus-visible:ring-primary shadow-sm"
                   required 
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="author" className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Display Name</Label>
+              <div className="space-y-3">
+                <Label htmlFor="author" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground px-1">Display Name</Label>
                 <Input 
                   id="author" 
-                  placeholder="Your name (e.g. Animesh)" 
+                  placeholder="e.g. Animesh Kumar (or leave blank)" 
                   value={formData.author}
                   onChange={(e) => setFormData({...formData, author: e.target.value})}
-                  className="bg-secondary/50 border-none rounded-xl h-12 focus-visible:ring-primary"
-                  required 
+                  className="bg-secondary/40 border-primary/5 rounded-2xl h-14 focus-visible:ring-primary shadow-sm"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="branch" className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Academic Branch</Label>
+              <div className="space-y-3">
+                <Label htmlFor="branch" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground px-1">Academic Branch</Label>
                 <Select onValueChange={(v) => setFormData({...formData, branch: v as Branch})} required>
-                  <SelectTrigger id="branch" className="bg-secondary/50 border-none rounded-xl h-12">
-                    <SelectValue placeholder="Select Branch" />
+                  <SelectTrigger id="branch" className="bg-secondary/40 border-primary/5 rounded-2xl h-14">
+                    <SelectValue placeholder="Select Department" />
                   </SelectTrigger>
-                  <SelectContent className="rounded-xl">
+                  <SelectContent className="rounded-2xl">
                     {BRANCHES.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="semester" className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Semester</Label>
+              <div className="space-y-3">
+                <Label htmlFor="semester" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground px-1">Semester</Label>
                 <Select onValueChange={(v) => setFormData({...formData, semester: parseInt(v) as Semester})} required>
-                  <SelectTrigger id="semester" className="bg-secondary/50 border-none rounded-xl h-12">
+                  <SelectTrigger id="semester" className="bg-secondary/40 border-primary/5 rounded-2xl h-14">
                     <SelectValue placeholder="Select Semester" />
                   </SelectTrigger>
-                  <SelectContent className="rounded-xl">
+                  <SelectContent className="rounded-2xl">
                     {SEMESTERS.map(s => <SelectItem key={s} value={s.toString()}>Semester {s}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="type" className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Resource Type</Label>
+            <div className="space-y-3">
+              <Label htmlFor="type" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground px-1">Resource Type</Label>
               <Select onValueChange={(v) => setFormData({...formData, type: v as MaterialType})} defaultValue="Note">
-                <SelectTrigger id="type" className="bg-secondary/50 border-none rounded-xl h-12">
-                  <SelectValue placeholder="Select Type" />
+                <SelectTrigger id="type" className="bg-secondary/40 border-primary/5 rounded-2xl h-14">
+                  <SelectValue placeholder="Select Category" />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl">
+                <SelectContent className="rounded-2xl">
                   <SelectItem value="Note">Handwritten Note</SelectItem>
                   <SelectItem value="Assignment">Assignment Solution</SelectItem>
                   <SelectItem value="Previous Year Paper">Previous Year Paper</SelectItem>
@@ -186,12 +219,12 @@ export default function UploadPage() {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description" className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Short Description</Label>
+            <div className="space-y-3">
+              <Label htmlFor="description" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground px-1">Content Description</Label>
               <Textarea 
                 id="description" 
-                placeholder="Briefly describe what's inside (e.g. Unit 1-4 covered, focused on Mid-term exams)"
-                className="min-h-[150px] bg-secondary/50 border-none rounded-2xl p-4 focus-visible:ring-primary"
+                placeholder="What's covered? (e.g. Unit 1-4 basics, includes last year's solved mid-sem questions)"
+                className="min-h-[160px] bg-secondary/40 border-primary/5 rounded-3xl p-6 focus-visible:ring-primary shadow-sm leading-relaxed"
                 value={formData.description}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
                 required
@@ -199,50 +232,67 @@ export default function UploadPage() {
             </div>
 
             <div className="space-y-4">
-              <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">
-                {formData.type === 'YouTube Playlist' ? 'Playlist URL' : 'File Reference'}
+              <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground px-1">
+                {formData.type === 'YouTube Playlist' ? 'Playlist URL' : 'File Attachment'}
               </Label>
               {formData.type === 'YouTube Playlist' ? (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <Input 
                     placeholder="https://www.youtube.com/playlist?list=..." 
                     value={formData.fileUrl}
                     onChange={(e) => setFormData({...formData, fileUrl: e.target.value})}
-                    className="bg-secondary/50 border-none rounded-xl h-12 focus-visible:ring-primary"
+                    className="bg-secondary/40 border-primary/5 rounded-2xl h-14 focus-visible:ring-primary shadow-sm"
                     required
                   />
-                  <p className="text-[10px] text-muted-foreground italic px-2">Paste the link to the YouTube playlist here.</p>
+                  <p className="text-[10px] text-muted-foreground italic px-3 flex items-center gap-1">
+                    <Zap className="h-3 w-3 text-primary" /> Verified educational playlists are prioritized in search.
+                  </p>
                 </div>
               ) : (
-                <div className="border-2 border-dashed border-primary/10 rounded-[2rem] p-12 text-center space-y-4 hover:border-primary/40 hover:bg-primary/[0.02] transition-all group cursor-pointer relative">
-                  <div className="bg-primary/10 p-5 rounded-full w-20 h-20 flex items-center justify-center mx-auto group-hover:bg-primary group-hover:text-white transition-all transform group-hover:scale-110">
-                    <Upload className="h-10 w-10" />
+                <div className="relative group">
+                  <input 
+                    type="file" 
+                    className="absolute inset-0 opacity-0 cursor-pointer z-20" 
+                    onChange={handleFileChange}
+                    accept=".pdf,.doc,.docx,.jpg,.png"
+                  />
+                  <div className={`border-2 border-dashed rounded-[2.5rem] p-16 text-center space-y-4 transition-all duration-300 ${selectedFile ? 'border-primary bg-primary/[0.03]' : 'border-primary/10 hover:border-primary/40 hover:bg-primary/[0.02]'}`}>
+                    <div className={`bg-primary/10 p-6 rounded-full w-24 h-24 flex items-center justify-center mx-auto transition-all transform ${selectedFile ? 'scale-110 bg-primary text-white' : 'group-hover:scale-110'}`}>
+                      {selectedFile ? <CheckCircle2 className="h-12 w-12" /> : <Upload className="h-12 w-12 text-primary" />}
+                    </div>
+                    <div className="space-y-2">
+                      <p className="font-black text-primary text-xl">
+                        {selectedFile ? selectedFile.name : 'Click or Drag to Upload'}
+                      </p>
+                      <p className="text-xs text-muted-foreground font-medium">
+                        {selectedFile ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB` : 'PDF, DOCX, or High-Res Images (Max 20MB)'}
+                      </p>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <p className="font-bold text-primary text-lg">Click to select files</p>
-                    <p className="text-xs text-muted-foreground">Supported: PDF, DOCX, JPG (Max 20MB)</p>
-                  </div>
-                  <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" disabled />
                 </div>
               )}
             </div>
 
-            <div className="flex items-start gap-3 bg-primary/5 p-6 rounded-2xl text-xs text-muted-foreground border border-primary/10">
-              <AlertCircle className="h-4 w-4 shrink-0 text-primary mt-0.5" />
-              <div className="space-y-1">
-                <p className="font-bold text-primary">Academic Integrity</p>
-                <p>By publishing, you confirm that this material is your own or you have permission to share it. Avoid sharing official internal question papers before the exam concludes.</p>
+            <div className="flex items-start gap-4 bg-primary/[0.03] p-8 rounded-3xl text-sm text-muted-foreground border border-primary/10 shadow-inner">
+              <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+                <AlertCircle className="h-6 w-6 text-primary" />
+              </div>
+              <div className="space-y-1.5">
+                <p className="font-black text-primary uppercase tracking-widest text-[10px]">Academic Integrity Policy</p>
+                <p className="leading-relaxed">By publishing, you agree that this material is helpful for learning and does not violate any official NIT Srinagar exam protocols. Our community thrives on honesty and shared knowledge.</p>
               </div>
             </div>
 
-            <Button type="submit" className="w-full h-16 rounded-full text-xl font-bold shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform" disabled={isUploading}>
+            <Button type="submit" className="w-full h-20 rounded-full text-2xl font-black shadow-2xl shadow-primary/20 hover:scale-[1.01] transition-transform active:scale-95" disabled={isUploading}>
               {isUploading ? (
                 <>
-                  <Loader2 className="mr-3 h-6 w-6 animate-spin" />
-                  Publishing Resource...
+                  <Loader2 className="mr-3 h-8 w-8 animate-spin" />
+                  Encrypting & Publishing...
                 </>
               ) : (
-                "Publish to Vault"
+                <>
+                  Publish to Vault <Zap className="ml-3 h-6 w-6 fill-current" />
+                </>
               )}
             </Button>
           </form>
