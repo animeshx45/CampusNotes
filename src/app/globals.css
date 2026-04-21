@@ -9,31 +9,54 @@
     --foreground: 140 40% 10%;
     --card: 0 0% 100%;
     --card-foreground: 140 40% 10%;
-    --primary: 142 70% 30%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 140 40% 10%;
+    --primary: 158 95% 26%; /* Deep Emerald Green */
     --primary-foreground: 140 20% 98%;
     --secondary: 140 20% 92%;
-    --secondary-foreground: 142 70% 30%;
+    --secondary-foreground: 158 95% 26%;
     --muted: 140 20% 92%;
     --muted-foreground: 140 20% 40%;
-    --accent: 142 70% 45%;
+    --accent: 158 95% 45%;
     --accent-foreground: 140 20% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 140 20% 98%;
     --border: 140 20% 85%;
-    --radius: 0.75rem;
+    --input: 140 20% 85%;
+    --ring: 158 95% 26%;
+    --radius: 1rem;
   }
   .dark {
-    --background: 140 30% 4%;
-    --foreground: 140 10% 90%;
-    --card: 140 30% 6%;
-    --primary: 142 70% 50%;
-    --primary-foreground: 140 30% 4%;
-    --accent: 142 70% 40%;
-    --border: 140 30% 15%;
+    --background: 158 40% 4%;
+    --foreground: 140 10% 96%;
+    --card: 158 40% 6%;
+    --card-foreground: 140 10% 96%;
+    --popover: 158 40% 6%;
+    --popover-foreground: 140 10% 96%;
+    --primary: 158 95% 40%;
+    --primary-foreground: 158 40% 4%;
+    --secondary: 158 40% 12%;
+    --secondary-foreground: 140 10% 96%;
+    --muted: 158 40% 12%;
+    --muted-foreground: 158 20% 60%;
+    --accent: 158 95% 50%;
+    --accent-foreground: 158 40% 4%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 140 10% 96%;
+    --border: 158 40% 15%;
+    --input: 158 40% 15%;
+    --ring: 158 95% 40%;
   }
 }
 
-body {
-  @apply bg-background text-foreground font-sans;
-}
-h1, h2, h3, h4 {
-  @apply font-bold tracking-tight;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  h1, h2, h3, h4 {
+    @apply font-headline font-bold tracking-tight;
+  }
 }
