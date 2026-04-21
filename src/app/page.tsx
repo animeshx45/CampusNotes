@@ -39,7 +39,7 @@ const SLIDES = [
   { id: 'branch-electrical-3', title: 'Electrical Engineering', subtitle: 'Powering the future with sustainable energy systems.' },
   { id: 'branch-it-1', title: 'Information Technology', subtitle: 'Empowering digital transformation and network security.' },
   { id: 'branch-mechanical-official', title: 'Mechanical Engineering', subtitle: 'Mastering the tools of the future with verified student resources.' },
-  { id: 'branch-cse-programming', title: 'Modern Programming', subtitle: 'Mastering code with official NIT Srinagar department resources.' },
+  { id: 'branch-ece-official', title: 'Electronics & Communication', subtitle: 'Innovating in circuit design and signal processing.' },
   { id: 'branch-civil-official', title: 'Civil Engineering', subtitle: 'Constructing resilient and modern infrastructure.' },
   { id: 'branch-chemical-1', title: 'Chemical Engineering', subtitle: 'Advancing industrial processes and chemical research.' },
   { id: 'branch-meta-1', title: 'Metallurgy & Materials', subtitle: 'Developing the fundamental materials of modern tech.' },

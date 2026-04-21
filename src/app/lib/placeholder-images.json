@@ -128,6 +128,12 @@
       "imageHint": "skyscraper city"
     },
     {
+      "id": "branch-ece-official",
+      "description": "Official Electronics and Communication Engineering Slider Photo from NIT Srinagar",
+      "imageUrl": "https://nitsri.ac.in/SliderPhoto/3474.jpg",
+      "imageHint": "electronics laboratory"
+    },
+    {
       "id": "branch-ece-1",
       "description": "Microchip design and communication signals",
       "imageUrl": "https://picsum.photos/seed/ece-branch-1/1600/800",
