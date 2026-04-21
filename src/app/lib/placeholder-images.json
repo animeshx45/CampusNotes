@@ -62,6 +62,12 @@
       "imageHint": "programming coding"
     },
     {
+      "id": "branch-electrical-official",
+      "description": "Official Electrical Engineering Slider Photo from NIT Srinagar",
+      "imageUrl": "https://nitsri.ac.in/SliderPhoto/3225.jpg",
+      "imageHint": "electrical engineering"
+    },
+    {
       "id": "branch-electrical-1",
       "description": "Power systems and renewable energy technology",
       "imageUrl": "https://picsum.photos/seed/ee-branch-1/1600/800",
