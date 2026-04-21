@@ -20,6 +20,18 @@
       "imageHint": "student photo"
     },
     {
+      "id": "animesh-photo",
+      "description": "Photo of Animesh Kumar, IT Representative",
+      "imageUrl": "https://picsum.photos/seed/animesh/400/400",
+      "imageHint": "student profile"
+    },
+    {
+      "id": "vansh-photo",
+      "description": "Photo of Vansh Chandna, IT Representative",
+      "imageUrl": "https://picsum.photos/seed/vansh/400/400",
+      "imageHint": "student portrait"
+    },
+    {
       "id": "it-rep-photo",
       "description": "Representative photo for IT department",
       "imageUrl": "https://picsum.photos/seed/itrep/400/400",

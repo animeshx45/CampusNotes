@@ -3,7 +3,7 @@ import { DepartmentRepresentative } from "./types";
 import placeholderData from "@/app/lib/placeholder-images.json";
 
 const getPlaceholder = (id: string) => {
-  return placeholderData.placeholderImages.find(img => img.id === id)?.imageUrl || "";
+  return placeholderData.placeholderImages.find(img => img.id === id)?.imageUrl || "https://picsum.photos/seed/avatar/400/400";
 };
 
 export const DEPARTMENT_REPRESENTATIVES: DepartmentRepresentative[] = [
@@ -22,8 +22,17 @@ export const DEPARTMENT_REPRESENTATIVES: DepartmentRepresentative[] = [
     year: '2025-2029',
     email: 'rajuranjanxbkj@gmail.com',
     linkedin: 'https://www.linkedin.com/in/animesh-kumar-771b60228/',
-    imageUrl: getPlaceholder('it-rep-photo'),
+    imageUrl: getPlaceholder('animesh-photo'),
     message: "We're here to help you navigate IT courses and projects. Feel free to reach out for resources!"
+  },
+  {
+    branch: 'Information Technology',
+    name: 'Vansh Chandna',
+    year: '2025-2029',
+    email: 'vansh-rep@nitsri.ac.in',
+    linkedin: 'https://www.linkedin.com/in/vansh-chandna-8ab11136a/',
+    imageUrl: getPlaceholder('vansh-photo'),
+    message: "Co-representative for IT department. Always ready to help fellow students with quality study materials."
   },
   {
     branch: 'Computer Science & Engineering',

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo } from 'react';
@@ -10,11 +11,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Search, SlidersHorizontal, ArrowRight, BrainCircuit, Loader2, Mail, Linkedin, FileText, BookOpen, GraduationCap, Clock } from 'lucide-react';
+import { Search, SlidersHorizontal, ArrowRight, Loader2, Mail, Linkedin, FileText, GraduationCap, Clock } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, query, orderBy } from 'firebase/firestore';
 
 export default function BrowsePage() {
   const searchParams = useSearchParams();
@@ -37,9 +38,9 @@ export default function BrowsePage() {
     });
   }, [selectedBranch, selectedSemester, searchQuery, materials]);
 
-  const selectedRep = useMemo(() => {
-    if (selectedBranch === 'all') return null;
-    return DEPARTMENT_REPRESENTATIVES.find(r => r.branch === selectedBranch);
+  const selectedReps = useMemo(() => {
+    if (selectedBranch === 'all') return [];
+    return DEPARTMENT_REPRESENTATIVES.filter(r => r.branch === selectedBranch);
   }, [selectedBranch]);
 
   if (isLoading) return (
@@ -127,7 +128,6 @@ export default function BrowsePage() {
                 </div>
               </div>
 
-              {/* Quick Info Card */}
               <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 space-y-2">
                 <p className="text-xs font-bold text-primary flex items-center gap-2">
                   <GraduationCap className="h-4 w-4" /> Academic Tip
@@ -141,29 +141,33 @@ export default function BrowsePage() {
 
           {/* Main Content Area */}
           <div className="flex-1 space-y-8">
-            {/* Rep Highlight */}
-            {selectedRep && (
-              <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-primary/20 p-6 flex items-center gap-6 rounded-[2rem] shadow-none group overflow-hidden relative">
-                <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform duration-500">
-                  <GraduationCap className="w-32 h-32 text-primary" />
-                </div>
-                <div className="relative w-24 h-24 shrink-0 shadow-2xl rounded-2xl overflow-hidden ring-2 ring-primary/20">
-                  <Image src={selectedRep.imageUrl} alt={selectedRep.name} fill className="object-cover" />
-                </div>
-                <div className="flex-grow z-10">
-                  <Badge className="bg-primary/20 text-primary border-none text-[10px] mb-2 px-3 py-1 uppercase tracking-tighter font-black">Department Representative</Badge>
-                  <h3 className="text-2xl font-headline font-bold text-primary leading-none mb-1">{selectedRep.name}</h3>
-                  <p className="text-sm text-muted-foreground font-medium">{selectedRep.branch} • Batch {selectedRep.year}</p>
-                  <div className="flex gap-3 mt-4">
-                    <Button size="sm" asChild className="rounded-full h-9 px-5 text-xs font-bold bg-primary hover:bg-primary/90">
-                      <a href={`mailto:${selectedRep.email}`}><Mail className="h-3.5 w-3.5 mr-2" /> Contact Rep</a>
-                    </Button>
-                    <Button variant="outline" size="sm" asChild className="rounded-full h-9 px-5 text-xs font-bold border-primary/20 hover:bg-primary/5">
-                      <a href={selectedRep.linkedin} target="_blank" rel="noopener noreferrer"><Linkedin className="h-3.5 w-3.5 mr-2" /> LinkedIn</a>
-                    </Button>
-                  </div>
-                </div>
-              </Card>
+            {/* Reps Highlight */}
+            {selectedReps.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {selectedReps.map((rep, idx) => (
+                  <Card key={idx} className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-primary/20 p-6 flex items-center gap-4 rounded-[2rem] shadow-none group overflow-hidden relative">
+                    <div className="absolute -right-2 -bottom-2 opacity-5 group-hover:scale-110 transition-transform duration-500">
+                      <GraduationCap className="w-24 h-24 text-primary" />
+                    </div>
+                    <div className="relative w-16 h-16 shrink-0 shadow-xl rounded-2xl overflow-hidden ring-2 ring-primary/20">
+                      <Image src={rep.imageUrl} alt={rep.name} fill className="object-cover" />
+                    </div>
+                    <div className="flex-grow z-10">
+                      <Badge className="bg-primary/20 text-primary border-none text-[8px] mb-1 px-2 py-0.5 uppercase tracking-tighter font-black">Dept. Representative</Badge>
+                      <h3 className="text-lg font-headline font-bold text-primary leading-none mb-1">{rep.name}</h3>
+                      <p className="text-[10px] text-muted-foreground font-medium">{rep.branch} • Batch {rep.year}</p>
+                      <div className="flex gap-2 mt-2">
+                        <Button size="sm" asChild className="rounded-full h-7 px-3 text-[10px] font-bold bg-primary hover:bg-primary/90">
+                          <a href={`mailto:${rep.email}`}><Mail className="h-3 w-3 mr-1" /> Email</a>
+                        </Button>
+                        <Button variant="outline" size="sm" asChild className="rounded-full h-7 px-3 text-[10px] font-bold border-primary/20 hover:bg-primary/5">
+                          <a href={rep.linkedin} target="_blank" rel="noopener noreferrer"><Linkedin className="h-3 w-3 mr-1" /> LinkedIn</a>
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
             )}
 
             {/* Materials Grid */}
