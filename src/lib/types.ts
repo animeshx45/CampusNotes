@@ -22,8 +22,11 @@ export interface StudyMaterial {
   type: MaterialType;
   author: string;
   fileUrl: string;
-  createdAt: string;
+  createdAt: any;
+  updatedAt?: any;
   downloadCount: number;
+  views?: number;
+  uploaderId?: string;
 }
 
 export interface DepartmentRepresentative {
