@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -30,6 +31,7 @@ export default function UploadPage() {
     semester: 1 as Semester,
     type: 'Note' as MaterialType,
     author: user?.displayName || user?.email?.split('@')[0] || 'Anonymous',
+    fileUrl: '',
   });
 
   if (!user) {
@@ -51,7 +53,6 @@ export default function UploadPage() {
 
     setIsUploading(true);
     
-    // Using non-blocking service method
     materialService.uploadMaterial({
       title: formData.title,
       description: formData.description,
@@ -60,16 +61,15 @@ export default function UploadPage() {
       type: formData.type,
       author: formData.author,
       uploaderId: user.uid,
-      fileUrl: 'https://example.com/placeholder-pdf',
+      fileUrl: formData.type === 'YouTube Playlist' ? formData.fileUrl : 'https://example.com/placeholder-pdf',
       branchId: formData.branch,
       semesterId: formData.semester.toString(),
       materialTypeId: formData.type,
     });
     
-    // We optimistically show success
     setIsSuccess(true);
     toast({
-      title: "Material Uploaded!",
+      title: "Material Published!",
       description: "Your contribution has been added successfully.",
     });
     setTimeout(() => router.push('/browse'), 2000);
@@ -159,6 +159,7 @@ export default function UploadPage() {
                   <SelectItem value="Previous Year Paper">Previous Year Paper</SelectItem>
                   <SelectItem value="Textbook">Textbook</SelectItem>
                   <SelectItem value="Lab Manual">Lab Manual</SelectItem>
+                  <SelectItem value="YouTube Playlist">YouTube Playlist</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -176,17 +177,29 @@ export default function UploadPage() {
             </div>
 
             <div className="space-y-4">
-              <Label className="font-bold">File Upload</Label>
-              <div className="border-2 border-dashed border-muted-foreground/20 rounded-2xl p-12 text-center space-y-4 hover:border-accent hover:bg-accent/5 transition-all group cursor-pointer relative">
-                <div className="bg-secondary p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto group-hover:bg-accent group-hover:text-white transition-colors">
-                  <Upload className="h-8 w-8" />
+              <Label className="font-bold">{formData.type === 'YouTube Playlist' ? 'Playlist URL' : 'File Upload'}</Label>
+              {formData.type === 'YouTube Playlist' ? (
+                <div className="space-y-2">
+                  <Input 
+                    placeholder="https://www.youtube.com/playlist?list=..." 
+                    value={formData.fileUrl}
+                    onChange={(e) => setFormData({...formData, fileUrl: e.target.value})}
+                    required
+                  />
+                  <p className="text-[10px] text-muted-foreground italic">Paste the link to the YouTube playlist here.</p>
                 </div>
-                <div className="space-y-1">
-                  <p className="font-bold text-primary">Click or drag to upload</p>
-                  <p className="text-xs text-muted-foreground">PDF, JPG, PNG (Max 20MB)</p>
+              ) : (
+                <div className="border-2 border-dashed border-muted-foreground/20 rounded-2xl p-12 text-center space-y-4 hover:border-accent hover:bg-accent/5 transition-all group cursor-pointer relative">
+                  <div className="bg-secondary p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto group-hover:bg-accent group-hover:text-white transition-colors">
+                    <Upload className="h-8 w-8" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-bold text-primary">Click or drag to upload</p>
+                    <p className="text-xs text-muted-foreground">PDF, JPG, PNG (Max 20MB)</p>
+                  </div>
+                  <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" disabled />
                 </div>
-                <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" disabled />
-              </div>
+              )}
             </div>
 
             <div className="flex items-center gap-3 bg-secondary p-4 rounded-xl text-xs text-muted-foreground">

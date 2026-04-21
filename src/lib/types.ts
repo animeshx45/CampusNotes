@@ -11,7 +11,7 @@ export type Branch =
 
 export type Semester = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
-export type MaterialType = 'Note' | 'Assignment' | 'Previous Year Paper' | 'Textbook' | 'Lab Manual';
+export type MaterialType = 'Note' | 'Assignment' | 'Previous Year Paper' | 'Textbook' | 'Lab Manual' | 'YouTube Playlist';
 
 export interface StudyMaterial {
   id: string;

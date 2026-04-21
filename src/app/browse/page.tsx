@@ -3,7 +3,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { BRANCHES, SEMESTERS } from '@/lib/mock-data';
+import { BRANCHES, SEMESTERS, MOCK_MATERIALS } from '@/lib/mock-data';
 import { DEPARTMENT_REPRESENTATIVES } from '@/lib/department-data';
 import { StudyMaterial } from '@/lib/types';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { 
   Search, SlidersHorizontal, ArrowRight, Loader2, Mail, Linkedin, 
-  FileText, GraduationCap, Clock, Sparkles, Filter
+  FileText, GraduationCap, Clock, Sparkles, Filter, Youtube
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -59,11 +59,15 @@ export default function BrowsePage() {
   const { data: materials, isLoading } = useCollection<StudyMaterial>(materialsQuery);
 
   const filteredMaterials = useMemo(() => {
-    if (!materials) return [];
-    return materials.filter(m => {
+    // Merge Firestore data with Mock Data (Playlists)
+    const combined = [...(materials || []), ...MOCK_MATERIALS];
+    
+    return combined.filter(m => {
       const branchMatch = selectedBranch === 'all' || m.branch === selectedBranch;
       const semMatch = selectedSemester === 'all' || m.semester.toString() === selectedSemester;
-      const searchMatch = m.title.toLowerCase().includes(searchQuery.toLowerCase()) || m.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const searchMatch = m.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          m.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          m.author.toLowerCase().includes(searchQuery.toLowerCase());
       return branchMatch && semMatch && searchMatch;
     });
   }, [selectedBranch, selectedSemester, searchQuery, materials]);
@@ -152,7 +156,7 @@ export default function BrowsePage() {
           <GraduationCap className="h-4 w-4" /> Academic Tip
         </p>
         <p className="text-[11px] leading-relaxed text-muted-foreground italic">
-          "Previous year papers are often the most reliable way to understand question patterns at NIT Srinagar."
+          "Check out the YouTube Playlists section for structured video courses from top educators."
         </p>
       </div>
     </div>
@@ -296,7 +300,11 @@ export default function BrowsePage() {
                   <Card key={material.id} className="group hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 border-primary/10 hover:border-primary/40 rounded-[1.5rem] md:rounded-[2rem] bg-card overflow-hidden flex flex-col h-full">
                     <CardHeader className="space-y-2 md:space-y-4 pb-2">
                       <div className="flex justify-between items-center">
-                        <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-bold px-2 md:px-3 py-0.5 md:py-1 text-[10px]">
+                        <Badge variant="secondary" className={cn(
+                          "border-none font-bold px-2 md:px-3 py-0.5 md:py-1 text-[10px]",
+                          material.type === 'YouTube Playlist' ? "bg-red-500/10 text-red-500" : "bg-primary/10 text-primary"
+                        )}>
+                          {material.type === 'YouTube Playlist' && <Youtube className="h-3 w-3 mr-1 inline" />}
                           {material.type}
                         </Badge>
                         <div className="flex items-center gap-1.5 text-[9px] md:text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
@@ -328,9 +336,15 @@ export default function BrowsePage() {
                          <span className="text-[10px] md:text-xs font-medium text-muted-foreground truncate max-w-[80px] md:max-w-none">{material.author}</span>
                       </div>
                       <Button size="sm" className="rounded-full px-4 md:px-6 h-8 md:h-10 text-[10px] md:text-sm font-bold group/btn" asChild>
-                        <Link href={`/material/${material.id}`}>
-                          View <ArrowRight className="ml-1 md:ml-2 h-3 w-3 md:h-4 md:w-4 group-hover/btn:translate-x-1 transition-transform" />
-                        </Link>
+                        {material.type === 'YouTube Playlist' ? (
+                          <a href={material.fileUrl} target="_blank" rel="noopener noreferrer">
+                            Watch <Youtube className="ml-1 md:ml-2 h-3 w-3 md:h-4 md:w-4" />
+                          </a>
+                        ) : (
+                          <Link href={`/material/${material.id}`}>
+                            View <ArrowRight className="ml-1 md:ml-2 h-3 w-3 md:h-4 md:w-4 group-hover/btn:translate-x-1 transition-transform" />
+                          </Link>
+                        )}
                       </Button>
                     </CardFooter>
                   </Card>
