@@ -18,7 +18,7 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
   {
     id: 'yt-1',
     title: 'Data Structures & Algorithms - Complete Playlist',
-    description: 'The famous CodeHelp DSA series by Love Babbar. Comprehensive coverage of C++, STL, and advanced algorithms.',
+    description: 'The famous CodeHelp DSA series by Love Babbar. Comprehensive coverage of C++, STL, and advanced algorithms for placements and exams.',
     branch: 'Computer Science & Engineering',
     semester: 3,
     type: 'YouTube Playlist',
@@ -30,7 +30,7 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
   {
     id: 'yt-2',
     title: 'Operating Systems Full Course',
-    description: 'Gate Smashers OS playlist covering Process Management, Memory Management, and File Systems.',
+    description: 'Gate Smashers OS playlist covering Process Management, Memory Management, and File Systems. Essential for GATE and semester exams.',
     branch: 'Information Technology',
     semester: 4,
     type: 'YouTube Playlist',
@@ -42,7 +42,7 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
   {
     id: 'yt-3',
     title: 'Database Management Systems (DBMS)',
-    description: 'Complete DBMS playlist including SQL, Normalization, and Transaction Control.',
+    description: 'Complete DBMS playlist including SQL, Normalization, and Transaction Control by Gate Smashers.',
     branch: 'Computer Science & Engineering',
     semester: 4,
     type: 'YouTube Playlist',
@@ -78,7 +78,7 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
   {
     id: 'yt-6',
     title: 'Software Engineering - Full Series',
-    description: 'SDLC models, Agile, and software testing concepts explained simply.',
+    description: 'SDLC models, Agile, and software testing concepts explained simply for university exams.',
     branch: 'Information Technology',
     semester: 5,
     type: 'YouTube Playlist',
@@ -110,5 +110,53 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
     fileUrl: 'https://www.youtube.com/playlist?list=PLBlnK6fEyqRgS_0_7K0v1P922B1-W6H8a',
     createdAt: '2024-01-08',
     downloadCount: 1900
+  },
+  {
+    id: 'yt-9',
+    title: 'Network Theory / Circuit Analysis',
+    description: 'Complete playlist on KVL, KCL, Network Theorems, and AC Analysis. Essential for Electrical and Electronics students.',
+    branch: 'Electrical Engineering',
+    semester: 3,
+    type: 'YouTube Playlist',
+    author: 'Neso Academy',
+    fileUrl: 'https://www.youtube.com/playlist?list=PLBlnK6fEyqRir5ruidAszSAtK6xLueT7x',
+    createdAt: '2024-01-09',
+    downloadCount: 1500
+  },
+  {
+    id: 'yt-10',
+    title: 'Control Systems Engineering',
+    description: 'Detailed coverage of Root Locus, Bode Plots, and Nyquist Stability by Gate Smashers.',
+    branch: 'Electrical Engineering',
+    semester: 5,
+    type: 'YouTube Playlist',
+    author: 'Gate Smashers',
+    fileUrl: 'https://www.youtube.com/playlist?list=PLxCzCOWd7aiEonCTYstW0m_GlsxG_r_8s',
+    createdAt: '2024-01-10',
+    downloadCount: 1200
+  },
+  {
+    id: 'yt-11',
+    title: 'Digital Electronics / Logic Design',
+    description: 'Boolean Algebra, K-Maps, Combinational and Sequential Circuits. Core subject for CSE, IT, ECE, and EE.',
+    branch: 'Electronics & Communication Engineering',
+    semester: 3,
+    type: 'YouTube Playlist',
+    author: 'Neso Academy',
+    fileUrl: 'https://www.youtube.com/playlist?list=PLBlnK6fEyqRjMH3mWf6kwqiTbT798eAOm',
+    createdAt: '2024-01-11',
+    downloadCount: 3500
+  },
+  {
+    id: 'yt-12',
+    title: 'Signals and Systems',
+    description: 'In-depth series on Fourier Transform, Z-Transform, and LTI systems by Neso Academy.',
+    branch: 'Electronics & Communication Engineering',
+    semester: 4,
+    type: 'YouTube Playlist',
+    author: 'Neso Academy',
+    fileUrl: 'https://www.youtube.com/playlist?list=PLBlnK6fEyqRhG6s3jYIU48CqsT5cyiDTO',
+    createdAt: '2024-01-12',
+    downloadCount: 2200
   }
 ];
