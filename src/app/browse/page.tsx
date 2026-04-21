@@ -38,7 +38,7 @@ import placeholderData from '@/app/lib/placeholder-images.json';
 
 const BRANCH_IMAGE_MAP: Record<string, string[]> = {
   'Information Technology': ['branch-it-1', 'branch-it-2', 'hero-campus-1'],
-  'Computer Science & Engineering': ['branch-cse-programming', 'branch-cse-1', 'branch-cse-2'],
+  'Computer Science & Engineering': ['branch-cse-official-nitsri', 'branch-cse-programming', 'branch-cse-1', 'branch-cse-2'],
   'Electrical Engineering': ['branch-electrical-3', 'branch-electrical-1', 'branch-electrical-2'],
   'Mechanical Engineering': ['branch-mechanical-1', 'branch-mechanical-2', 'hero-campus-1'],
   'Chemical Engineering': ['branch-chemical-1', 'branch-chemical-2', 'hero-campus-2'],

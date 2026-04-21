@@ -35,9 +35,10 @@ const BRANCH_ICONS: Record<string, any> = {
 
 const SLIDES = [
   { id: 'hero-nitsri-official', title: 'NIT Srinagar Excellence', subtitle: 'Leading the way in engineering and research.' },
+  { id: 'branch-cse-official-nitsri', title: 'Computer Science & Engineering', subtitle: 'Innovating through algorithms, AI, and advanced technical research.' },
   { id: 'branch-electrical-3', title: 'Electrical Engineering', subtitle: 'Powering the future with sustainable energy systems.' },
   { id: 'branch-it-1', title: 'Information Technology', subtitle: 'Empowering digital transformation and network security.' },
-  { id: 'branch-cse-programming', title: 'Computer Science', subtitle: 'Innovating through algorithms, AI, and data science.' },
+  { id: 'branch-cse-programming', title: 'Modern Programming', subtitle: 'Mastering the tools of the future with verified student resources.' },
   { id: 'branch-mechanical-1', title: 'Mechanical Engineering', subtitle: 'Designing tomorrow\'s advanced robotics and machines.' },
   { id: 'branch-ece-1', title: 'Electronics & Comm.', subtitle: 'Mastering the signals that connect our global world.' },
   { id: 'branch-civil-1', title: 'Civil Engineering', subtitle: 'Constructing resilient and modern infrastructure.' },

@@ -38,6 +38,12 @@
       "imageHint": "cyber security"
     },
     {
+      "id": "branch-cse-official-nitsri",
+      "description": "Official CSE Department slider photo from NIT Srinagar",
+      "imageUrl": "https://nitsri.ac.in/SliderPhoto/3665.jpg",
+      "imageHint": "computer laboratory"
+    },
+    {
       "id": "branch-cse-1",
       "description": "Artificial intelligence and data science visualization",
       "imageUrl": "https://picsum.photos/seed/cse-branch-1/1600/800",
