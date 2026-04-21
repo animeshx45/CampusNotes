@@ -62,6 +62,12 @@
       "imageHint": "electric grid"
     },
     {
+      "id": "branch-electrical-3",
+      "description": "High voltage insulators for electrical engineering",
+      "imageUrl": "https://pixabay.com/images/download/ds_30-insulator-4895563_1920.jpg",
+      "imageHint": "electrical insulator"
+    },
+    {
       "id": "branch-mechanical-1",
       "description": "Advanced robotics and mechanical systems",
       "imageUrl": "https://pixabay.com/images/download/ly452740370-mechanical-engineering-2540521_1920.jpg",
