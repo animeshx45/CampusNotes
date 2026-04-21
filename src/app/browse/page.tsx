@@ -39,7 +39,7 @@ import placeholderData from '@/app/lib/placeholder-images.json';
 const BRANCH_IMAGE_MAP: Record<string, string[]> = {
   'Information Technology': ['branch-it-1', 'branch-it-2', 'hero-campus-1'],
   'Computer Science & Engineering': ['branch-cse-1', 'branch-cse-2', 'hero-campus-2'],
-  'Electrical Engineering': ['branch-electrical-1', 'branch-electrical-3', 'branch-electrical-2'],
+  'Electrical Engineering': ['branch-electrical-3', 'branch-electrical-1', 'branch-electrical-2'],
   'Mechanical Engineering': ['branch-mechanical-1', 'branch-mechanical-2', 'hero-campus-1'],
   'Chemical Engineering': ['branch-chemical-1', 'branch-chemical-2', 'hero-campus-2'],
   'Civil Engineering': ['branch-civil-1', 'branch-civil-2', 'hero-campus-3'],
@@ -136,35 +136,33 @@ export default function BrowsePage() {
               placeholder="e.g. Thermodynamics..." 
               value={searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 
-              className="bg-secondary/50 border-none pl-10 rounded-xl focus-visible:ring-primary"
+              className="bg-secondary/50 border-none rounded-xl focus-visible:ring-primary"
             />
           </div>
         </div>
 
         <div className="space-y-2">
           <label className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Department</label>
-          <Select value={selectedBranch} onValueChange={setSelectedBranch}>
-            <SelectTrigger className="bg-secondary/50 border-none rounded-xl">
-              <SelectValue placeholder="All Branches" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="all">All Branches</SelectItem>
-              {BRANCHES.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <select 
+            value={selectedBranch} 
+            onChange={(e) => setSelectedBranch(e.target.value)}
+            className="w-full bg-secondary/50 border-none rounded-xl h-10 px-3 text-sm focus:ring-2 focus:ring-primary outline-none"
+          >
+            <option value="all">All Branches</option>
+            {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
+          </select>
         </div>
 
         <div className="space-y-2">
           <label className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Semester</label>
-          <Select value={selectedSemester} onValueChange={setSelectedSemester}>
-            <SelectTrigger className="bg-secondary/50 border-none rounded-xl">
-              <SelectValue placeholder="All Semesters" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="all">All Semesters</SelectItem>
-              {SEMESTERS.map(s => <SelectItem key={s} value={s.toString()}>Semester {s}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <select 
+            value={selectedSemester} 
+            onChange={(e) => setSelectedSemester(e.target.value)}
+            className="w-full bg-secondary/50 border-none rounded-xl h-10 px-3 text-sm focus:ring-2 focus:ring-primary outline-none"
+          >
+            <option value="all">All Semesters</option>
+            {SEMESTERS.map(s => <option key={s} value={s.toString()}>Semester {s}</option>)}
+          </select>
         </div>
       </div>
 
@@ -323,7 +321,7 @@ export default function BrowsePage() {
                           {material.type}
                         </Badge>
                         <div className="flex items-center gap-1.5 text-[9px] md:text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
-                          <Clock className="h-3 w-3" /> {formatDate(material.createdAt || material.uploadedAt)}
+                          <Clock className="h-3 w-3" /> {formatDate(material.uploadedAt)}
                         </div>
                       </div>
                       <CardTitle className="text-lg md:text-xl font-headline font-bold group-hover:text-primary transition-colors leading-tight line-clamp-2">
