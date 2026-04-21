@@ -50,6 +50,12 @@
       "imageHint": "server room"
     },
     {
+      "id": "branch-cse-programming",
+      "description": "Professional programming and code visualization",
+      "imageUrl": "https://pixabay.com/images/download/boskampi-programming-1873854_1920.png",
+      "imageHint": "programming coding"
+    },
+    {
       "id": "branch-electrical-1",
       "description": "Power systems and renewable energy technology",
       "imageUrl": "https://picsum.photos/seed/ee-branch-1/1600/800",
