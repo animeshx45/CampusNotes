@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BrainCircuit, Download, FileText, Share2, MessageSquare, Info, Sparkles, AlertCircle, Loader2, Zap, ArrowLeft } from 'lucide-react';
+import { BrainCircuit, Download, FileText, Share2, MessageSquare, Info, Sparkles, AlertCircle, Loader2, Zap, ArrowLeft, ExternalLink, Youtube } from 'lucide-react';
 import { generateStudyMaterialSummary } from '@/ai/flows/generate-study-material-summary';
 import { generateExamQuestions } from '@/ai/flows/generate-exam-questions-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +16,7 @@ import { materialService } from '@/services/material-service';
 import Link from 'next/link';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc, Timestamp } from 'firebase/firestore';
+import { cn } from '@/lib/utils';
 
 const ModernLoader = ({ message }: { message: string }) => (
   <div className="container mx-auto px-4 py-40 flex flex-col items-center justify-center gap-6 animate-in fade-in duration-500">
@@ -120,6 +121,8 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     return new Date().toLocaleDateString();
   };
 
+  const isYoutube = material.type === 'YouTube Playlist';
+
   return (
     <div className="container mx-auto px-4 py-12 flex flex-col gap-8 max-w-6xl animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start gap-6 border-b border-primary/10 pb-8">
@@ -127,7 +130,13 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
           <div className="flex flex-wrap items-center gap-2">
             <Badge className="bg-primary text-white border-none">{material.branch}</Badge>
             <Badge variant="outline" className="border-primary/20">Sem {material.semester}</Badge>
-            <Badge variant="secondary" className="bg-secondary text-primary font-bold">{material.type}</Badge>
+            <Badge variant="secondary" className={cn(
+              "font-bold",
+              isYoutube ? "bg-red-500/10 text-red-500" : "bg-secondary text-primary"
+            )}>
+              {isYoutube && <Youtube className="h-3 w-3 mr-1 inline" />}
+              {material.type}
+            </Badge>
           </div>
           <h1 className="text-3xl md:text-5xl font-headline font-bold text-primary leading-tight">{material.title}</h1>
           <div className="flex flex-wrap items-center gap-4 text-xs md:text-sm text-muted-foreground">
@@ -139,7 +148,8 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
         <div className="flex gap-3 shrink-0 w-full md:w-auto">
           <Button variant="outline" size="icon" className="rounded-full border-primary/20 hover:bg-primary/5 h-12 w-12"><Share2 className="h-5 w-5" /></Button>
           <Button size="lg" className="rounded-full px-8 h-12 shadow-lg shadow-primary/20 flex-1 md:flex-none font-bold text-base" onClick={handleDownload}>
-            <Download className="mr-2 h-5 w-5" /> Download PDF
+            {isYoutube ? <ExternalLink className="mr-2 h-5 w-5" /> : <Download className="mr-2 h-5 w-5" />}
+            {isYoutube ? 'Visit Playlist' : 'Download PDF'}
           </Button>
         </div>
       </div>
@@ -167,19 +177,45 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
           <Card className="border-none shadow-xl bg-card rounded-[2rem] overflow-hidden">
             <CardHeader className="bg-primary/5 border-b border-primary/10">
-              <CardTitle className="font-headline font-bold text-primary">Material Preview</CardTitle>
-              <CardDescription>Visual snippet of the resource.</CardDescription>
+              <CardTitle className="font-headline font-bold text-primary">
+                {isYoutube ? 'Video Preview' : 'Material Preview'}
+              </CardTitle>
+              <CardDescription>
+                {isYoutube ? 'Curated educational video series.' : 'Visual snippet of the resource.'}
+              </CardDescription>
             </CardHeader>
             <CardContent className="p-8">
-              <div className="aspect-[16/10] bg-muted/30 rounded-[1.5rem] flex items-center justify-center border-2 border-dashed border-primary/10 group hover:border-primary/40 transition-colors">
-                <div className="text-center space-y-3">
-                  <div className="h-16 w-16 bg-primary/5 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
-                    <FileText className="h-8 w-8 text-primary opacity-50" />
-                  </div>
-                  <p className="text-sm font-bold text-muted-foreground">Interactive preview is loading...</p>
-                  <p className="text-[10px] uppercase tracking-widest font-black text-muted-foreground/60">PDF Viewer Component Active</p>
+              {isYoutube ? (
+                <div className="aspect-video bg-black rounded-[1.5rem] flex items-center justify-center overflow-hidden border border-primary/20 shadow-2xl relative group">
+                   <div className="absolute inset-0 bg-gradient-to-br from-red-600/20 to-transparent opacity-50" />
+                   <div className="text-center space-y-4 z-10">
+                      <div className="h-20 w-20 bg-red-600 rounded-full flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 transition-transform">
+                        <Youtube className="h-10 w-10 text-white" />
+                      </div>
+                      <p className="text-white font-headline font-bold text-xl">YouTube Study Hub</p>
+                      <Button variant="secondary" className="rounded-full" asChild>
+                        <a href={material.fileUrl} target="_blank" rel="noopener noreferrer">Open on YouTube <ExternalLink className="ml-2 h-4 w-4" /></a>
+                      </Button>
+                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="aspect-[16/10] bg-muted/30 rounded-[1.5rem] flex items-center justify-center border-2 border-dashed border-primary/10 group hover:border-primary/40 transition-all overflow-hidden relative">
+                  <iframe 
+                    src={material.fileUrl} 
+                    className="w-full h-full border-none opacity-80 group-hover:opacity-100 transition-opacity"
+                    title="Document Preview"
+                  />
+                  {!material.fileUrl && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center space-y-3 p-4">
+                      <div className="h-16 w-16 bg-primary/5 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                        <FileText className="h-8 w-8 text-primary opacity-50" />
+                      </div>
+                      <p className="text-sm font-bold text-muted-foreground">Preview unavailable for this format.</p>
+                      <p className="text-[10px] uppercase tracking-widest font-black text-muted-foreground/60">Click Download to View</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
