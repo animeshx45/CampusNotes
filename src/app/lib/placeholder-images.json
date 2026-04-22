@@ -44,6 +44,12 @@
       "imageHint": "computer laboratory"
     },
     {
+      "id": "branch-cse-code-alt",
+      "description": "Abstract programming code screen",
+      "imageUrl": "https://media.istockphoto.com/id/692132510/photo/programming-code-abstract-screen-of-software-developer-computer-code-development.jpg?s=170667a&w=0&k=20&c=Nmn8TQ7YHr-juDqb4_lglRZDePrXJI2qB5nC3OXuSV0=",
+      "imageHint": "programming code"
+    },
+    {
       "id": "branch-cse-1",
       "description": "Artificial intelligence and data science visualization",
       "imageUrl": "https://picsum.photos/seed/cse-branch-1/1600/800",
