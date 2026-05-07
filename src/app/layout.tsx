@@ -9,8 +9,8 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Chatbot } from '@/components/chatbot';
 
 export const metadata: Metadata = {
-  title: 'HomeHero | Verified Household Services',
-  description: 'Hire trusted professionals for plumbing, cleaning, repairs, and more. Your home, our priority.',
+  title: 'HomeHero | Verified Professional Household Services',
+  description: 'Book trusted heroes for plumbing, cleaning, repairs, and more. 100% verified professionals with transparent upfront pricing.',
 };
 
 export default function RootLayout({
