@@ -1,10 +1,11 @@
+
 'use server';
 /**
- * @fileOverview A Genkit flow for the CampusNotes Assistant chatbot.
+ * @fileOverview A Genkit flow for the HomeHero Assistant chatbot.
  *
- * - campusChatbot - A function that handles the chat conversation.
- * - CampusChatbotInput - The input type for the campusChatbot function.
- * - CampusChatbotOutput - The return type for the campusChatbot function.
+ * - homeHeroAssistant - A function that handles the chat conversation.
+ * - HomeHeroInput - The input type for the assistant function.
+ * - HomeHeroOutput - The return type for the assistant function.
  */
 
 import {ai} from '@/ai/genkit';
@@ -15,42 +16,45 @@ const MessageSchema = z.object({
   content: z.string(),
 });
 
-const CampusChatbotInputSchema = z.object({
+const HomeHeroInputSchema = z.object({
   history: z.array(MessageSchema).describe('The conversation history.'),
   prompt: z.string().describe('The new user prompt.'),
 });
-export type CampusChatbotInput = z.infer<typeof CampusChatbotInputSchema>;
+export type HomeHeroInput = z.infer<typeof HomeHeroInputSchema>;
 
-const CampusChatbotOutputSchema = z.object({
+const HomeHeroOutputSchema = z.object({
   response: z.string().describe('The AI generated response.'),
 });
-export type CampusChatbotOutput = z.infer<typeof CampusChatbotOutputSchema>;
+export type HomeHeroOutput = z.infer<typeof HomeHeroOutputSchema>;
 
-export async function campusChatbot(input: CampusChatbotInput): Promise<CampusChatbotOutput> {
-  return campusChatbotFlow(input);
+export async function homeHeroAssistant(input: HomeHeroInput): Promise<HomeHeroOutput> {
+  return homeHeroFlow(input);
 }
 
-const chatbotPrompt = ai.definePrompt({
-  name: 'campusChatbotPrompt',
-  input: {schema: CampusChatbotInputSchema},
-  output: {schema: CampusChatbotOutputSchema},
-  prompt: `You are the CampusNotes Assistant, a helpful and friendly AI guide for the students of NIT Srinagar. 🎓
+const assistantPrompt = ai.definePrompt({
+  name: 'homeHeroAssistantPrompt',
+  input: {schema: HomeHeroInputSchema},
+  output: {schema: HomeHeroOutputSchema},
+  prompt: `You are the HomeHero Assistant, a friendly AI help desk for a household services platform. 🏠🛡️
 
 Your goals are:
-1. Help students find study materials (notes, assignments, papers) for their specific engineering branch. 📚
-2. Explain how to use the portal (uploading, browsing, using AI aid). 🚀
-3. Provide academic encouragement and tips for NIT Srinagar students. 💪
+1. Help users find specific services (Plumbing, Electrician, Cleaning, etc.). 🛠️
+2. Explain the benefits of HomeHero (verified workers, transparent ratings). ✅
+3. Assist workers in understanding how to register and showcase their skills. 💼
+4. Provide general home maintenance tips. 💡
 
-Context about the portal:
-- It supports 8 branches: IT, CSE, Electrical, Mechanical, Chemical, Civil, ECE, and Metallurgy. 🏛️
-- Students can upload their own notes to help peers. 🤝
-- There is an 'AI Study Aid' on material detail pages that generates summaries and mock questions. 🤖
-- Department Representative for Electrical Engineering is Yatharth Pandey (2025-2029 batch). ⚡
+Platform Categories:
+- Plumbing: Leaks, pipes, faucets.
+- Electrician: Wiring, lights, repairs.
+- Cleaning: Deep cleaning, dusting.
+- Babysitting: Infant and toddler care.
+- AC Repair: Cooling issues, servicing.
+- Carpenter: Furniture, woodwork.
 
 Style guidelines:
-- Be concise, supportive, and professional.
-- Use emojis naturally to make the conversation friendly and approachable. ✨
-- If you don't know something about a specific exam date or official administrative policy, advise the student to check the official NIT Srinagar website (nitsri.ac.in). 🌐
+- Be helpful, polite, and reassuring.
+- Use emojis naturally. ✨
+- If a user asks for prices, mention that workers set their own base charges starting around ₹300-500/hr depending on city and skill.
 
 History:
 {{#each history}}
@@ -60,14 +64,14 @@ History:
 User: {{{prompt}}}`,
 });
 
-const campusChatbotFlow = ai.defineFlow(
+const homeHeroFlow = ai.defineFlow(
   {
-    name: 'campusChatbotFlow',
-    inputSchema: CampusChatbotInputSchema,
-    outputSchema: CampusChatbotOutputSchema,
+    name: 'homeHeroFlow',
+    inputSchema: HomeHeroInputSchema,
+    outputSchema: HomeHeroOutputSchema,
   },
   async input => {
-    const {output} = await chatbotPrompt(input);
+    const {output} = await assistantPrompt(input);
     return output!;
   }
 );

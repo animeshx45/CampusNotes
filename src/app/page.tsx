@@ -1,201 +1,108 @@
 
 "use client";
 
-import { useMemo, useEffect, useState } from 'react';
-import Image from 'next/image';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { BRANCHES } from '@/lib/mock-data';
+import { SERVICE_CATEGORIES, CITIES } from '@/lib/mock-data';
 import { 
-  Globe, Code, Zap, Settings, FlaskConical, Construction, Cpu, Layers, 
-  Search, ArrowRight, ChevronLeft, ChevronRight, GraduationCap, MapPin, ExternalLink
+  Search, Droplets, Zap, Brush, Baby, Wind, Hammer, MapPin, Star, ShieldCheck, ArrowRight, UserCircle2
 } from 'lucide-react';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
-import { 
-  Carousel, 
-  CarouselContent, 
-  CarouselItem, 
-  CarouselNext, 
-  CarouselPrevious 
-} from '@/components/ui/carousel';
-import placeholderData from '@/app/lib/placeholder-images.json';
+import Image from 'next/image';
 
-const BRANCH_ICONS: Record<string, any> = {
-  'Information Technology': Globe,
-  'Computer Science & Engineering': Code,
-  'Electrical Engineering': Zap,
-  'Mechanical Engineering': Settings,
-  'Chemical Engineering': FlaskConical,
-  'Civil Engineering': Construction,
-  'Electronics & Communication Engineering': Cpu,
-  'Metallurgical & Materials Engineering': Layers
+const CATEGORY_ICONS: Record<string, any> = {
+  'Droplets': Droplets,
+  'Zap': Zap,
+  'Brush': Brush,
+  'Baby': Baby,
+  'Wind': Wind,
+  'Hammer': Hammer,
 };
 
-const SLIDES = [
-  { id: 'hero-nitsri-official', title: 'NIT Srinagar Excellence', subtitle: 'Leading the way in engineering and research.' },
-  { id: 'branch-cse-code-alt', title: 'Computer Science & Engineering', subtitle: 'Innovating through algorithms, AI, and advanced technical research.' },
-  { id: 'branch-electrical-official', title: 'Electrical Engineering', subtitle: 'Powering the future with sustainable energy systems.' },
-  { id: 'branch-it-1', title: 'Information Technology', subtitle: 'Empowering digital transformation and network security.' },
-  { id: 'branch-mechanical-official', title: 'Mechanical Engineering', subtitle: 'Mastering the tools of the future with verified student resources.' },
-  { id: 'branch-ece-official', title: 'Electronics & Communication', subtitle: 'Innovating in circuit design and signal processing.' },
-  { id: 'branch-civil-official', title: 'Civil Engineering', subtitle: 'Constructing resilient and modern infrastructure.' },
-  { id: 'branch-chemical-1', title: 'Chemical Engineering', subtitle: 'Advancing industrial processes and chemical research.' },
-  { id: 'branch-meta-official', title: 'Metallurgy & Materials', subtitle: 'Developing the fundamental materials of modern tech.' },
-  { id: 'hero-campus-3', title: 'Majestic Campus', subtitle: 'Study amidst the beauty of Srinagar\'s mountains.' }
-];
-
 export default function Home() {
-  const db = useFirestore();
-  const [api, setApi] = useState<any>();
-
-  const materialsQuery = useMemoFirebase(() => db ? collection(db, 'studyMaterials') : null, [db]);
-  const usersQuery = useMemoFirebase(() => db ? collection(db, 'users') : null, [db]);
-
-  const { data: materials, isLoading: materialsLoading } = useCollection(materialsQuery);
-  const { data: users, isLoading: usersLoading } = useCollection(usersQuery);
-
-  const stats = useMemo(() => ({
-    resources: (materials?.length || 0) + 12, 
-    students: (users?.length || 0) + 150
-  }), [materials, users]);
-
-  const getImageData = (id: string) => {
-    return placeholderData.placeholderImages.find(img => img.id === id);
-  };
-
-  useEffect(() => {
-    if (!api) return;
-    const intervalId = setInterval(() => {
-      api.scrollNext();
-    }, 6000);
-    return () => clearInterval(intervalId);
-  }, [api]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCity, setSelectedCity] = useState('Delhi');
 
   return (
-    <div className="flex flex-col gap-12 md:gap-24 pb-20 bg-background transition-colors duration-300">
-      {/* Hero Slideshow Section */}
-      <section className="relative w-full h-[500px] md:h-[700px] overflow-hidden">
-        <Carousel setApi={setApi} className="w-full h-full" opts={{ loop: true }}>
-          <CarouselContent className="h-full -ml-0">
-            {SLIDES.map((slide, index) => {
-              const imageData = getImageData(slide.id);
-              const imageUrl = imageData?.imageUrl || `https://picsum.photos/seed/${slide.id}/1600/800`;
-              const isExternal = 
-                imageUrl.includes('nitsri.ac.in') || 
-                imageUrl.includes('pixabay.com') || 
-                imageUrl.includes('cdn.pixabay.com') ||
-                imageUrl.includes('bing.net') ||
-                imageUrl.includes('istockphoto.com');
+    <div className="flex flex-col gap-16 pb-20">
+      {/* Hero Section */}
+      <section className="relative h-[600px] flex items-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <Image 
+            src="https://picsum.photos/seed/homehero-bg/1920/1080" 
+            alt="Hero Background"
+            fill
+            className="object-cover opacity-20"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-transparent" />
+        </div>
 
-              return (
-                <CarouselItem key={slide.id} className="relative h-[500px] md:h-[700px] pl-0">
-                  <div className="absolute inset-0 z-0">
-                    <Image 
-                      src={imageUrl} 
-                      alt={slide.title}
-                      fill
-                      className="object-cover"
-                      priority={index === 0}
-                      sizes="100vw"
-                      unoptimized={isExternal}
-                      data-ai-hint={imageData?.imageHint || "university architecture"}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10" />
-                    <div className="absolute inset-0 bg-primary/20 mix-blend-multiply z-10" />
-                  </div>
-                  
-                  <div className="container mx-auto px-4 h-full flex flex-col justify-center relative z-20">
-                    <div className="max-w-3xl space-y-4 md:space-y-6 animate-in fade-in slide-in-from-bottom-10 duration-700">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/30 backdrop-blur-md text-white text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-white/20">
-                        National Institute of Technology, Srinagar
-                      </div>
-                      <h1 className="text-3xl md:text-7xl font-headline font-bold leading-tight text-white drop-shadow-2xl">
-                        {slide.title}
-                      </h1>
-                      <p className="text-base md:text-xl text-white/90 max-w-lg leading-relaxed font-medium drop-shadow-lg">
-                        {slide.subtitle}
-                      </p>
-                      <div className="flex flex-wrap gap-3 md:gap-4 pt-2 md:pt-4">
-                        <Button asChild size="lg" className="rounded-full px-6 md:px-8 shadow-xl shadow-primary/20 h-12 md:h-14 text-sm md:text-lg bg-primary hover:bg-primary/90">
-                          <Link href="/browse">Access Materials</Link>
-                        </Button>
-                        <Button asChild variant="outline" size="lg" className="rounded-full px-6 md:px-8 h-12 md:h-14 text-sm md:text-lg bg-white/10 backdrop-blur-md border-white/30 text-white hover:bg-white/20">
-                          <Link href="/upload">Share Notes</Link>
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CarouselItem>
-              );
-            })}
-          </CarouselContent>
-          <div className="hidden md:flex absolute bottom-8 right-8 z-30 flex gap-2">
-            <CarouselPrevious className="static translate-y-0 h-12 w-12 rounded-full border-white/20 bg-black/40 text-white hover:bg-primary" />
-            <CarouselNext className="static translate-y-0 h-12 w-12 rounded-full border-white/20 bg-black/40 text-white hover:bg-primary" />
-          </div>
-        </Carousel>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-2xl space-y-8 animate-in fade-in slide-in-from-left-10 duration-700">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
+              <ShieldCheck className="h-4 w-4" /> Trusted Household Services
+            </div>
+            <h1 className="text-5xl md:text-7xl font-bold leading-tight">
+              Find the perfect <span className="text-primary">Hero</span> for your home.
+            </h1>
+            <p className="text-xl text-muted-foreground">
+              Hire verified professionals for plumbing, cleaning, repairs, and more. Transparent pricing, instant booking.
+            </p>
 
-        {/* Floating Stats Overlay */}
-        <div className="absolute bottom-0 left-0 w-full z-30 pointer-events-none">
-          <div className="container mx-auto px-4 pb-6 md:pb-12">
-            <div className="bg-background/80 backdrop-blur-xl border border-primary/10 rounded-[1.5rem] md:rounded-[2rem] p-4 md:p-8 max-w-sm md:max-w-lg flex items-center justify-around md:justify-start gap-4 md:gap-10 shadow-2xl pointer-events-auto animate-in fade-in slide-in-from-left duration-700">
-              <div className="text-center md:text-left">
-                {materialsLoading ? (
-                  <div className="h-8 md:h-10 w-16 bg-primary/10 animate-pulse rounded-lg mb-1" />
-                ) : (
-                  <span className="block text-2xl md:text-4xl font-headline font-bold text-primary">
-                    {stats.resources}
-                  </span>
-                )}
-                <span className="text-[9px] md:text-xs text-muted-foreground uppercase font-black tracking-tighter">Verified Resources</span>
+            <div className="flex flex-col sm:flex-row gap-4 bg-card p-4 rounded-2xl shadow-2xl border border-primary/10">
+              <div className="flex items-center gap-2 px-3 border-r">
+                <MapPin className="h-5 w-5 text-primary" />
+                <select 
+                  className="bg-transparent outline-none font-medium text-sm"
+                  value={selectedCity}
+                  onChange={(e) => setSelectedCity(e.target.value)}
+                >
+                  {CITIES.map(city => <option key={city} value={city}>{city}</option>)}
+                </select>
               </div>
-              <div className="w-px h-8 md:h-12 bg-primary/10" />
-              <div className="text-center md:text-left">
-                {usersLoading ? (
-                  <div className="h-8 md:h-10 w-16 bg-primary/10 animate-pulse rounded-lg mb-1" />
-                ) : (
-                  <span className="block text-2xl md:text-4xl font-headline font-bold text-primary">
-                    {stats.students}
-                  </span>
-                )}
-                <span className="text-[9px] md:text-xs text-muted-foreground uppercase font-black tracking-tighter">Active NITians</span>
+              <div className="flex-grow flex items-center gap-2 px-3">
+                <Search className="h-5 w-5 text-muted-foreground" />
+                <Input 
+                  placeholder="What service do you need?" 
+                  className="border-none shadow-none focus-visible:ring-0 text-base h-auto py-0"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
+              <Button asChild size="lg" className="rounded-xl px-8 shadow-lg shadow-primary/20">
+                <Link href={`/browse?search=${searchQuery}&city=${selectedCity}`}>Search Hero</Link>
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Department Section */}
-      <section className="container mx-auto px-4 space-y-8 md:space-y-12">
-        <div className="text-center space-y-3 md:space-y-4">
-          <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground">
-            Explore <span className="text-primary italic">Departments</span>
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-lg leading-relaxed">
-            Direct access to specialized academic materials curated for NIT Srinagar's premier engineering curricula.
-          </p>
+      {/* Categories Grid */}
+      <section className="container mx-auto px-4 space-y-8">
+        <div className="flex justify-between items-end">
+          <div className="space-y-2">
+            <h2 className="text-3xl font-bold">Popular Services</h2>
+            <p className="text-muted-foreground">Top rated services in your area</p>
+          </div>
+          <Button variant="ghost" asChild>
+            <Link href="/browse">View All <ArrowRight className="ml-2 h-4 w-4" /></Link>
+          </Button>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {BRANCHES.map((branch) => {
-            const Icon = BRANCH_ICONS[branch] || Globe;
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          {SERVICE_CATEGORIES.map((cat) => {
+            const Icon = CATEGORY_ICONS[cat.iconName] || Search;
             return (
-              <Link key={branch} href={`/browse?branch=${encodeURIComponent(branch)}`}>
-                <Card className="group relative overflow-hidden transition-all duration-500 hover:shadow-2xl md:hover:-translate-y-2 border border-primary/5 bg-card cursor-pointer h-full rounded-[1.5rem] md:rounded-[2.5rem]">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <CardContent className="flex flex-col items-center justify-center p-6 md:p-10 gap-4 md:gap-6 text-center relative z-10">
-                    <div className="p-4 md:p-6 rounded-2xl md:rounded-3xl bg-secondary group-hover:bg-primary transition-all duration-500 scale-100 group-hover:rotate-6 shadow-sm group-hover:shadow-lg group-hover:shadow-primary/30">
-                      <Icon className="h-8 w-8 md:h-12 md:h-12 text-primary group-hover:text-primary-foreground transition-colors" />
+              <Link key={cat.id} href={`/browse?category=${cat.id}`}>
+                <Card className="group hover:border-primary transition-all duration-300 cursor-pointer h-full rounded-2xl overflow-hidden shadow-sm hover:shadow-xl">
+                  <CardContent className="flex flex-col items-center justify-center p-8 gap-4 text-center">
+                    <div className="p-4 rounded-2xl bg-secondary group-hover:bg-primary transition-colors">
+                      <Icon className="h-8 w-8 text-primary group-hover:text-primary-foreground" />
                     </div>
-                    <div className="space-y-2 md:space-y-3">
-                      <span className="block font-headline font-bold text-lg md:text-xl text-foreground leading-tight group-hover:text-primary transition-colors">
-                        {branch}
-                      </span>
-                      <div className="flex items-center justify-center gap-1 text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-widest font-black opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                        View Resources <ArrowRight className="h-3 w-3" />
-                      </div>
-                    </div>
+                    <span className="font-bold">{cat.name}</span>
                   </CardContent>
                 </Card>
               </Link>
@@ -204,71 +111,45 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Institute Wiki Section */}
-      <section className="container mx-auto px-4">
-        <Card className="overflow-hidden border-none shadow-2xl rounded-[2rem] md:rounded-[3rem] bg-card flex flex-col lg:flex-row">
-          <div className="relative w-full lg:w-1/2 min-h-[300px] md:min-h-[400px]">
-            <Image 
-              src="https://nitsri.ac.in/upload/slide-1-new.jpg"
-              alt="NIT Srinagar Campus"
-              fill
-              className="object-cover"
-              unoptimized
-              data-ai-hint="university campus"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-background/40 to-transparent lg:from-transparent" />
-          </div>
-          <div className="w-full lg:w-1/2 p-8 md:p-16 flex flex-col justify-center space-y-6 md:space-y-8 bg-gradient-to-br from-card to-primary/[0.03]">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-primary">
-                <GraduationCap className="h-6 w-6" />
-                <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">Institute Spotlight</span>
-              </div>
-              <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground leading-tight">
-                National Institute of Technology, <span className="text-primary italic">Srinagar</span>
-              </h2>
-              <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
-                <MapPin className="h-4 w-4 text-primary" />
-                Hazratbal, Srinagar, Jammu & Kashmir
-              </div>
+      {/* Trust & Safety Section */}
+      <section className="bg-primary/5 py-16">
+        <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+              <ShieldCheck className="h-8 w-8" />
             </div>
-            <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-              Established in 1960, NIT Srinagar is one of the premier technical institutes in North India. Located on the western bank of the world-famous Dal Lake, the institute has a long-standing legacy of academic excellence and research in engineering and technology.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Button asChild size="lg" className="rounded-full px-8 h-12 md:h-14 font-bold shadow-lg shadow-primary/20 group">
-                <a href="https://nitsri.ac.in/" target="_blank" rel="noopener noreferrer">
-                  Official Website <Globe className="ml-2 h-4 w-4 group-hover:rotate-12 transition-transform" />
-                </a>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="rounded-full px-8 h-12 md:h-14 font-bold border-primary/20 hover:bg-primary/5 group">
-                <a href="https://en.wikipedia.org/wiki/National_Institute_of_Technology,_Srinagar" target="_blank" rel="noopener noreferrer">
-                  Wikipedia <ExternalLink className="ml-2 h-4 w-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                </a>
-              </Button>
-            </div>
+            <h3 className="text-xl font-bold">Verified Profiles</h3>
+            <p className="text-muted-foreground">Every worker on our platform undergoes a strict ID and skill verification process.</p>
           </div>
-        </Card>
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+              <Star className="h-8 w-8" />
+            </div>
+            <h3 className="text-xl font-bold">Transparent Ratings</h3>
+            <p className="text-muted-foreground">Read real reviews from other homeowners to choose the best hero for your task.</p>
+          </div>
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+              <UserCircle2 className="h-8 w-8" />
+            </div>
+            <h3 className="text-xl font-bold">Community Support</h3>
+            <p className="text-muted-foreground">Our 24/7 assistant is here to help you resolve any issues during or after service.</p>
+          </div>
+        </div>
       </section>
 
       {/* CTA Section */}
-      <section className="container mx-auto px-4 py-8 md:py-16">
-        <Card className="bg-primary border-none text-primary-foreground rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 overflow-hidden relative shadow-2xl shadow-primary/30">
-          <div className="absolute top-0 right-0 p-12 opacity-10 hidden md:block">
-            <Cpu className="w-80 h-80" />
+      <section className="container mx-auto px-4">
+        <Card className="bg-primary border-none text-primary-foreground rounded-[2.5rem] p-12 overflow-hidden relative shadow-2xl shadow-primary/30">
+          <div className="relative z-10 max-w-2xl space-y-6">
+            <h2 className="text-4xl md:text-6xl font-bold">Are you a skilled professional?</h2>
+            <p className="text-xl opacity-90">Join HomeHero and grow your business. Get direct bookings from customers in your city.</p>
+            <Button asChild size="lg" variant="secondary" className="rounded-xl px-10 h-14 text-lg font-bold">
+              <Link href="/worker/register">Register as Worker</Link>
+            </Button>
           </div>
-          <div className="relative z-10 max-w-2xl space-y-4 md:space-y-8">
-            <h2 className="text-3xl md:text-6xl font-headline font-bold leading-tight">
-              Empower the community.
-            </h2>
-            <p className="text-base md:text-xl text-primary-foreground/90 leading-relaxed font-medium">
-              Join hundreds of NIT Srinagar students sharing their knowledge. Your contributions make academic excellence accessible to all.
-            </p>
-            <div className="flex gap-4 pt-2 md:pt-4">
-              <Button asChild size="lg" variant="secondary" className="rounded-full px-8 md:px-10 font-bold h-12 md:h-16 text-sm md:text-lg hover:scale-[1.05] transition-transform">
-                <Link href="/upload">Upload Material</Link>
-              </Button>
-            </div>
+          <div className="absolute right-0 bottom-0 p-12 opacity-10 hidden md:block">
+            <Hammer className="h-80 w-80" />
           </div>
         </Card>
       </section>

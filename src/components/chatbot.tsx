@@ -7,13 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageSquare, X, Send, Loader2, Bot, Sparkles } from 'lucide-react';
-import { campusChatbot } from '@/ai/flows/campus-chatbot-flow';
+import { homeHeroAssistant } from '@/ai/flows/campus-chatbot-flow';
 import { cn } from '@/lib/utils';
 
 export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([{ role: 'model', content: "Hi there! 👋 I'm your CampusNotes Assistant. How can I help you excel at NIT Srinagar today? 🎓" }]);
+  const [messages, setMessages] = useState([{ role: 'model', content: "Hi there! 👋 I'm your HomeHero Assistant. Looking for a professional to help at home today? 🏠" }]);
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -28,7 +28,7 @@ export function Chatbot() {
     setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
     setIsLoading(true);
     try {
-      const res = await campusChatbot({ prompt: userMsg, history: messages.map(m => ({ role: m.role as any, content: m.content })) });
+      const res = await homeHeroAssistant({ prompt: userMsg, history: messages.map(m => ({ role: m.role as any, content: m.content })) });
       setMessages(prev => [...prev, { role: 'model', content: res.response }]);
     } catch {
       setMessages(prev => [...prev, { role: 'model', content: "Sorry, I encountered an error. Please try again. 😅" }]);
@@ -50,7 +50,7 @@ export function Chatbot() {
                 <Bot className="h-5 w-5" />
               </div>
               <div className="flex flex-col">
-                <CardTitle className="text-sm font-headline font-bold">CampusNotes AI</CardTitle>
+                <CardTitle className="text-sm font-headline font-bold">HomeHero AI</CardTitle>
                 <span className="text-[10px] font-bold opacity-70 flex items-center gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
                   Online & Ready
@@ -88,7 +88,7 @@ export function Chatbot() {
           <CardFooter className="p-4 border-t bg-card">
             <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex w-full gap-2 items-center">
               <Input 
-                placeholder="Ask anything about NIT Srinagar..." 
+                placeholder="Ask anything about home services..." 
                 value={input} 
                 onChange={(e) => setInput(e.target.value)} 
                 className="bg-secondary/50 border-none rounded-xl focus-visible:ring-primary h-11" 

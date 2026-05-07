@@ -1,329 +1,87 @@
+
 {
   "entities": {
     "User": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
-      "description": "Represents a user of the NIT StudySync application, primarily for linking uploaded content. User authentication is managed externally.",
+      "description": "Represents a user or customer on the HomeHero platform.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the User entity."
-        },
-        "externalAuthId": {
-          "type": "string",
-          "description": "Identifier from the external authentication system for this user. (Relationship: ExternalAuthSystem 1:1 User)"
-        },
-        "username": {
-          "type": "string",
-          "description": "A unique username for the user within the application."
-        },
-        "email": {
-          "type": "string",
-          "description": "Email address of the user.",
-          "format": "email"
-        },
-        "fullName": {
-          "type": "string",
-          "description": "The full name of the user."
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Timestamp when the user account was created.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp when the user account was last updated.",
-          "format": "date-time"
-        }
+        "id": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["customer", "worker", "admin"] },
+        "city": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "externalAuthId",
-        "username",
-        "email",
-        "createdAt"
-      ]
+      "required": ["id", "fullName", "email", "role"]
     },
-    "Branch": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Branch",
+    "ServiceCategory": {
+      "title": "ServiceCategory",
       "type": "object",
-      "description": "Represents an academic branch at NIT Srinagar, used for categorizing study materials.",
+      "description": "Categories of services offered (e.g., Plumber, Electrician).",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Branch entity."
-        },
-        "name": {
-          "type": "string",
-          "description": "The full name of the academic branch (e.g., 'Computer Science and Engineering', 'Electrical Engineering')."
-        },
-        "shortCode": {
-          "type": "string",
-          "description": "A short code or abbreviation for the branch (e.g., 'CS', 'EE')."
-        },
-        "description": {
-          "type": "string",
-          "description": "A brief description of the branch."
-        }
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "iconName": { "type": "string" },
+        "description": { "type": "string" }
       },
-      "required": [
-        "id",
-        "name",
-        "shortCode"
-      ]
+      "required": ["id", "name"]
     },
-    "Semester": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Semester",
+    "WorkerProfile": {
+      "title": "WorkerProfile",
       "type": "object",
-      "description": "Represents an academic semester, used for organizing study materials chronologically within a branch.",
+      "description": "Detailed profile for a service provider.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Semester entity."
-        },
-        "name": {
-          "type": "string",
-          "description": "The descriptive name of the semester (e.g., '1st Semester', 'Spring 2023')."
-        },
-        "semesterNumber": {
-          "type": "number",
-          "description": "The numerical order of the semester (e.g., 1, 2, 3)."
-        },
-        "academicYear": {
-          "type": "string",
-          "description": "The academic year to which this semester belongs (e.g., '2023-2024')."
-        }
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "skills": { "type": "array", "items": { "type": "string" } },
+        "baseCharge": { "type": "number" },
+        "rating": { "type": "number" },
+        "reviewCount": { "type": "number" },
+        "bio": { "type": "string" },
+        "isVerified": { "type": "boolean" },
+        "availability": { "type": "string" },
+        "profileImageUrl": { "type": "string", "format": "uri" },
+        "categoryId": { "type": "string" },
+        "city": { "type": "string" }
       },
-      "required": [
-        "id",
-        "name",
-        "semesterNumber",
-        "academicYear"
-      ]
+      "required": ["id", "userId", "categoryId", "baseCharge"]
     },
-    "MaterialType": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "MaterialType",
+    "Booking": {
+      "title": "Booking",
       "type": "object",
-      "description": "Defines categories for study materials such as 'Notes', 'Assignments', 'Previous Year Papers', etc.",
+      "description": "A service request or appointment between a customer and a worker.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the MaterialType entity."
-        },
-        "name": {
-          "type": "string",
-          "description": "The name of the material type (e.g., 'Notes', 'Assignment', 'PDF Textbook')."
-        },
-        "description": {
-          "type": "string",
-          "description": "A brief description of this material type."
-        }
+        "id": { "type": "string" },
+        "customerId": { "type": "string" },
+        "workerId": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "completed", "cancelled"] },
+        "date": { "type": "string", "format": "date-time" },
+        "totalAmount": { "type": "number" },
+        "serviceDetails": { "type": "string" }
       },
-      "required": [
-        "id",
-        "name"
-      ]
-    },
-    "StudyMaterial": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "StudyMaterial",
-      "type": "object",
-      "description": "Represents a single piece of study material (e.g., notes, assignment, PDF) uploaded by a user.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the StudyMaterial entity."
-        },
-        "title": {
-          "type": "string",
-          "description": "The title of the study material."
-        },
-        "description": {
-          "type": "string",
-          "description": "A detailed description or summary of the study material's content."
-        },
-        "fileUrl": {
-          "type": "string",
-          "description": "The URL or path to the stored study material file.",
-          "format": "uri"
-        },
-        "thumbnailUrl": {
-          "type": "string",
-          "description": "An optional URL to a thumbnail image for the study material.",
-          "format": "uri"
-        },
-        "uploadedAt": {
-          "type": "string",
-          "description": "Timestamp when the study material was originally uploaded.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp when the study material's metadata or file was last updated.",
-          "format": "date-time"
-        },
-        "uploaderId": {
-          "type": "string",
-          "description": "Reference to the User who uploaded this material. (Relationship: User 1:N StudyMaterial)"
-        },
-        "branchId": {
-          "type": "string",
-          "description": "Reference to the academic Branch this material belongs to. (Relationship: Branch 1:N StudyMaterial)"
-        },
-        "semesterId": {
-          "type": "string",
-          "description": "Reference to the Semester this material is relevant for. (Relationship: Semester 1:N StudyMaterial)"
-        },
-        "materialTypeId": {
-          "type": "string",
-          "description": "Reference to the MaterialType of this item (e.g., Notes, Assignment). (Relationship: MaterialType 1:N StudyMaterial)"
-        },
-        "tags": {
-          "type": "array",
-          "description": "An array of keywords or tags associated with the material for search and filtering.",
-          "items": {
-            "type": "string"
-          }
-        },
-        "aiSummary": {
-          "type": "string",
-          "description": "An AI-generated concise summary of the study material, if available."
-        },
-        "aiExamQuestions": {
-          "type": "array",
-          "description": "An array of AI-generated potential exam questions based on the study material, if available.",
-          "items": {
-            "type": "string"
-          }
-        },
-        "views": {
-          "type": "number",
-          "description": "The number of times this study material has been viewed."
-        }
-      },
-      "required": [
-        "id",
-        "title",
-        "description",
-        "fileUrl",
-        "uploadedAt",
-        "uploaderId",
-        "branchId",
-        "semesterId",
-        "materialTypeId"
-      ]
+      "required": ["id", "customerId", "workerId", "status"]
     }
   },
   "auth": {
-    "providers": [
-      "password",
-      "anonymous"
-    ]
+    "providers": ["password", "google"]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}",
-        "definition": {
-          "entityName": "User",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "Stores individual user profile information. The 'userId' corresponds to the Firebase Authentication UID. Read/write access is primarily restricted to the owner of the profile, though some public fields may be viewable by others.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier for the user, matching their Firebase Authentication UID."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/branches/{branchId}",
-        "definition": {
-          "entityName": "Branch",
-          "schema": {
-            "$ref": "#/backend/entities/Branch"
-          },
-          "description": "A master collection for academic branches (e.g., Computer Science, Electrical Engineering). Documents in this collection are publicly readable for all users. Write, update, and delete operations are restricted to administrators.",
-          "params": [
-            {
-              "name": "branchId",
-              "description": "The unique identifier for an academic branch."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/semesters/{semesterId}",
-        "definition": {
-          "entityName": "Semester",
-          "schema": {
-            "$ref": "#/backend/entities/Semester"
-          },
-          "description": "A master collection for academic semesters (e.g., 1st Semester, Spring 2023). Documents in this collection are publicly readable for all users. Write, update, and delete operations are restricted to administrators.",
-          "params": [
-            {
-              "name": "semesterId",
-              "description": "The unique identifier for an academic semester."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/materialTypes/{materialTypeId}",
-        "definition": {
-          "entityName": "MaterialType",
-          "schema": {
-            "$ref": "#/backend/entities/MaterialType"
-          },
-          "description": "A master collection for defining different types of study materials (e.g., Notes, Assignments, Previous Year Papers). Documents in this collection are publicly readable for all users. Write, update, and delete operations are restricted to administrators.",
-          "params": [
-            {
-              "name": "materialTypeId",
-              "description": "The unique identifier for a material type."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/studyMaterials/{studyMaterialId}",
-        "definition": {
-          "entityName": "StudyMaterial",
-          "schema": {
-            "$ref": "#/backend/entities/StudyMaterial"
-          },
-          "description": "Stores detailed information and file references for each piece of study material. All documents are publicly readable for browsing and searching. Creation, updates, and deletions are restricted to the 'uploaderId' field, which is denormalized within the document for authorization independence. Includes denormalized 'branchId', 'semesterId', and 'materialTypeId' for efficient querying.",
-          "params": [
-            {
-              "name": "studyMaterialId",
-              "description": "The unique identifier for a study material document."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/roles_admin/{userId}",
-        "definition": {
-          "entityName": "roles_admin",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "A collection used for Database Access Control (DBAC) to designate administrators. The mere existence of a document at this path signifies that the 'userId' is an administrator. These documents typically contain minimal data or are empty, serving as a role marker.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The Firebase Authentication UID of a user designated as an administrator."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "The Firestore structure for NIT StudySync prioritizes authorization independence, clear segregation of data by security posture, and efficient querying, aligning with all core design principles and strategy mandates. \n\n**Authorization Independence:** This is critically achieved by denormalizing authorization-relevant fields directly into the documents where they are needed. For instance, the `StudyMaterial` collection stores the `uploaderId` directly within each `studyMaterial` document. This allows security rules to evaluate ownership (e.g., `allow update: if request.auth.uid == resource.data.uploaderId;`) without requiring `get()` operations on parent documents or other collections. This eliminates complex cross-collection dependencies, making rules atomic, faster, and significantly easier to debug and maintain. Similarly, administrative roles are managed via a dedicated `roles_admin` collection, where the mere existence of a document at `/roles_admin/{uid}` grants admin privileges, again avoiding `get()` calls in rules to determine roles.\n\n**QAPs (Rules are not Filters):** The structure is designed to support secure `list` operations without relying on security rules to filter results. \n*   **Global Lookup Data (`/branches`, `/semesters`, `/materialTypes`):** These collections are designed for public read access. Any authenticated or unauthenticated user can `list` and retrieve all documents. Client-side applications can then filter and display this data as needed. The security rules will simply `allow read: true;` for these collections, ensuring that all queried documents are authorized for retrieval. \n*   **Study Materials (`/studyMaterials`):** This is the core content. All documents in this collection are intended to be publicly readable, allowing users to browse and search the entire catalog. Security rules will `allow read: true;` for `studyMaterials`. Client-side queries will utilize fields like `branchId`, `semesterId`, and `materialTypeId` (which are explicitly part of the `StudyMaterial` schema for efficient indexing) to filter the displayed content. This ensures that a `list` operation will always return data the user is authorized to see (all of it), and the application layer handles the presentation filtering.\n\n**Structural Segregation:** Collections like `/branches`, `/semesters`, and `/materialTypes` hold static, administrative data with a homogenous security posture (publicly readable, admin-writable). The `/studyMaterials` collection holds user-generated content, all of which shares a consistent security posture (publicly readable, owner-writable). This clear segregation simplifies security rules by preventing the need for complex conditional logic within a single collection to handle varying access needs.\n\n**Access Modeling:**\n*   **Private Data:** `/users/{userId}` employs path-based ownership, where `userId` matches `request.auth.uid` for write access to the user's own profile.\n*   **Collaborative/Global Data:** `/studyMaterials` uses the `uploaderId` field within the document for explicit ownership, effectively acting as a 'membership map' for a single owner. The `branchId`, `semesterId`, `materialTypeId` fields provide denormalized categorization for efficient public queries.\n*   **Global Roles (DBAC):** `/roles_admin/{userId}` utilizes the 'existence over content' pattern for administrator roles, providing a clear and independent method for role-based authorization."
+    "/users/{userId}": {
+      "schema": "#/backend/entities/User",
+      "description": "Individual user data."
+    },
+    "/serviceCategories/{categoryId}": {
+      "schema": "#/backend/entities/ServiceCategory",
+      "description": "Global service categories."
+    },
+    "/workerProfiles/{workerId}": {
+      "schema": "#/backend/entities/WorkerProfile",
+      "description": "Publicly viewable worker profiles."
+    },
+    "/bookings/{bookingId}": {
+      "schema": "#/backend/entities/Booking",
+      "description": "Private booking records between users and workers."
+    }
   }
 }
