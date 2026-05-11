@@ -1,4 +1,3 @@
-
 {
   "placeholderImages": [
     {
@@ -8,64 +7,16 @@
       "imageHint": "university campus"
     },
     {
-      "id": "hero-campus-1",
-      "description": "High-quality view of NIT Srinagar campus main building",
-      "imageUrl": "https://picsum.photos/seed/nits1/1600/800",
-      "imageHint": "university architecture"
-    },
-    {
-      "id": "hero-campus-2",
-      "description": "Modern library and study spaces at NIT Srinagar",
-      "imageUrl": "https://picsum.photos/seed/nits2/1600/800",
-      "imageHint": "library interior"
-    },
-    {
-      "id": "hero-campus-3",
-      "description": "Majestic scenic view of NIT Srinagar campus",
-      "imageUrl": "https://tse1.mm.bing.net/th/id/OIP.PdiM4ShiU3ndj405IMDaEAHaEJ?rs=1&pid=ImgDetMain&o=7&rm=3",
-      "imageHint": "mountain landscape"
-    },
-    {
-      "id": "branch-it-1",
+      "id": "branch-it-official",
       "description": "Official IT Department slider photo from NIT Srinagar",
       "imageUrl": "https://nitsri.ac.in/SliderPhoto/2064.jpg",
       "imageHint": "it department"
     },
     {
-      "id": "branch-it-2",
-      "description": "Cybersecurity and network operations",
-      "imageUrl": "https://picsum.photos/seed/it-branch-2/1600/800",
-      "imageHint": "cyber security"
-    },
-    {
-      "id": "branch-cse-official-nitsri",
+      "id": "branch-cse-official",
       "description": "Official CSE Department slider photo from NIT Srinagar",
       "imageUrl": "https://nitsri.ac.in/SliderPhoto/3665.jpg",
       "imageHint": "computer laboratory"
-    },
-    {
-      "id": "branch-cse-code-alt",
-      "description": "Abstract programming code screen",
-      "imageUrl": "https://media.istockphoto.com/id/692132510/photo/programming-code-abstract-screen-of-software-developer-computer-code-development.jpg?s=170667a&w=0&k=20&c=Nmn8TQ7YHr-juDqb4_lglRZDePrXJI2qB5nC3OXuSV0=",
-      "imageHint": "programming code"
-    },
-    {
-      "id": "branch-cse-1",
-      "description": "Artificial intelligence and data science visualization",
-      "imageUrl": "https://picsum.photos/seed/cse-branch-1/1600/800",
-      "imageHint": "artificial intelligence"
-    },
-    {
-      "id": "branch-cse-2",
-      "description": "High-performance computing clusters",
-      "imageUrl": "https://picsum.photos/seed/cse-branch-2/1600/800",
-      "imageHint": "server room"
-    },
-    {
-      "id": "branch-cse-programming",
-      "description": "Professional programming and code visualization",
-      "imageUrl": "https://pixabay.com/images/download/boskampi-programming-1873854_1920.png",
-      "imageHint": "programming coding"
     },
     {
       "id": "branch-electrical-official",
@@ -74,46 +25,16 @@
       "imageHint": "electrical engineering"
     },
     {
-      "id": "branch-electrical-1",
-      "description": "Power systems and renewable energy technology",
-      "imageUrl": "https://picsum.photos/seed/ee-branch-1/1600/800",
-      "imageHint": "power electronics"
-    },
-    {
-      "id": "branch-electrical-2",
-      "description": "Electrical grid and smart meters",
-      "imageUrl": "https://picsum.photos/seed/ee-branch-2/1600/800",
-      "imageHint": "electric grid"
-    },
-    {
-      "id": "branch-electrical-3",
-      "description": "High voltage insulators for electrical engineering",
-      "imageUrl": "https://pixabay.com/images/download/ds_30-insulator-4895563_1920.jpg",
-      "imageHint": "electrical insulator"
-    },
-    {
       "id": "branch-mechanical-official",
       "description": "Official Mechanical Engineering Slider Photo from NIT Srinagar",
       "imageUrl": "https://nitsri.ac.in/SliderPhoto/4860.jpg",
       "imageHint": "mechanical laboratory"
     },
     {
-      "id": "branch-mechanical-2",
-      "description": "Automotive engineering and design",
-      "imageUrl": "https://picsum.photos/seed/me-branch-2/1600/800",
-      "imageHint": "car engine"
-    },
-    {
-      "id": "branch-chemical-1",
+      "id": "branch-chemical-official",
       "description": "Official Chemical Engineering Slider Photo from NIT Srinagar",
       "imageUrl": "https://nitsri.ac.in/SliderPhoto/3428.jpeg",
       "imageHint": "chemical engineering"
-    },
-    {
-      "id": "branch-chemical-2",
-      "description": "Petrochemical refinery at night",
-      "imageUrl": "https://picsum.photos/seed/che-branch-2/1600/800",
-      "imageHint": "oil refinery"
     },
     {
       "id": "branch-civil-official",
@@ -122,70 +43,16 @@
       "imageHint": "civil laboratory"
     },
     {
-      "id": "branch-civil-1",
-      "description": "Large scale civil infrastructure and design",
-      "imageUrl": "https://pixabay.com/images/download/x-8198882_1920.jpg",
-      "imageHint": "bridge construction"
-    },
-    {
-      "id": "branch-civil-2",
-      "description": "Urban planning and skyscraper architecture",
-      "imageUrl": "https://picsum.photos/seed/ce-branch-2/1600/800",
-      "imageHint": "skyscraper city"
-    },
-    {
       "id": "branch-ece-official",
       "description": "Official Electronics and Communication Engineering Slider Photo from NIT Srinagar",
       "imageUrl": "https://nitsri.ac.in/SliderPhoto/3474.jpg",
       "imageHint": "electronics laboratory"
     },
     {
-      "id": "branch-ece-1",
-      "description": "Microchip design and communication signals",
-      "imageUrl": "https://picsum.photos/seed/ece-branch-1/1600/800",
-      "imageHint": "microchip circuit"
-    },
-    {
-      "id": "branch-ece-2",
-      "description": "Satellite communications and antennas",
-      "imageUrl": "https://picsum.photos/seed/ece-branch-2/1600/800",
-      "imageHint": "satellite antenna"
-    },
-    {
       "id": "branch-meta-official",
       "description": "Official Metallurgical Department photo from NIT Srinagar",
       "imageUrl": "https://nitsri.ac.in/upload/department/met.jpg",
       "imageHint": "metallurgy engineering"
-    },
-    {
-      "id": "branch-meta-1",
-      "description": "Metallurgical testing and material science",
-      "imageUrl": "https://picsum.photos/seed/meta-branch-1/1600/800",
-      "imageHint": "molten metal"
-    },
-    {
-      "id": "branch-meta-2",
-      "description": "Nanotechnology and crystal structures",
-      "imageUrl": "https://picsum.photos/seed/meta-branch-2/1600/800",
-      "imageHint": "microscopic crystal"
-    },
-    {
-      "id": "animesh-photo",
-      "description": "Photo of Animesh Kumar",
-      "imageUrl": "https://picsum.photos/seed/animesh/400/400",
-      "imageHint": "student portrait"
-    },
-    {
-      "id": "vansh-photo",
-      "description": "Photo of Vansh Chandna",
-      "imageUrl": "https://picsum.photos/seed/vansh/400/400",
-      "imageHint": "student portrait"
-    },
-    {
-      "id": "yatharth-photo",
-      "description": "Photo of Yatharth Pandey",
-      "imageUrl": "https://picsum.photos/seed/yatharth/400/400",
-      "imageHint": "student portrait"
     }
   ]
 }
