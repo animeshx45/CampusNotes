@@ -1,47 +1,51 @@
 
-export type UserRole = 'customer' | 'worker' | 'admin';
+export type Branch = 
+  | 'Information Technology' 
+  | 'Computer Science & Engineering' 
+  | 'Electrical Engineering' 
+  | 'Mechanical Engineering' 
+  | 'Chemical Engineering' 
+  | 'Civil Engineering' 
+  | 'Electronics & Communication Engineering' 
+  | 'Metallurgical & Materials Engineering';
+
+export type Semester = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+
+export type MaterialType = 'Note' | 'Assignment' | 'Previous Year Paper' | 'Textbook' | 'Lab Manual' | 'YouTube Playlist';
 
 export interface User {
   id: string;
   fullName: string;
   email: string;
-  role: UserRole;
-  city?: string;
+  username: string;
   createdAt: any;
+  updatedAt: any;
 }
 
-export interface ServiceCategory {
+export interface StudyMaterial {
   id: string;
-  name: string;
-  iconName: string;
+  title: string;
   description: string;
+  branch: Branch;
+  semester: Semester;
+  type: MaterialType;
+  fileUrl: string;
+  author: string;
+  uploaderId: string;
+  downloadCount: number;
+  views: number;
+  createdAt: any;
+  branchId?: string;
+  semesterId?: string;
+  materialTypeId?: string;
 }
 
-export interface WorkerProfile {
-  id: string;
-  userId: string;
-  fullName: string; // Denormalized for display
-  skills: string[];
-  baseCharge: number;
-  rating: number;
-  reviewCount: number;
-  bio: string;
-  isVerified: boolean;
-  availability: string;
-  profileImageUrl: string;
-  categoryId: string;
-  categoryName: string; // Denormalized for display
-  city: string; // Denormalized from user
-}
-
-export interface Booking {
-  id: string;
-  customerId: string;
-  customerName: string;
-  workerId: string;
-  workerName: string;
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
-  date: any;
-  totalAmount: number;
-  serviceDetails: string;
+export interface DepartmentRepresentative {
+  branch: Branch;
+  name: string;
+  year: string;
+  email: string;
+  linkedin: string;
+  imageUrl: string;
+  message: string;
 }

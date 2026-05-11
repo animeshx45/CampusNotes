@@ -1,11 +1,11 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Search, UserCircle, Home, LogOut, Menu, X, Hammer, ShieldCheck } from 'lucide-react';
+import { Search, UserCircle, LogOut, Menu, BookOpen, Upload } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useUser, useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
@@ -32,8 +32,9 @@ export function Navbar() {
   };
 
   const navLinks = [
-    { name: 'Find Services', href: '/browse', icon: Search },
-    { name: 'Join as Worker', href: '/worker/register', icon: Hammer },
+    { name: 'Browse Vault', href: '/browse', icon: Search },
+    { name: 'Upload Notes', href: '/upload', icon: Upload },
+    { name: 'About Portal', href: '/about', icon: BookOpen },
   ];
 
   return (
@@ -70,13 +71,13 @@ export function Navbar() {
               <DropdownMenuContent className="w-56" align="right">
                 <DropdownMenuLabel>
                   <div className="flex flex-col">
-                    <span className="text-sm font-bold">{user.displayName || 'Hero'}</span>
+                    <span className="text-sm font-bold">{user.displayName || 'Student'}</span>
                     <span className="text-xs text-muted-foreground truncate">{user.email}</span>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => router.push('/dashboard')}>
-                  My Dashboard
+                  My Uploads
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" /> Log out
@@ -89,7 +90,7 @@ export function Navbar() {
                 <Link href="/login">Login</Link>
               </Button>
               <Button asChild className="rounded-xl font-bold px-6 shadow-lg shadow-primary/20">
-                <Link href="/signup">Sign Up</Link>
+                <Link href="/signup">Join Vault</Link>
               </Button>
             </div>
           )}
@@ -103,7 +104,7 @@ export function Navbar() {
               </SheetTrigger>
               <SheetContent>
                 <SheetHeader>
-                  <SheetTitle>Menu</SheetTitle>
+                  <SheetTitle>Campus Menu</SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-4 mt-8">
                   {navLinks.map((link) => (

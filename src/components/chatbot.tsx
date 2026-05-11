@@ -6,14 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MessageSquare, X, Send, Loader2, Bot, Sparkles } from 'lucide-react';
-import { homeHeroAssistant } from '@/ai/flows/campus-chatbot-flow';
+import { MessageSquare, X, Send, Loader2, Bot, Sparkles, GraduationCap } from 'lucide-react';
+import { campusAssistant } from '@/ai/flows/campus-chatbot-flow';
 import { cn } from '@/lib/utils';
 
 export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([{ role: 'model', content: "Hi there! 👋 I'm your HomeHero Assistant. Looking for a professional to help at home today? 🏠" }]);
+  const [messages, setMessages] = useState([{ role: 'model', content: "Hello! 👋 I'm your CampusNotes Assistant. Need help finding study materials for NIT Srinagar? 📚" }]);
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -28,10 +28,10 @@ export function Chatbot() {
     setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
     setIsLoading(true);
     try {
-      const res = await homeHeroAssistant({ prompt: userMsg, history: messages.map(m => ({ role: m.role as any, content: m.content })) });
+      const res = await campusAssistant({ prompt: userMsg, history: messages.map(m => ({ role: m.role as any, content: m.content })) });
       setMessages(prev => [...prev, { role: 'model', content: res.response }]);
     } catch {
-      setMessages(prev => [...prev, { role: 'model', content: "Sorry, I encountered an error. Please try again. 😅" }]);
+      setMessages(prev => [...prev, { role: 'model', content: "I'm having a bit of trouble connecting to the campus network. Please try again later! 😅" }]);
     } finally {
       setIsLoading(false);
     }
@@ -43,17 +43,17 @@ export function Chatbot() {
         <Card className="w-[350px] sm:w-[400px] h-[550px] shadow-2xl flex flex-col overflow-hidden border-primary/20 animate-in slide-in-from-bottom-4 duration-300 rounded-[2rem]">
           <CardHeader className="bg-primary text-primary-foreground p-6 flex flex-row items-center justify-between border-b border-white/10 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-10">
-              <Sparkles className="h-12 w-12" />
+              <GraduationCap className="h-12 w-12" />
             </div>
             <div className="flex items-center gap-3 relative z-10">
               <div className="bg-white/20 p-2 rounded-xl">
                 <Bot className="h-5 w-5" />
               </div>
               <div className="flex flex-col">
-                <CardTitle className="text-sm font-headline font-bold">HomeHero AI</CardTitle>
+                <CardTitle className="text-sm font-headline font-bold">Campus AI</CardTitle>
                 <span className="text-[10px] font-bold opacity-70 flex items-center gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
-                  Online & Ready
+                  Academic Support
                 </span>
               </div>
             </div>
@@ -79,7 +79,7 @@ export function Chatbot() {
                       <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
                       <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" />
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider">Thinking...</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Studying...</span>
                   </div>
                 )}
               </div>
@@ -88,7 +88,7 @@ export function Chatbot() {
           <CardFooter className="p-4 border-t bg-card">
             <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex w-full gap-2 items-center">
               <Input 
-                placeholder="Ask anything about home services..." 
+                placeholder="Ask about branches, subjects, or notes..." 
                 value={input} 
                 onChange={(e) => setInput(e.target.value)} 
                 className="bg-secondary/50 border-none rounded-xl focus-visible:ring-primary h-11" 

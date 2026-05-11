@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, CheckCircle2, AlertCircle, Loader2, UserCircle, FileText, Zap } from 'lucide-react';
+import { Upload, CheckCircle2, AlertCircle, Loader2, UserCircle, FileText, Zap, GraduationCap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { materialService } from '@/services/material-service';
 import { useUser } from '@/firebase';
@@ -81,7 +81,6 @@ export default function UploadPage() {
         description: "Your contribution has been added to the vault.",
       });
       
-      // Delay redirection to show success state
       setTimeout(() => router.push('/browse'), 2000);
     } catch (error: any) {
       console.error("Upload error:", error);
@@ -127,29 +126,10 @@ export default function UploadPage() {
         </p>
       </div>
 
-      {!user && (
-        <Card className="mb-10 border-dashed border-primary/30 bg-primary/[0.02] rounded-[1.5rem] overflow-hidden">
-          <CardContent className="flex flex-col sm:flex-row items-center justify-between p-6 gap-6">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center shadow-inner">
-                <UserCircle className="h-7 w-7 text-primary" />
-              </div>
-              <div className="text-center sm:text-left">
-                <p className="font-bold text-primary text-lg">Anonymous Contribution Enabled</p>
-                <p className="text-xs text-muted-foreground max-w-xs">Sharing without an account is supported. Log in to track downloads and edit your uploads later.</p>
-              </div>
-            </div>
-            <Button variant="outline" size="lg" onClick={() => router.push('/login')} className="rounded-full border-primary/30 hover:bg-primary hover:text-white transition-all font-bold px-8">
-              Sign In to Track
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
       <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-card border border-primary/5">
         <CardHeader className="bg-primary text-primary-foreground p-8 md:p-14 relative overflow-hidden">
            <div className="absolute -top-10 -right-10 p-8 opacity-10">
-              <Upload className="h-64 w-64" />
+              <GraduationCap className="h-64 w-64" />
            </div>
            <CardTitle className="font-headline text-3xl md:text-4xl relative z-10">Resource Details</CardTitle>
            <CardDescription className="text-primary-foreground/80 relative z-10 text-base">Accurate metadata ensures your notes are discovered by the right students.</CardDescription>
@@ -169,10 +149,10 @@ export default function UploadPage() {
                 />
               </div>
               <div className="space-y-3">
-                <Label htmlFor="author" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground px-1">Display Name</Label>
+                <Label htmlFor="author" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground px-1">Contributor Name</Label>
                 <Input 
                   id="author" 
-                  placeholder="e.g. Animesh Kumar (or leave blank)" 
+                  placeholder="e.g. Student Name (Optional)" 
                   value={formData.author}
                   onChange={(e) => setFormData({...formData, author: e.target.value})}
                   className="bg-secondary/40 border-primary/5 rounded-2xl h-14 focus-visible:ring-primary shadow-sm"
@@ -223,7 +203,7 @@ export default function UploadPage() {
               <Label htmlFor="description" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground px-1">Content Description</Label>
               <Textarea 
                 id="description" 
-                placeholder="What's covered? (e.g. Unit 1-4 basics, includes last year's solved mid-sem questions)"
+                placeholder="Brief summary of the topics covered..."
                 className="min-h-[160px] bg-secondary/40 border-primary/5 rounded-3xl p-6 focus-visible:ring-primary shadow-sm leading-relaxed"
                 value={formData.description}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
@@ -244,9 +224,6 @@ export default function UploadPage() {
                     className="bg-secondary/40 border-primary/5 rounded-2xl h-14 focus-visible:ring-primary shadow-sm"
                     required
                   />
-                  <p className="text-[10px] text-muted-foreground italic px-3 flex items-center gap-1">
-                    <Zap className="h-3 w-3 text-primary" /> Verified educational playlists are prioritized in search.
-                  </p>
                 </div>
               ) : (
                 <div className="relative group">
@@ -265,7 +242,7 @@ export default function UploadPage() {
                         {selectedFile ? selectedFile.name : 'Click or Drag to Upload'}
                       </p>
                       <p className="text-xs text-muted-foreground font-medium">
-                        {selectedFile ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB` : 'PDF, DOCX, or High-Res Images (Max 20MB)'}
+                        {selectedFile ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB` : 'PDF, DOCX, or Images (Max 20MB)'}
                       </p>
                     </div>
                   </div>
@@ -273,25 +250,15 @@ export default function UploadPage() {
               )}
             </div>
 
-            <div className="flex items-start gap-4 bg-primary/[0.03] p-8 rounded-3xl text-sm text-muted-foreground border border-primary/10 shadow-inner">
-              <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
-                <AlertCircle className="h-6 w-6 text-primary" />
-              </div>
-              <div className="space-y-1.5">
-                <p className="font-black text-primary uppercase tracking-widest text-[10px]">Academic Integrity Policy</p>
-                <p className="leading-relaxed">By publishing, you agree that this material is helpful for learning and does not violate any official NIT Srinagar exam protocols. Our community thrives on honesty and shared knowledge.</p>
-              </div>
-            </div>
-
             <Button type="submit" className="w-full h-20 rounded-full text-2xl font-black shadow-2xl shadow-primary/20 hover:scale-[1.01] transition-transform active:scale-95" disabled={isUploading}>
               {isUploading ? (
                 <>
                   <Loader2 className="mr-3 h-8 w-8 animate-spin" />
-                  Encrypting & Publishing...
+                  Publishing to Vault...
                 </>
               ) : (
                 <>
-                  Publish to Vault <Zap className="ml-3 h-6 w-6 fill-current" />
+                  Publish Resource <Zap className="ml-3 h-6 w-6 fill-current" />
                 </>
               )}
             </Button>

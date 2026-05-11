@@ -9,8 +9,8 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Chatbot } from '@/components/chatbot';
 
 export const metadata: Metadata = {
-  title: 'HomeHero | Verified Professional Household Services',
-  description: 'Book trusted heroes for plumbing, cleaning, repairs, and more. 100% verified professionals with transparent upfront pricing.',
+  title: 'CampusNotes | NIT Srinagar Peer Study Portal',
+  description: 'The ultimate peer-to-peer study resource platform dedicated to the students of National Institute of Technology, Srinagar.',
 };
 
 export default function RootLayout({

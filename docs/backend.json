@@ -4,63 +4,36 @@
     "User": {
       "title": "User",
       "type": "object",
-      "description": "Represents a user or customer on the HomeHero platform.",
+      "description": "Represents a student or contributor on CampusNotes.",
       "properties": {
         "id": { "type": "string" },
         "fullName": { "type": "string" },
         "email": { "type": "string", "format": "email" },
-        "role": { "type": "string", "enum": ["customer", "worker", "admin"] },
-        "city": { "type": "string" },
+        "username": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "fullName", "email"]
+    },
+    "StudyMaterial": {
+      "title": "StudyMaterial",
+      "type": "object",
+      "description": "An academic resource uploaded by a student.",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "branch": { "type": "string" },
+        "semester": { "type": "number" },
+        "type": { "type": "string", "enum": ["Note", "Assignment", "Previous Year Paper", "Textbook", "Lab Manual", "YouTube Playlist"] },
+        "fileUrl": { "type": "string", "format": "uri" },
+        "author": { "type": "string" },
+        "uploaderId": { "type": "string" },
+        "downloadCount": { "type": "number" },
+        "views": { "type": "number" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["id", "fullName", "email", "role"]
-    },
-    "ServiceCategory": {
-      "title": "ServiceCategory",
-      "type": "object",
-      "description": "Categories of services offered (e.g., Plumber, Electrician).",
-      "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "iconName": { "type": "string" },
-        "description": { "type": "string" }
-      },
-      "required": ["id", "name"]
-    },
-    "WorkerProfile": {
-      "title": "WorkerProfile",
-      "type": "object",
-      "description": "Detailed profile for a service provider.",
-      "properties": {
-        "id": { "type": "string" },
-        "userId": { "type": "string" },
-        "skills": { "type": "array", "items": { "type": "string" } },
-        "baseCharge": { "type": "number" },
-        "rating": { "type": "number" },
-        "reviewCount": { "type": "number" },
-        "bio": { "type": "string" },
-        "isVerified": { "type": "boolean" },
-        "availability": { "type": "string" },
-        "profileImageUrl": { "type": "string", "format": "uri" },
-        "categoryId": { "type": "string" },
-        "city": { "type": "string" }
-      },
-      "required": ["id", "userId", "categoryId", "baseCharge"]
-    },
-    "Booking": {
-      "title": "Booking",
-      "type": "object",
-      "description": "A service request or appointment between a customer and a worker.",
-      "properties": {
-        "id": { "type": "string" },
-        "customerId": { "type": "string" },
-        "workerId": { "type": "string" },
-        "status": { "type": "string", "enum": ["pending", "confirmed", "completed", "cancelled"] },
-        "date": { "type": "string", "format": "date-time" },
-        "totalAmount": { "type": "number" },
-        "serviceDetails": { "type": "string" }
-      },
-      "required": ["id", "customerId", "workerId", "status"]
+      "required": ["id", "title", "branch", "semester", "type", "fileUrl"]
     }
   },
   "auth": {
@@ -69,19 +42,11 @@
   "firestore": {
     "/users/{userId}": {
       "schema": "#/backend/entities/User",
-      "description": "Individual user data."
+      "description": "User profile data."
     },
-    "/serviceCategories/{categoryId}": {
-      "schema": "#/backend/entities/ServiceCategory",
-      "description": "Global service categories."
-    },
-    "/workerProfiles/{workerId}": {
-      "schema": "#/backend/entities/WorkerProfile",
-      "description": "Publicly viewable worker profiles."
-    },
-    "/bookings/{bookingId}": {
-      "schema": "#/backend/entities/Booking",
-      "description": "Private booking records between users and workers."
+    "/studyMaterials/{materialId}": {
+      "schema": "#/backend/entities/StudyMaterial",
+      "description": "Collection of all study resources."
     }
   }
 }

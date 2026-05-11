@@ -1,11 +1,11 @@
 
 'use server';
 /**
- * @fileOverview A Genkit flow for the HomeHero Assistant chatbot.
+ * @fileOverview A Genkit flow for the CampusNotes Study Assistant.
  *
- * - homeHeroAssistant - A function that handles the chat conversation.
- * - HomeHeroInput - The input type for the assistant function.
- * - HomeHeroOutput - The return type for the assistant function.
+ * - campusAssistant - A function that handles the chat conversation.
+ * - CampusAssistantInput - The input type for the assistant function.
+ * - CampusAssistantOutput - The return type for the assistant function.
  */
 
 import {ai} from '@/ai/genkit';
@@ -16,45 +16,42 @@ const MessageSchema = z.object({
   content: z.string(),
 });
 
-const HomeHeroInputSchema = z.object({
+const CampusAssistantInputSchema = z.object({
   history: z.array(MessageSchema).describe('The conversation history.'),
   prompt: z.string().describe('The new user prompt.'),
 });
-export type HomeHeroInput = z.infer<typeof HomeHeroInputSchema>;
+export type CampusAssistantInput = z.infer<typeof CampusAssistantInputSchema>;
 
-const HomeHeroOutputSchema = z.object({
+const CampusAssistantOutputSchema = z.object({
   response: z.string().describe('The AI generated response.'),
 });
-export type HomeHeroOutput = z.infer<typeof HomeHeroOutputSchema>;
+export type CampusAssistantOutput = z.infer<typeof CampusAssistantOutputSchema>;
 
-export async function homeHeroAssistant(input: HomeHeroInput): Promise<HomeHeroOutput> {
-  return homeHeroFlow(input);
+export async function campusAssistant(input: CampusAssistantInput): Promise<CampusAssistantOutput> {
+  return campusAssistantFlow(input);
 }
 
 const assistantPrompt = ai.definePrompt({
-  name: 'homeHeroAssistantPrompt',
-  input: {schema: HomeHeroInputSchema},
-  output: {schema: HomeHeroOutputSchema},
-  prompt: `You are the HomeHero Assistant, a friendly AI help desk for a household services platform. 🏠🛡️
+  name: 'campusAssistantPrompt',
+  input: {schema: CampusAssistantInputSchema},
+  output: {schema: CampusAssistantOutputSchema},
+  prompt: `You are the CampusNotes AI Assistant, a specialized helper for NIT Srinagar students. 🎓📚
 
 Your goals are:
-1. Help users find specific services (Plumbing, Electrician, Cleaning, etc.). 🛠️
-2. Explain the benefits of HomeHero (verified workers, transparent ratings). ✅
-3. Assist workers in understanding how to register and showcase their skills. 💼
-4. Provide general home maintenance tips. 💡
+1. Help students find resources in specific branches (IT, CSE, Civil, etc.). 🏛️
+2. Explain academic concepts concisely based on NIT Srinagar's curriculum. 💡
+3. Guide users on how to upload materials and use the AI study tools. 🚀
+4. Be encouraging, professional, and academic in tone. ✨
 
-Platform Categories:
-- Plumbing: Leaks, pipes, faucets.
-- Electrician: Wiring, lights, repairs.
-- Cleaning: Deep cleaning, dusting.
-- Babysitting: Infant and toddler care.
-- AC Repair: Cooling issues, servicing.
-- Carpenter: Furniture, woodwork.
+Institute Context:
+- National Institute of Technology, Srinagar (Hazratbal).
+- 8 Major Branches: IT, CSE, EE, ME, Civil, ECE, Chemical, Metallurgy.
+- Students share: Notes, Lab Manuals, Previous Year Papers (PYPs).
 
 Style guidelines:
-- Be helpful, polite, and reassuring.
-- Use emojis naturally. ✨
-- If a user asks for prices, mention that workers set their own base charges starting around ₹300-500/hr depending on city and skill.
+- Use emojis related to education and technology.
+- If asked about a branch, mention its typical subjects or resources available.
+- Always encourage sharing knowledge within the NITian community.
 
 History:
 {{#each history}}
@@ -64,11 +61,11 @@ History:
 User: {{{prompt}}}`,
 });
 
-const homeHeroFlow = ai.defineFlow(
+const campusAssistantFlow = ai.defineFlow(
   {
-    name: 'homeHeroFlow',
-    inputSchema: HomeHeroInputSchema,
-    outputSchema: HomeHeroOutputSchema,
+    name: 'campusAssistantFlow',
+    inputSchema: CampusAssistantInputSchema,
+    outputSchema: CampusAssistantOutputSchema,
   },
   async input => {
     const {output} = await assistantPrompt(input);
