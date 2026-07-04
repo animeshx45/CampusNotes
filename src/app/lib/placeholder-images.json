@@ -3,63 +3,39 @@
   "placeholderImages": [
     {
       "id": "hero-nitsri-official",
-      "description": "Official slide image of NIT Srinagar campus",
+      "description": "Main gate of NIT Srinagar",
       "imageUrl": "https://nitsri.ac.in/upload/slide-1-new.jpg",
       "imageHint": "university campus"
     },
     {
-      "id": "branch-it-official",
-      "description": "Official IT Department slider photo from NIT Srinagar",
+      "id": "it-dept-slider",
+      "description": "Information Technology Department",
       "imageUrl": "https://nitsri.ac.in/SliderPhoto/2064.jpg",
       "imageHint": "it department"
     },
     {
-      "id": "branch-cse-official",
-      "description": "Official CSE Department slider photo from NIT Srinagar",
+      "id": "cse-dept-slider",
+      "description": "Computer Science Department",
       "imageUrl": "https://nitsri.ac.in/SliderPhoto/3665.jpg",
       "imageHint": "computer laboratory"
     },
     {
-      "id": "branch-electrical-official",
-      "description": "Official Electrical Engineering Slider Photo from NIT Srinagar",
-      "imageUrl": "https://nitsri.ac.in/SliderPhoto/3225.jpg",
-      "imageHint": "electrical engineering"
-    },
-    {
-      "id": "branch-mechanical-official",
-      "description": "Official Mechanical Engineering Slider Photo from NIT Srinagar",
+      "id": "mech-dept-slider",
+      "description": "Mechanical Engineering Department",
       "imageUrl": "https://nitsri.ac.in/SliderPhoto/4860.jpg",
       "imageHint": "mechanical laboratory"
     },
     {
-      "id": "branch-chemical-official",
-      "description": "Official Chemical Engineering Slider Photo from NIT Srinagar",
-      "imageUrl": "https://nitsri.ac.in/SliderPhoto/3428.jpeg",
-      "imageHint": "chemical engineering"
+      "id": "ee-dept-slider",
+      "description": "Electrical Engineering Department",
+      "imageUrl": "https://nitsri.ac.in/SliderPhoto/3225.jpg",
+      "imageHint": "electrical department"
     },
     {
-      "id": "branch-civil-official",
-      "description": "Official Civil Engineering Slider Photo from NIT Srinagar",
+      "id": "civil-dept-slider",
+      "description": "Civil Engineering Department",
       "imageUrl": "https://nitsri.ac.in/SliderPhoto/3189.jpg",
       "imageHint": "civil laboratory"
-    },
-    {
-      "id": "branch-ece-official",
-      "description": "Official Electronics and Communication Engineering Slider Photo from NIT Srinagar",
-      "imageUrl": "https://nitsri.ac.in/SliderPhoto/3474.jpg",
-      "imageHint": "electronics laboratory"
-    },
-    {
-      "id": "branch-meta-official",
-      "description": "Official Metallurgical Department photo from NIT Srinagar",
-      "imageUrl": "https://nitsri.ac.in/upload/department/met.jpg",
-      "imageHint": "metallurgy engineering"
-    },
-    {
-      "id": "cse-abstract-code",
-      "description": "Abstract programming code visual for CSE",
-      "imageUrl": "https://media.istockphoto.com/id/692132510/photo/programming-code-abstract-screen-of-software-developer-computer-code-development.jpg?s=170667a&w=0&k=20&c=Nmn8TQ7YHr-juDqb4_lglRZDePrXJI2qB5nC3OXuSV0=",
-      "imageHint": "computer programming"
     }
   ]
 }
