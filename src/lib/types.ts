@@ -13,11 +13,16 @@ export type Semester = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 export type MaterialType = 'Note' | 'Assignment' | 'Previous Year Paper' | 'Textbook' | 'Lab Manual' | 'YouTube Playlist';
 
+export type UserRole = 'student' | 'teacher' | 'admin';
+
 export interface User {
   id: string;
   fullName: string;
   email: string;
   username: string;
+  role: UserRole;
+  branch?: Branch;
+  semester?: Semester;
   createdAt: any;
   updatedAt: any;
 }
@@ -34,18 +39,23 @@ export interface StudyMaterial {
   uploaderId: string;
   downloadCount: number;
   views: number;
+  status: 'pending' | 'approved' | 'rejected';
   createdAt: any;
-  branchId?: string;
-  semesterId?: string;
-  materialTypeId?: string;
 }
 
-export interface DepartmentRepresentative {
+export interface ForumPost {
+  id: string;
+  title: string;
+  content: string;
+  authorId: string;
+  authorName: string;
   branch: Branch;
-  name: string;
-  year: string;
-  email: string;
-  linkedin: string;
-  imageUrl: string;
+  createdAt: any;
+}
+
+export interface Notification {
+  id: string;
   message: string;
+  targetRole?: UserRole | 'all';
+  createdAt: any;
 }

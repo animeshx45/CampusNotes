@@ -4,21 +4,24 @@
     "User": {
       "title": "User",
       "type": "object",
-      "description": "Represents a student or contributor on CampusNotes.",
+      "description": "Represents a student, teacher, or admin on CampusNotes.",
       "properties": {
         "id": { "type": "string" },
         "fullName": { "type": "string" },
         "email": { "type": "string", "format": "email" },
         "username": { "type": "string" },
+        "role": { "type": "string", "enum": ["student", "teacher", "admin"] },
+        "branch": { "type": "string" },
+        "semester": { "type": "number" },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["id", "fullName", "email"]
+      "required": ["id", "fullName", "email", "role"]
     },
     "StudyMaterial": {
       "title": "StudyMaterial",
       "type": "object",
-      "description": "An academic resource uploaded by a student.",
+      "description": "An academic resource uploaded by a student or teacher.",
       "properties": {
         "id": { "type": "string" },
         "title": { "type": "string" },
@@ -31,9 +34,37 @@
         "uploaderId": { "type": "string" },
         "downloadCount": { "type": "number" },
         "views": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "title", "branch", "semester", "type", "fileUrl"]
+    },
+    "ForumPost": {
+      "title": "ForumPost",
+      "type": "object",
+      "description": "A discussion thread in the forum.",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "branch": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "content", "authorId"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "type": "object",
+      "description": "System announcements or alerts.",
+      "properties": {
+        "id": { "type": "string" },
+        "message": { "type": "string" },
+        "targetRole": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "message"]
     }
   },
   "auth": {
@@ -47,6 +78,14 @@
     "/studyMaterials/{materialId}": {
       "schema": "#/backend/entities/StudyMaterial",
       "description": "Collection of all study resources."
+    },
+    "/forumPosts/{postId}": {
+      "schema": "#/backend/entities/ForumPost",
+      "description": "Forum discussion threads."
+    },
+    "/notifications/{notifId}": {
+      "schema": "#/backend/entities/Notification",
+      "description": "Global notifications."
     }
   }
 }
