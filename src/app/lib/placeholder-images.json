@@ -1,3 +1,4 @@
+
 {
   "placeholderImages": [
     {
@@ -53,6 +54,12 @@
       "description": "Official Metallurgical Department photo from NIT Srinagar",
       "imageUrl": "https://nitsri.ac.in/upload/department/met.jpg",
       "imageHint": "metallurgy engineering"
+    },
+    {
+      "id": "cse-abstract-code",
+      "description": "Abstract programming code visual for CSE",
+      "imageUrl": "https://media.istockphoto.com/id/692132510/photo/programming-code-abstract-screen-of-software-developer-computer-code-development.jpg?s=170667a&w=0&k=20&c=Nmn8TQ7YHr-juDqb4_lglRZDePrXJI2qB5nC3OXuSV0=",
+      "imageHint": "computer programming"
     }
   ]
 }
