@@ -33,10 +33,10 @@ class MaterialService {
   async uploadMaterial(material: any) {
     return addDocumentNonBlocking(collection(this.db, MATERIALS_COLLECTION), {
       ...material,
-      uploadedAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
       downloadCount: 0,
-      views: 0
+      views: 0,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
     });
   }
 

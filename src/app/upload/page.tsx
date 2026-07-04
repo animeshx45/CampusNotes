@@ -70,9 +70,8 @@ export default function UploadPage() {
         author: authorName,
         uploaderId: uploaderId,
         fileUrl: formData.type === 'YouTube Playlist' ? formData.fileUrl : 'https://placehold.co/600x400/064e3b/ffffff?text=PDF+Material',
-        branchId: formData.branch,
-        semesterId: formData.semester.toString(),
-        materialTypeId: formData.type,
+        status: 'approved',
+        createdAt: new Date().toISOString()
       });
       
       setIsSuccess(true);

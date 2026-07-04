@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc, Timestamp } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 const ModernLoader = ({ message }: { message: string }) => (
   <div className="container mx-auto px-4 py-40 flex flex-col items-center justify-center gap-6 animate-in fade-in duration-500">
@@ -38,7 +39,6 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
   const { toast } = useToast();
   const db = useFirestore();
 
-  // First, try to find in mock data
   const mockMaterial = useMemo(() => MOCK_MATERIALS.find(m => m.id === id), [id]);
 
   const materialRef = useMemoFirebase(() => {
@@ -48,7 +48,6 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
   const { data: dbMaterial, isLoading } = useDoc<StudyMaterial>(materialRef);
 
-  // Determine final material object
   const material = mockMaterial || dbMaterial;
 
   const [summary, setSummary] = useState<string | null>(null);
@@ -118,10 +117,12 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     if (!date) return 'Recently';
     if (date instanceof Timestamp) return date.toDate().toLocaleDateString();
     if (typeof date === 'string') return new Date(date).toLocaleDateString();
+    if (date?.seconds) return new Date(date.seconds * 1000).toLocaleDateString();
     return new Date().toLocaleDateString();
   };
 
   const isYoutube = material.type === 'YouTube Playlist';
+  const isImagePlaceholder = material.fileUrl?.includes('placehold.co');
 
   return (
     <div className="container mx-auto px-4 py-12 flex flex-col gap-8 max-w-6xl animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -197,6 +198,20 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
                         <a href={material.fileUrl} target="_blank" rel="noopener noreferrer">Open on YouTube <ExternalLink className="ml-2 h-4 w-4" /></a>
                       </Button>
                    </div>
+                </div>
+              ) : isImagePlaceholder ? (
+                <div className="aspect-[16/10] relative rounded-[1.5rem] overflow-hidden border border-primary/10 shadow-lg bg-secondary/20">
+                  <Image 
+                    src={material.fileUrl} 
+                    alt="Material Placeholder" 
+                    fill 
+                    className="object-cover opacity-60 grayscale hover:grayscale-0 transition-all duration-700"
+                  />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 bg-black/40 backdrop-blur-sm">
+                    <FileText className="h-12 w-12 text-white mb-4 opacity-80" />
+                    <p className="text-white font-bold text-lg mb-2">Resource Preview Available</p>
+                    <p className="text-white/70 text-sm max-w-xs">Detailed document content can be accessed by clicking the download button above.</p>
+                  </div>
                 </div>
               ) : (
                 <div className="aspect-[16/10] bg-muted/30 rounded-[1.5rem] flex items-center justify-center border-2 border-dashed border-primary/10 group hover:border-primary/40 transition-all overflow-hidden relative">
