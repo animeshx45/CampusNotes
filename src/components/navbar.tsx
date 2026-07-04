@@ -5,7 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Search, UserCircle, LogOut, Menu, BookOpen, Upload, LayoutDashboard, MessageSquare, Bell } from 'lucide-react';
+import { Search, LogOut, Menu, BookOpen, Upload, LayoutDashboard, MessageSquare, Bell } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useUser, useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
@@ -32,13 +32,13 @@ export function Navbar() {
   };
 
   const navLinks = [
-    { name: 'Browse Vault', href: '/browse', icon: Search },
-    { name: 'Forum', href: '/forum', icon: MessageSquare },
-    { name: 'About Portal', href: '/about', icon: BookOpen },
+    { name: 'See Notes', href: '/browse', icon: Search },
+    { name: 'Chat', href: '/forum', icon: MessageSquare },
+    { name: 'About Us', href: '/about', icon: BookOpen },
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur shadow-sm">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="group flex items-center gap-2">
           <Logo />
@@ -49,7 +49,7 @@ export function Navbar() {
             <Link 
               key={link.name}
               href={link.href} 
-              className="text-sm font-semibold hover:text-primary transition-colors flex items-center gap-2"
+              className="text-sm font-bold hover:text-primary transition-colors flex items-center gap-2"
             >
               <link.icon className="h-4 w-4 text-primary" />
               {link.name}
@@ -58,30 +58,28 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-4">
-          <div className="hidden sm:block">
-            <ThemeToggle />
-          </div>
+          <ThemeToggle />
 
           {user ? (
             <div className="flex items-center gap-4">
-              <Link href="/notifications" className="p-2 hover:bg-secondary rounded-full relative group transition-colors">
+              <Link href="/notifications" className="p-2 hover:bg-secondary rounded-full relative group">
                 <Bell className="h-5 w-5 text-muted-foreground group-hover:text-primary" />
-                <span className="absolute top-1 right-1 h-2 w-2 bg-accent rounded-full border-2 border-background" />
+                <span className="absolute top-1 right-1 h-2 w-2 bg-accent rounded-full" />
               </Link>
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full group">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold group-hover:bg-primary group-hover:text-white transition-all">
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
                       {user.displayName?.charAt(0) || 'S'}
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 rounded-[1.5rem] p-2" align="right">
+                <DropdownMenuContent className="w-56 rounded-2xl p-2" align="right">
                   <DropdownMenuLabel className="p-4">
                     <div className="flex flex-col">
-                      <span className="text-sm font-black text-primary uppercase tracking-tighter">{user.displayName || 'Student'}</span>
-                      <span className="text-[10px] font-bold text-muted-foreground truncate">{user.email}</span>
+                      <span className="text-sm font-bold">{user.displayName || 'Student'}</span>
+                      <span className="text-[10px] text-muted-foreground">{user.email}</span>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -89,10 +87,10 @@ export function Navbar() {
                     <LayoutDashboard className="mr-2 h-4 w-4" /> My Dashboard
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => router.push('/upload')} className="rounded-xl p-3 font-bold cursor-pointer">
-                    <Upload className="mr-2 h-4 w-4" /> Upload Notes
+                    <Upload className="mr-2 h-4 w-4" /> Share Notes
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="rounded-xl p-3 font-bold cursor-pointer text-destructive focus:bg-destructive/10">
+                  <DropdownMenuItem onClick={handleLogout} className="rounded-xl p-3 font-bold cursor-pointer text-destructive">
                     <LogOut className="mr-2 h-4 w-4" /> Log out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -103,8 +101,8 @@ export function Navbar() {
               <Button asChild variant="ghost" className="rounded-xl font-bold">
                 <Link href="/login">Login</Link>
               </Button>
-              <Button asChild className="rounded-xl font-bold px-6 shadow-lg shadow-primary/20">
-                <Link href="/signup">Join Vault</Link>
+              <Button asChild className="rounded-xl font-bold px-6 shadow-md">
+                <Link href="/signup">Sign Up</Link>
               </Button>
             </div>
           )}
@@ -118,7 +116,7 @@ export function Navbar() {
               </SheetTrigger>
               <SheetContent>
                 <SheetHeader>
-                  <SheetTitle>Campus Menu</SheetTitle>
+                  <SheetTitle>Menu</SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-4 mt-8">
                   <Link 
@@ -133,7 +131,7 @@ export function Navbar() {
                       key={link.name} 
                       href={link.href}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-lg font-bold p-3 hover:bg-primary/5 rounded-xl transition-colors flex items-center gap-3"
+                      className="text-lg font-bold p-3 hover:bg-primary/5 rounded-xl flex items-center gap-3"
                     >
                       <link.icon className="h-5 w-5 text-primary" />
                       {link.name}
@@ -143,10 +141,10 @@ export function Navbar() {
                     {!user ? (
                       <>
                         <Button asChild className="w-full rounded-xl" onClick={() => setIsMobileMenuOpen(false)}>
-                          <Link href="/signup">Create Account</Link>
+                          <Link href="/signup">Sign Up</Link>
                         </Button>
                         <Button asChild variant="outline" className="w-full rounded-xl" onClick={() => setIsMobileMenuOpen(false)}>
-                          <Link href="/login">Sign In</Link>
+                          <Link href="/login">Login</Link>
                         </Button>
                       </>
                     ) : (
