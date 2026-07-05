@@ -58,7 +58,7 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-12 pb-20">
       {/* Immersive Slideshow Section */}
-      <section className="relative h-[70vh] min-h-[500px] overflow-hidden">
+      <section className="relative h-[65vh] min-h-[500px] overflow-hidden">
         <Carousel 
           className="w-full h-full"
           plugins={[autoplayPlugin.current]}
@@ -66,7 +66,7 @@ export default function Home() {
             loop: true,
           }}
         >
-          <CarouselContent className="h-[70vh] -ml-0">
+          <CarouselContent className="h-[65vh] -ml-0">
             {heroSlides.map((slide, index) => (
               <CarouselItem key={index} className="pl-0 relative h-full w-full">
                 <div className="relative h-full w-full">
@@ -74,37 +74,37 @@ export default function Home() {
                     src={slide.img?.imageUrl || 'https://picsum.photos/seed/nitsri/1200/800'} 
                     alt={slide.title}
                     fill
-                    className="object-cover opacity-90 brightness-[0.95]"
+                    className="object-cover opacity-100 brightness-[1.10]"
                     priority={index === 0}
                     data-ai-hint={slide.img?.imageHint || 'university campus'}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/20" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-background/30 via-transparent to-transparent" />
                   
                   <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-center">
-                    <div className="max-w-3xl space-y-6 animate-in fade-in slide-in-from-left-8 duration-1000">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/30 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest border border-white/20">
-                        <GraduationCap className="h-3.5 w-3.5" /> {slide.title}
+                    <div className="max-w-2xl space-y-4 animate-in fade-in slide-in-from-left-8 duration-1000">
+                      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/40 backdrop-blur-xl text-white text-[11px] font-black uppercase tracking-widest border border-white/20 shadow-xl">
+                        <GraduationCap className="h-4 w-4" /> {slide.title}
                       </div>
-                      <h1 className="text-6xl md:text-8xl font-headline font-bold tracking-tighter text-white leading-[0.85] drop-shadow-2xl">
+                      <h1 className="text-5xl md:text-6xl font-headline font-bold tracking-tighter text-white leading-tight drop-shadow-2xl">
                         {slide.quote}
                       </h1>
-                      <p className="text-xl md:text-2xl text-white font-medium max-w-xl leading-relaxed drop-shadow-md">
+                      <p className="text-lg md:text-xl text-white/90 font-medium max-w-lg leading-relaxed drop-shadow-lg">
                         Access high-quality peer notes and academic resources curated for NITians.
                       </p>
                       
-                      <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                        <div className="flex-grow flex items-center gap-3 px-6 h-16 rounded-2xl bg-white/20 backdrop-blur-2xl border border-white/30 shadow-2xl group focus-within:border-primary transition-all">
-                          <Search className="h-5 w-5 text-white" />
+                      <div className="flex flex-col sm:flex-row gap-3 pt-6 max-w-xl">
+                        <div className="flex-grow flex items-center gap-4 px-6 h-14 rounded-2xl bg-white/10 backdrop-blur-3xl border border-white/30 shadow-2xl group focus-within:border-primary focus-within:bg-white/20 transition-all">
+                          <Search className="h-5 w-5 text-white/70 group-focus-within:text-white" />
                           <input 
                             placeholder="Search subjects or topics..." 
-                            className="bg-transparent border-none outline-none text-lg w-full placeholder:text-white/60 text-white font-medium"
+                            className="bg-transparent border-none outline-none text-base w-full placeholder:text-white/60 text-white font-medium"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && (window.location.href = `/browse?search=${searchQuery}`)}
                           />
                         </div>
-                        <Button asChild size="lg" className="rounded-2xl px-12 h-16 font-black text-xl shadow-2xl shadow-primary/40 hover:scale-105 transition-transform">
+                        <Button asChild size="lg" className="rounded-2xl px-8 h-14 font-black text-lg shadow-2xl shadow-primary/30 hover:scale-105 transition-transform">
                           <Link href={`/browse?search=${searchQuery}`}>Search</Link>
                         </Button>
                       </div>
@@ -114,28 +114,28 @@ export default function Home() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <div className="absolute bottom-10 right-10 flex gap-3 z-20">
-            <CarouselPrevious className="relative left-0 translate-y-0 h-12 w-12 bg-white/20 backdrop-blur-md hover:bg-primary hover:text-white border-white/30 rounded-2xl transition-all" />
-            <CarouselNext className="relative right-0 translate-y-0 h-12 w-12 bg-white/20 backdrop-blur-md hover:bg-primary hover:text-white border-white/30 rounded-2xl transition-all" />
+          <div className="absolute bottom-10 right-10 flex gap-4 z-20">
+            <CarouselPrevious className="relative left-0 translate-y-0 h-12 w-12 bg-white/10 backdrop-blur-2xl hover:bg-primary hover:text-white border-white/20 rounded-2xl transition-all shadow-xl" />
+            <CarouselNext className="relative right-0 translate-y-0 h-12 w-12 bg-white/10 backdrop-blur-2xl hover:bg-primary hover:text-white border-white/20 rounded-2xl transition-all shadow-xl" />
           </div>
         </Carousel>
       </section>
 
       {/* Stats - Simple Labels */}
-      <section className="container mx-auto px-4 -mt-16 relative z-20">
+      <section className="container mx-auto px-4 -mt-12 relative z-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             { label: 'Total Notes', value: '5,000+', icon: FileText, color: 'text-primary' },
             { label: 'Active Students', value: '12,000+', icon: Users, color: 'text-accent' },
             { label: 'Daily Downloads', value: '1,500+', icon: Download, color: 'text-primary' },
           ].map((stat, i) => (
-            <div key={i} className="bg-card/95 backdrop-blur-xl p-8 rounded-[2.5rem] flex items-center gap-6 border border-white/10 shadow-2xl hover:border-primary/40 transition-all group">
-              <div className="h-16 w-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:rotate-6 transition-transform">
+            <div key={i} className="bg-card/95 backdrop-blur-2xl p-8 rounded-[2rem] flex items-center gap-6 border border-primary/5 shadow-2xl hover:border-primary/40 transition-all group">
+              <div className="h-16 w-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:rotate-6 transition-transform shadow-inner">
                 <stat.icon className="h-8 w-8" />
               </div>
               <div>
-                <p className={`text-4xl font-black ${stat.color}`}>{stat.value}</p>
-                <p className="text-[11px] text-muted-foreground font-black uppercase tracking-[0.2em]">{stat.label}</p>
+                <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
+                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em]">{stat.label}</p>
               </div>
             </div>
           ))}
@@ -144,12 +144,12 @@ export default function Home() {
 
       {/* Department Quick Pick */}
       <section className="container mx-auto px-4 space-y-10 mt-8">
-        <div className="flex justify-between items-end border-b border-primary/10 pb-8">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 border-b border-primary/10 pb-8">
           <div className="space-y-2">
-            <h2 className="text-4xl font-headline font-bold tracking-tight">Academic Vaults</h2>
+            <h2 className="text-3xl font-headline font-bold tracking-tight">Academic Vaults</h2>
             <p className="text-muted-foreground font-medium text-lg">Quickly navigate to your department's specialized resources.</p>
           </div>
-          <Button variant="ghost" asChild className="rounded-full font-bold text-primary hover:bg-primary/5 h-12">
+          <Button variant="ghost" asChild className="rounded-xl font-bold text-primary hover:bg-primary/10 h-12 px-6">
             <Link href="/browse">Explore All <ArrowRight className="ml-2 h-4 w-4" /></Link>
           </Button>
         </div>
@@ -159,12 +159,12 @@ export default function Home() {
             const Icon = BRANCH_ICONS[branch] || BookOpen;
             return (
               <Link key={branch} href={`/browse?branch=${encodeURIComponent(branch)}`}>
-                <Card className="group hover:bg-primary transition-all duration-500 cursor-pointer rounded-[2rem] overflow-hidden border-primary/5 bg-secondary/30 hover:-translate-y-2">
-                  <CardContent className="flex flex-col items-center justify-center p-10 gap-5 text-center">
-                    <div className="p-5 rounded-3xl bg-primary/10 group-hover:bg-white/20 transition-colors">
-                      <Icon className="h-12 w-12 text-primary group-hover:text-white" />
+                <Card className="group hover:bg-primary transition-all duration-500 cursor-pointer rounded-[2rem] overflow-hidden border-primary/5 bg-secondary/30 hover:-translate-y-2 shadow-sm hover:shadow-2xl">
+                  <CardContent className="flex flex-col items-center justify-center p-8 gap-5 text-center">
+                    <div className="p-4 rounded-2xl bg-primary/10 group-hover:bg-white/20 transition-colors shadow-inner">
+                      <Icon className="h-10 w-10 text-primary group-hover:text-white" />
                     </div>
-                    <span className="font-bold text-base group-hover:text-white transition-colors">{branch}</span>
+                    <span className="font-bold text-sm group-hover:text-white transition-colors">{branch}</span>
                   </CardContent>
                 </Card>
               </Link>
@@ -184,31 +184,31 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <div className="space-y-8">
               <Badge className="bg-accent text-accent-foreground px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest">GenAI Study Engine</Badge>
-              <h2 className="text-5xl md:text-7xl font-headline font-bold tracking-tight text-primary leading-none">Smart Study <br /><span className="text-foreground">Solutions.</span></h2>
-              <p className="text-xl text-muted-foreground font-medium leading-relaxed max-w-lg">
+              <h2 className="text-5xl md:text-6xl font-headline font-bold tracking-tight text-primary leading-tight">Smart Study <br /><span className="text-foreground">Solutions.</span></h2>
+              <p className="text-lg text-muted-foreground font-medium leading-relaxed max-w-lg">
                 Stop spending hours deciphering complex topics. Our AI companion synthesizes your course materials into digestible summaries and practice tests.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="flex items-start gap-6 p-8 rounded-[2.5rem] bg-background border border-primary/10 shadow-sm hover:shadow-2xl transition-all">
-                  <div className="h-14 w-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shrink-0"><Sparkles className="h-8 w-8" /></div>
+                <div className="flex items-start gap-6 p-6 rounded-[2rem] bg-background border border-primary/10 shadow-lg hover:shadow-2xl transition-all group/card">
+                  <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary shrink-0 group-hover/card:scale-110 transition-transform"><Sparkles className="h-6 w-6" /></div>
                   <div>
-                    <p className="font-bold text-lg">Instant Summaries</p>
-                    <p className="text-sm text-muted-foreground mt-1">Grasp core concepts in seconds.</p>
+                    <p className="font-bold text-base">Instant Summaries</p>
+                    <p className="text-xs text-muted-foreground mt-1">Grasp core concepts in seconds.</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-6 p-8 rounded-[2.5rem] bg-background border border-primary/10 shadow-sm hover:shadow-2xl transition-all">
-                  <div className="h-14 w-14 bg-accent/10 rounded-2xl flex items-center justify-center text-accent shrink-0"><Cpu className="h-8 w-8" /></div>
+                <div className="flex items-start gap-6 p-6 rounded-[2rem] bg-background border border-primary/10 shadow-lg hover:shadow-2xl transition-all group/card">
+                  <div className="h-12 w-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent shrink-0 group-hover/card:scale-110 transition-transform"><Cpu className="h-6 w-6" /></div>
                   <div>
-                    <p className="font-bold text-lg">Mock Examiners</p>
-                    <p className="text-sm text-muted-foreground mt-1">Simulate exams with AI questions.</p>
+                    <p className="font-bold text-base">Mock Examiners</p>
+                    <p className="text-xs text-muted-foreground mt-1">Simulate exams with AI questions.</p>
                   </div>
                 </div>
               </div>
-              <Button asChild size="lg" className="rounded-2xl px-14 h-16 font-black text-xl mt-6 shadow-2xl shadow-primary/20">
+              <Button asChild size="lg" className="rounded-2xl px-12 h-16 font-black text-xl mt-6 shadow-2xl shadow-primary/20 hover:scale-105 transition-all">
                 <Link href="/browse">Experience Smart Study</Link>
               </Button>
             </div>
-            <div className="relative aspect-square rounded-[4rem] overflow-hidden shadow-2xl border-[16px] border-white/5 group bg-card">
+            <div className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white/5 group bg-card">
               <Image 
                 src="https://media.istockphoto.com/id/692132510/photo/programming-code-abstract-screen-of-software-developer-computer-code-development.jpg?s=170667a&w=0&k=20&c=Nmn8TQ7YHr-juDqb4_lglRZDePrXJI2qB5nC3OXuSV0=" 
                 alt="AI Helper" 
@@ -216,12 +216,12 @@ export default function Home() {
                 className="object-cover transition-all duration-700 group-hover:scale-110 brightness-110"
               />
               <div className="absolute inset-0 bg-primary/10 group-hover:bg-transparent transition-colors" />
-              <div className="absolute bottom-12 left-12 right-12 bg-white/20 backdrop-blur-3xl p-8 rounded-3xl border border-white/30">
-                 <p className="text-white font-bold text-xl mb-3">"Analysis: Operating Systems V2"</p>
-                 <div className="flex gap-2 mt-2">
-                    <div className="h-1.5 flex-1 bg-primary rounded-full" />
-                    <div className="h-1.5 flex-1 bg-primary rounded-full" />
-                    <div className="h-1.5 flex-1 bg-white/20 rounded-full" />
+              <div className="absolute bottom-10 left-10 right-10 bg-white/10 backdrop-blur-3xl p-6 rounded-2xl border border-white/20 shadow-2xl">
+                 <p className="text-white font-bold text-lg mb-2">"Analysis: Operating Systems V2"</p>
+                 <div className="flex gap-1.5 mt-2">
+                    <div className="h-1 flex-1 bg-primary rounded-full shadow-lg" />
+                    <div className="h-1 flex-1 bg-primary rounded-full shadow-lg" />
+                    <div className="h-1 flex-1 bg-white/20 rounded-full" />
                  </div>
               </div>
             </div>
@@ -231,24 +231,24 @@ export default function Home() {
 
       {/* Redesigned Community Section - Very Simple */}
       <section className="container mx-auto px-4 mt-12">
-        <div className="bg-primary rounded-[4rem] p-16 md:p-24 text-center space-y-12 relative overflow-hidden shadow-2xl">
+        <div className="bg-primary rounded-[3rem] p-12 md:p-20 text-center space-y-8 relative overflow-hidden shadow-2xl">
           <div className="absolute -top-10 -left-10 opacity-10">
-            <Heart className="h-72 w-72 text-white" />
+            <Heart className="h-64 w-64 text-white" />
           </div>
-          <div className="absolute -bottom-20 -right-20 opacity-10">
-            <GraduationCap className="h-[30rem] w-[30rem] text-white" />
+          <div className="absolute -bottom-10 -right-10 opacity-10">
+            <GraduationCap className="h-96 w-96 text-white" />
           </div>
           
-          <div className="max-w-4xl mx-auto space-y-10 relative z-10">
-            <h2 className="text-6xl md:text-8xl font-headline font-bold text-white tracking-tighter leading-[0.8]">Empower Your <br />Academic Circle.</h2>
-            <p className="text-xl md:text-3xl text-white/90 font-medium max-w-2xl mx-auto leading-relaxed">
+          <div className="max-w-3xl mx-auto space-y-8 relative z-10">
+            <h2 className="text-4xl md:text-6xl font-headline font-bold text-white tracking-tighter leading-tight">Empower Your <br />Academic Circle.</h2>
+            <p className="text-lg md:text-2xl text-white/90 font-medium max-w-xl mx-auto leading-relaxed">
               Every student has something to share. Contribute to the largest study bank in NIT Srinagar.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-6 pt-6">
-              <Button asChild size="lg" variant="secondary" className="rounded-[1.5rem] px-16 h-20 font-black text-2xl bg-white text-primary hover:scale-105 transition-all shadow-2xl">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 pt-6">
+              <Button asChild size="lg" variant="secondary" className="rounded-2xl px-12 h-16 font-black text-xl bg-white text-primary hover:scale-105 transition-all shadow-2xl border-none">
                 <Link href="/upload">Upload Materials</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-[1.5rem] px-16 h-20 font-black text-2xl text-white border-white/40 hover:bg-white/10 transition-all">
+              <Button asChild size="lg" variant="outline" className="rounded-2xl px-12 h-16 font-black text-xl text-white border-white/40 hover:bg-white/10 transition-all backdrop-blur-sm">
                 <Link href="/forum">Join Community</Link>
               </Button>
             </div>
