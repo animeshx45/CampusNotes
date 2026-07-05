@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BrainCircuit, Download, FileText, Share2, MessageSquare, Info, Sparkles, AlertCircle, Loader2, Zap, ArrowLeft, ExternalLink, Youtube, Maximize2 } from 'lucide-react';
+import { BrainCircuit, Download, FileText, Share2, MessageSquare, Info, Sparkles, AlertCircle, Loader2, Zap, ArrowLeft, ExternalLink, Youtube, Maximize2, Monitor } from 'lucide-react';
 import { generateStudyMaterialSummary } from '@/ai/flows/generate-study-material-summary';
 import { generateExamQuestions } from '@/ai/flows/generate-exam-questions-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -122,7 +122,8 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
   };
 
   const isYoutube = material.type === 'YouTube Playlist';
-  const isImage = material.fileUrl?.match(/\.(jpeg|jpg|gif|png|webp)$/i) || material.fileUrl?.includes('placehold.co') || material.fileUrl?.includes('picsum.photos');
+  const isImage = material.fileUrl?.match(/\.(jpeg|jpg|gif|png|webp)$/i) || material.fileUrl?.includes('picsum.photos');
+  const isPDFPlaceholder = material.fileUrl?.includes('placehold.co');
 
   return (
     <div className="container mx-auto px-4 py-12 flex flex-col gap-8 max-w-6xl animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -186,7 +187,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
                   {isYoutube ? 'YouTube Study Guide' : 'Resource Preview'}
                 </CardTitle>
                 <CardDescription>
-                  See a quick view of what is inside.
+                  Study directly from the portal.
                 </CardDescription>
               </div>
               {!isYoutube && (
@@ -209,44 +210,34 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
                       </Button>
                    </div>
                 </div>
-              ) : isImage ? (
-                <div className="aspect-[16/10] relative rounded-[1.5rem] overflow-hidden border border-primary/10 shadow-lg bg-secondary/20 group">
-                  <Image 
-                    src={material.fileUrl} 
-                    alt="Study Notes Preview" 
-                    fill 
-                    className="object-cover transition-all duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
-                </div>
               ) : (
-                <div className="aspect-[16/10] bg-muted/30 rounded-[1.5rem] flex flex-col items-center justify-center border-2 border-dashed border-primary/10 transition-all overflow-hidden relative group">
-                  {material.fileUrl ? (
-                    <div className="w-full h-full flex flex-col items-center justify-center">
-                       <iframe 
+                <div className="aspect-[16/10] bg-muted/10 rounded-[1.5rem] flex flex-col items-center justify-center border-2 border-dashed border-primary/10 transition-all overflow-hidden relative group">
+                  {isImage ? (
+                    <div className="w-full h-full relative p-4 bg-white/5">
+                      <Image 
                         src={material.fileUrl} 
-                        className="w-full h-full border-none"
-                        title="Document Preview"
+                        alt="Study Notes Preview" 
+                        fill 
+                        className="object-contain"
+                        unoptimized
                       />
-                      {/* Overlay for sites that block iframing */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity p-6 text-center">
-                        <FileText className="h-12 w-12 text-primary mb-4" />
-                        <h3 className="text-xl font-bold mb-2">Can't see the preview?</h3>
-                        <p className="text-sm text-muted-foreground mb-6">Some servers block previews. Click the button below to open it in a new tab.</p>
-                        <Button className="rounded-xl font-bold" onClick={handleDownload}>
-                          Open Document <ExternalLink className="ml-2 h-4 w-4" />
-                        </Button>
-                      </div>
                     </div>
                   ) : (
-                    <div className="text-center space-y-3">
-                      <div className="h-16 w-16 bg-primary/5 rounded-full flex items-center justify-center mx-auto">
-                        <FileText className="h-8 w-8 text-primary opacity-50" />
+                    <div className="w-full h-full flex flex-col items-center justify-center">
+                       <iframe 
+                        src={material.fileUrl.includes('docs.google.com') ? material.fileUrl : `https://docs.google.com/viewer?url=${encodeURIComponent(material.fileUrl)}&embedded=true`}
+                        className="w-full h-full border-none bg-white"
+                        title="Document Preview"
+                      />
+                      {/* Overlay fallback for blocked embeds */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity p-6 text-center">
+                        <Monitor className="h-12 w-12 text-primary mb-4" />
+                        <h3 className="text-xl font-bold mb-2">Better View?</h3>
+                        <p className="text-sm text-muted-foreground mb-6">Open this document in a new tab for a better reading experience.</p>
+                        <Button className="rounded-xl font-bold" onClick={handleDownload}>
+                          Open Full Document <ExternalLink className="ml-2 h-4 w-4" />
+                        </Button>
                       </div>
-                      <p className="text-sm font-bold text-muted-foreground">No preview available.</p>
-                      <Button variant="outline" size="sm" className="rounded-xl" onClick={handleDownload}>
-                        Download to View
-                      </Button>
                     </div>
                   )}
                 </div>
