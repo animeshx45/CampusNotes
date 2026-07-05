@@ -7,9 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BRANCHES } from '@/lib/mock-data';
+import { DEPARTMENT_REPRESENTATIVES } from '@/lib/department-data';
 import { 
-  Search, BookOpen, Users, Sparkles, ArrowRight, GraduationCap, 
-  FileText, Download, Code, Cpu, Hammer, Droplets, Zap, Beaker, Building2, Microscope, Heart
+  Search, BookOpen, Users, ArrowRight, GraduationCap, 
+  FileText, Download, Code, Cpu, Hammer, Droplets, Zap, Beaker, Building2, Microscope, Heart,
+  Linkedin, Mail
 } from 'lucide-react';
 import Image from 'next/image';
 import {
@@ -74,22 +76,22 @@ export default function Home() {
                     src={slide.img?.imageUrl || 'https://picsum.photos/seed/nitsri/1200/800'} 
                     alt={slide.title}
                     fill
-                    className="object-cover opacity-100 brightness-[1.10]"
+                    className="object-cover opacity-100 brightness-110"
                     priority={index === 0}
                     data-ai-hint={slide.img?.imageHint || 'university campus'}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/20" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/10" />
                   <div className="absolute inset-0 bg-gradient-to-r from-background/30 via-transparent to-transparent" />
                   
                   <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-center">
                     <div className="max-w-2xl space-y-4 animate-in fade-in slide-in-from-left-8 duration-1000">
-                      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/40 backdrop-blur-xl text-white text-[11px] font-black uppercase tracking-widest border border-white/20 shadow-xl">
+                      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/40 backdrop-blur-xl text-white text-[10px] font-black uppercase tracking-widest border border-white/20 shadow-xl">
                         <GraduationCap className="h-4 w-4" /> {slide.title}
                       </div>
-                      <h1 className="text-5xl md:text-6xl font-headline font-bold tracking-tighter text-white leading-tight drop-shadow-2xl">
+                      <h1 className="text-4xl md:text-6xl font-headline font-bold tracking-tighter text-white leading-tight drop-shadow-2xl">
                         {slide.quote}
                       </h1>
-                      <p className="text-lg md:text-xl text-white/90 font-medium max-w-lg leading-relaxed drop-shadow-lg">
+                      <p className="text-base md:text-lg text-white/90 font-medium max-w-lg leading-relaxed drop-shadow-lg">
                         Access high-quality peer notes and academic resources curated for NITians.
                       </p>
                       
@@ -173,7 +175,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* AI Help Section - Simple Language */}
+      {/* Mentors Section - Community Guidance */}
       <section className="bg-primary/5 py-24 border-y border-primary/10 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
           <div className="absolute top-20 left-10 h-64 w-64 rounded-full bg-primary blur-[100px]" />
@@ -181,55 +183,51 @@ export default function Home() {
         </div>
         
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-            <div className="space-y-8">
-              <Badge className="bg-accent text-accent-foreground px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest">GenAI Study Engine</Badge>
-              <h2 className="text-5xl md:text-6xl font-headline font-bold tracking-tight text-primary leading-tight">Smart Study <br /><span className="text-foreground">Solutions.</span></h2>
+          <div className="flex flex-col lg:flex-row gap-20 items-center">
+            <div className="lg:w-1/3 space-y-8">
+              <Badge className="bg-accent text-accent-foreground px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest">Connect & Grow</Badge>
+              <h2 className="text-4xl md:text-5xl font-headline font-bold tracking-tight text-primary leading-tight">Meet Your <br /><span className="text-foreground">Mentors.</span></h2>
               <p className="text-lg text-muted-foreground font-medium leading-relaxed max-w-lg">
-                Stop spending hours deciphering complex topics. Our AI companion synthesizes your course materials into digestible summaries and practice tests.
+                Get guidance from senior representatives who have navigated the same path. Your academic success is a collective effort.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="flex items-start gap-6 p-6 rounded-[2rem] bg-background border border-primary/10 shadow-lg hover:shadow-2xl transition-all group/card">
-                  <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary shrink-0 group-hover/card:scale-110 transition-transform"><Sparkles className="h-6 w-6" /></div>
-                  <div>
-                    <p className="font-bold text-base">Instant Summaries</p>
-                    <p className="text-xs text-muted-foreground mt-1">Grasp core concepts in seconds.</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-6 p-6 rounded-[2rem] bg-background border border-primary/10 shadow-lg hover:shadow-2xl transition-all group/card">
-                  <div className="h-12 w-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent shrink-0 group-hover/card:scale-110 transition-transform"><Cpu className="h-6 w-6" /></div>
-                  <div>
-                    <p className="font-bold text-base">Mock Examiners</p>
-                    <p className="text-xs text-muted-foreground mt-1">Simulate exams with AI questions.</p>
-                  </div>
-                </div>
-              </div>
-              <Button asChild size="lg" className="rounded-2xl px-12 h-16 font-black text-xl mt-6 shadow-2xl shadow-primary/20 hover:scale-105 transition-all">
-                <Link href="/browse">Experience Smart Study</Link>
+              <Button asChild size="lg" className="rounded-2xl px-10 h-14 font-black text-lg shadow-2xl shadow-primary/20 hover:scale-105 transition-all">
+                <Link href="/about">Meet All Reps</Link>
               </Button>
             </div>
-            <div className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white/5 group bg-card">
-              <Image 
-                src="https://media.istockphoto.com/id/692132510/photo/programming-code-abstract-screen-of-software-developer-computer-code-development.jpg?s=170667a&w=0&k=20&c=Nmn8TQ7YHr-juDqb4_lglRZDePrXJI2qB5nC3OXuSV0=" 
-                alt="AI Helper" 
-                fill 
-                className="object-cover transition-all duration-700 group-hover:scale-110 brightness-110"
-              />
-              <div className="absolute inset-0 bg-primary/10 group-hover:bg-transparent transition-colors" />
-              <div className="absolute bottom-10 left-10 right-10 bg-white/10 backdrop-blur-3xl p-6 rounded-2xl border border-white/20 shadow-2xl">
-                 <p className="text-white font-bold text-lg mb-2">"Analysis: Operating Systems V2"</p>
-                 <div className="flex gap-1.5 mt-2">
-                    <div className="h-1 flex-1 bg-primary rounded-full shadow-lg" />
-                    <div className="h-1 flex-1 bg-primary rounded-full shadow-lg" />
-                    <div className="h-1 flex-1 bg-white/20 rounded-full" />
-                 </div>
-              </div>
+            
+            <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-6">
+              {DEPARTMENT_REPRESENTATIVES.slice(0, 4).map((rep, idx) => (
+                <Card key={idx} className="rounded-[2rem] border-primary/5 hover:border-primary/20 transition-all bg-card shadow-lg hover:shadow-2xl group overflow-hidden">
+                  <CardContent className="p-8 flex items-center gap-6">
+                    <div className="relative h-20 w-20 rounded-2xl overflow-hidden shrink-0 shadow-inner">
+                      <Image 
+                        src={rep.imageUrl} 
+                        alt={rep.name} 
+                        fill 
+                        className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-lg text-primary">{rep.name}</h4>
+                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">{rep.branch}</p>
+                      <div className="flex gap-3 pt-2">
+                        <a href={rep.linkedin} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                          <Linkedin className="h-4 w-4" />
+                        </a>
+                        <a href={`mailto:${rep.email}`} className="text-muted-foreground hover:text-accent transition-colors">
+                          <Mail className="h-4 w-4" />
+                        </a>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Redesigned Community Section - Very Simple */}
+      {/* Community Section */}
       <section className="container mx-auto px-4 mt-12">
         <div className="bg-primary rounded-[3rem] p-12 md:p-20 text-center space-y-8 relative overflow-hidden shadow-2xl">
           <div className="absolute -top-10 -left-10 opacity-10">
