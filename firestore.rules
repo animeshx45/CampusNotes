@@ -14,7 +14,8 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read: if isSignedIn();
+      // Allow public read for student count statistics on homepage
+      allow read: if true;
       allow write: if isOwner(userId);
     }
 
