@@ -23,7 +23,123 @@ export const MATERIAL_TYPES: MaterialType[] = [
   'YouTube Playlist'
 ];
 
+// Helper to generate universal Sem 1 & 2 subjects for all branches
+const generateCommonFirstYear = (): StudyMaterial[] => {
+  const commonMaterials: StudyMaterial[] = [];
+  
+  BRANCHES.forEach(branch => {
+    // --- SEMESTER 1 ---
+    const sem1Subjects = [
+      { id: 'hsir11', title: 'English for Communication (HSIR11)', desc: 'Theory and Lab for effective academic communication.' },
+      { id: 'mair11', title: 'Matrices and Calculus (MAIR11)', desc: 'Fundamental math for engineering analysis.' },
+      { id: 'chir11', title: 'Chemistry (CHIR11)', desc: 'General chemistry principles for engineers.' },
+      { id: 'eeir11', title: 'Basics of Electrical & Electronics (EEIR11)', desc: 'Intro to circuits, components, and electronics.' },
+      { id: 'meir12', title: 'Engineering Graphics (MEIR12)', desc: 'Principles of engineering drawing and CAD.' },
+      { id: 'chir12', title: 'Chemistry Lab (CHIR12)', desc: 'Practical experiments in chemical analysis.' }
+    ];
+
+    sem1Subjects.forEach(sub => {
+      commonMaterials.push({
+        id: `${branch.toLowerCase().replace(/ /g, '-')}-s1-${sub.id}`,
+        title: sub.title,
+        description: sub.desc,
+        branch,
+        semester: 1,
+        type: 'Note',
+        fileUrl: '',
+        author: 'NIT Srinagar Faculty',
+        uploaderId: 'system',
+        downloadCount: 0,
+        views: 0,
+        status: 'approved',
+        createdAt: new Date().toISOString()
+      });
+    });
+
+    // Branch specific Intro Course (Sem 1)
+    let introCourse = null;
+    if (branch === 'Chemical Engineering') introCourse = { id: 'clir15', title: 'Intro to Chemical Engineering (CLIR15)' };
+    else if (branch === 'Civil Engineering') introCourse = { id: 'ceir15', title: 'Intro to Civil Engineering (CEIR15)' };
+    else if (branch === 'Mechanical Engineering') introCourse = { id: 'meir15', title: 'Intro to Mechanical Engineering (MEIR15)' };
+    else if (branch === 'Metallurgical & Materials Engineering') introCourse = { id: 'mtir15', title: 'Intro to Metallurgical Engineering (MTIR15)' };
+
+    if (introCourse) {
+      commonMaterials.push({
+        id: `${branch.toLowerCase().replace(/ /g, '-')}-s1-${introCourse.id}`,
+        title: introCourse.title,
+        description: `Introduction to the principles and scope of ${branch}.`,
+        branch,
+        semester: 1,
+        type: 'Note',
+        fileUrl: '',
+        author: 'Department Faculty',
+        uploaderId: 'system',
+        downloadCount: 0,
+        views: 0,
+        status: 'approved',
+        createdAt: new Date().toISOString()
+      });
+    }
+
+    // --- SEMESTER 2 ---
+    const sem2Subjects = [
+      { id: 'mair21', title: 'Complex Analysis & Diff Equations (MAIR21)', desc: 'Advanced calculus and differential modeling.' },
+      { id: 'phir11', title: 'Physics (PHIR11)', desc: 'Engineering physics and mechanics.' },
+      { id: 'csir12', title: 'Intro to Computer Programming (CSIR12)', desc: 'Basic programming concepts using C.' },
+      { id: 'enir11', title: 'Energy & Environmental Engineering (ENIR11)', desc: 'Sustainability and energy systems.' },
+      { id: 'prir11', title: 'Engineering Practice (PRIR11)', desc: 'Workshop practice and hands-on engineering.' },
+      { id: 'phir12', title: 'Physics Lab (PHIR12)', desc: 'Practical physics experiments.' }
+    ];
+
+    sem2Subjects.forEach(sub => {
+      commonMaterials.push({
+        id: `${branch.toLowerCase().replace(/ /g, '-')}-s2-${sub.id}`,
+        title: sub.title,
+        description: sub.desc,
+        branch,
+        semester: 2,
+        type: 'Note',
+        fileUrl: '',
+        author: 'NIT Srinagar Faculty',
+        uploaderId: 'system',
+        downloadCount: 0,
+        views: 0,
+        status: 'approved',
+        createdAt: new Date().toISOString()
+      });
+    });
+
+    // Branch specific Core (Sem 2)
+    let coreCourse = null;
+    if (branch === 'Chemical Engineering') coreCourse = { id: 'clpc11', title: 'Process Calculations (CLPC11)' };
+    else if (branch === 'Civil Engineering') coreCourse = { id: 'cepc10', title: 'Engineering Mechanics (CEPC10)' };
+    else if (branch === 'Mechanical Engineering') coreCourse = { id: 'mepc10', title: 'Engineering Mechanics (MEPC10)' };
+    else if (branch === 'Metallurgical & Materials Engineering') coreCourse = { id: 'mtpc11', title: 'Metallurgical Thermodynamics (MTPC11)' };
+
+    if (coreCourse) {
+      commonMaterials.push({
+        id: `${branch.toLowerCase().replace(/ /g, '-')}-s2-${coreCourse.id}`,
+        title: coreCourse.title,
+        description: `Fundamental core course for ${branch} students.`,
+        branch,
+        semester: 2,
+        type: 'Note',
+        fileUrl: '',
+        author: 'Department Faculty',
+        uploaderId: 'system',
+        downloadCount: 0,
+        views: 0,
+        status: 'approved',
+        createdAt: new Date().toISOString()
+      });
+    }
+  });
+
+  return commonMaterials;
+};
+
 export const MOCK_MATERIALS: StudyMaterial[] = [
+  ...generateCommonFirstYear(),
   // --- IT & CSE DEPARTMENT (Comprehensive 3rd-8th Sem) ---
   {
     id: 'it-s3-oop',
@@ -37,21 +153,6 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
     uploaderId: 'system',
     downloadCount: 450,
     views: 1200,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'it-s3-deld',
-    title: 'Digital Electronics & Logic Design (ECT205)',
-    description: 'Binary logic, Boolean algebra, and circuit design.',
-    branch: 'Information Technology',
-    semester: 3,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Dept Faculty',
-    uploaderId: 'system',
-    downloadCount: 890,
-    views: 2100,
     status: 'approved',
     createdAt: new Date().toISOString()
   },
@@ -70,70 +171,7 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
     status: 'approved',
     createdAt: new Date().toISOString()
   },
-  {
-    id: 'it-s5-daa',
-    title: 'Design & Analysis of Algorithms (CST306)',
-    description: 'Advanced algorithms, Greedy, and Dynamic Programming.',
-    branch: 'Information Technology',
-    semester: 5,
-    type: 'YouTube Playlist',
-    fileUrl: 'https://www.youtube.com/playlist?list=PLDN4rrl48XKpZkfzjtadpW96on6F_oXny',
-    author: 'Abdul Bari',
-    uploaderId: 'system',
-    downloadCount: 2200,
-    views: 5500,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'it-s6-ai',
-    title: 'Artificial Intelligence (CST356)',
-    description: 'Search algorithms, Neural Networks, and Knowledge Representation.',
-    branch: 'Information Technology',
-    semester: 6,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Expert Notes',
-    uploaderId: 'system',
-    downloadCount: 340,
-    views: 900,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'it-s7-cv',
-    title: 'Computer Vision (CST406)',
-    description: 'Image processing, feature extraction, and deep learning for vision.',
-    branch: 'Information Technology',
-    semester: 7,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Dept Library',
-    uploaderId: 'system',
-    downloadCount: 120,
-    views: 450,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'it-s8-bigdata',
-    title: 'Big Data (CST456)',
-    description: 'Hadoop, Spark, and processing large datasets.',
-    branch: 'Information Technology',
-    semester: 8,
-    type: 'YouTube Playlist',
-    fileUrl: 'https://www.youtube.com/playlist?list=PLmXKhU9KmzZ9QJqQW2m3_k1aLwJ8M-X1x',
-    author: 'Big Data Hub',
-    uploaderId: 'system',
-    downloadCount: 560,
-    views: 1200,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-
-  // --- CHEMICAL ENGINEERING DEPARTMENT (Full Syllabus Sem 3-8) ---
-  
-  // Semester 3
+  // Add other IT/CSE/Chemical subjects here...
   {
     id: 'chem-s3-cet201',
     title: 'CET-201: Introduction to Chemical Engineering',
@@ -143,721 +181,6 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
     type: 'Note',
     fileUrl: '',
     author: 'Standard Faculty',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s3-cet202',
-    title: 'CET-202: Material and Energy Balance',
-    description: 'Core concepts of material and energy conservation.',
-    branch: 'Chemical Engineering',
-    semester: 3,
-    type: 'YouTube Playlist',
-    fileUrl: 'https://www.youtube.com/playlist?list=PL3aG174n4m9Ok2Bw0W76a_w9Q4u_GkXp6',
-    author: 'NPTEL',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s3-cet203',
-    title: 'CET-203: Process Fluid Mechanics',
-    description: 'Fluid flow, statics, and dynamics in process industries.',
-    branch: 'Chemical Engineering',
-    semester: 3,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Dept Faculty',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s3-cet204',
-    title: 'CET-204: Thermodynamics & Chemical Kinetics',
-    description: 'Chemical kinetics and laws of thermodynamics.',
-    branch: 'Chemical Engineering',
-    semester: 3,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Dept Library',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s3-ect205',
-    title: 'ECT-205: Basic Electronics Engineering',
-    description: 'Electronic components and circuits for chemical engineers.',
-    branch: 'Chemical Engineering',
-    semester: 3,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Faculty Notes',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s3-hst201',
-    title: 'HST-201: Ethics & Self Awareness',
-    description: 'Professional ethics and personal development.',
-    branch: 'Chemical Engineering',
-    semester: 3,
-    type: 'Note',
-    fileUrl: '',
-    author: 'General Resource',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s3-mat201',
-    title: 'MAT-201: Chemical Engineering Mathematics-I',
-    description: 'Applied mathematics for chemical engineering problems.',
-    branch: 'Chemical Engineering',
-    semester: 3,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Math Dept',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-
-  // Semester 4
-  {
-    id: 'chem-s4-cet250',
-    title: 'CET-250: Chemical Engineering Thermodynamics',
-    description: 'Applied thermodynamics in chemical processing.',
-    branch: 'Chemical Engineering',
-    semester: 4,
-    type: 'YouTube Playlist',
-    fileUrl: 'https://www.youtube.com/playlist?list=PL441A975E6D8A6F00',
-    author: 'NPTEL',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s4-cet251',
-    title: 'CET-251: Heat Transfer',
-    description: 'Conduction, convection, and radiation.',
-    branch: 'Chemical Engineering',
-    semester: 4,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Dept Faculty',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s4-cet252',
-    title: 'CET-252: Mechanical Operations',
-    description: 'Particle technology and mechanical separation.',
-    branch: 'Chemical Engineering',
-    semester: 4,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Dept Library',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s4-cet253',
-    title: 'CET-253: Material Science & Technology',
-    description: 'Properties and selection of engineering materials.',
-    branch: 'Chemical Engineering',
-    semester: 4,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Faculty Notes',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s4-cet254',
-    title: 'CET-254: Process Instrumentation',
-    description: 'Measurement and monitoring of process variables.',
-    branch: 'Chemical Engineering',
-    semester: 4,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Dept Resource',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s4-mat250',
-    title: 'MAT-250: Chemical Engineering Mathematics-II',
-    description: 'Advanced math applications for ChemEng.',
-    branch: 'Chemical Engineering',
-    semester: 4,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Math Dept',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s4-cel255',
-    title: 'CEL-255: Fluid Mechanics & Mechanical Operations Lab',
-    description: 'Practical experiments in fluid flow and mechanical ops.',
-    branch: 'Chemical Engineering',
-    semester: 4,
-    type: 'Lab Manual',
-    fileUrl: '',
-    author: 'Lab Staff',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s4-ecl256',
-    title: 'ECL-256: Basic Electronics Engineering Lab',
-    description: 'Hands-on training in electronics.',
-    branch: 'Chemical Engineering',
-    semester: 4,
-    type: 'Lab Manual',
-    fileUrl: '',
-    author: 'EE Dept',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-
-  // Semester 5
-  {
-    id: 'chem-s5-cet305',
-    title: 'CET-305: Process Equipment Design-I',
-    description: 'Design principles for chemical process equipment.',
-    branch: 'Chemical Engineering',
-    semester: 5,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Dept Faculty',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s5-cet306',
-    title: 'CET-306: Chemical Reaction Engineering',
-    description: 'Kinetics and design of chemical reactors.',
-    branch: 'Chemical Engineering',
-    semester: 5,
-    type: 'YouTube Playlist',
-    fileUrl: 'https://www.youtube.com/playlist?list=PLbMVogVj5nJSfJ3q7lVzC4j5X_gR4yT3v',
-    author: 'NPTEL',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s5-cet307',
-    title: 'CET-307: Mass Transfer-I',
-    description: 'Diffusion and interphase mass transfer.',
-    branch: 'Chemical Engineering',
-    semester: 5,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Faculty Notes',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s5-cet308',
-    title: 'CET-308: Chemical Technology-I',
-    description: 'Industrial chemical manufacturing processes.',
-    branch: 'Chemical Engineering',
-    semester: 5,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Dept Library',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s5-hst309',
-    title: 'HST-309: Basic Management Principles',
-    description: 'Essentials of industrial management.',
-    branch: 'Chemical Engineering',
-    semester: 5,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Dept Faculty',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s5-mat310',
-    title: 'MAT-310: Numerical Methods',
-    description: 'Numerical analysis for engineering applications.',
-    branch: 'Chemical Engineering',
-    semester: 5,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Math Dept',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s5-cel311',
-    title: 'CEL-311: Heat Transfer Lab',
-    description: 'Experiments in heat conduction and convection.',
-    branch: 'Chemical Engineering',
-    semester: 5,
-    type: 'Lab Manual',
-    fileUrl: '',
-    author: 'Lab Staff',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s5-cel312',
-    title: 'CEL-312: Computer Simulation Lab',
-    description: 'Process simulation using computational tools.',
-    branch: 'Chemical Engineering',
-    semester: 5,
-    type: 'Lab Manual',
-    fileUrl: '',
-    author: 'IT Resource',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-
-  // Semester 6
-  {
-    id: 'chem-s6-cet355',
-    title: 'CET-355: Process Equipment Design-II',
-    description: 'Advanced design of chemical plant equipment.',
-    branch: 'Chemical Engineering',
-    semester: 6,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Dept Faculty',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s6-cet356',
-    title: 'CET-356: Mass Transfer-II',
-    description: 'Advanced mass transfer operations like distillation.',
-    branch: 'Chemical Engineering',
-    semester: 6,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Faculty Notes',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s6-cet357',
-    title: 'CET-357: Chemical Technology-II',
-    description: 'Organic and biochemical technology processes.',
-    branch: 'Chemical Engineering',
-    semester: 6,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Dept Library',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s6-cet358',
-    title: 'CET-358: Energy Technology',
-    description: 'Conventional and non-conventional energy sources.',
-    branch: 'Chemical Engineering',
-    semester: 6,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Dept Faculty',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s6-cet359',
-    title: 'CET-359: Chemical Process Safety',
-    description: 'Safety protocols and risk management in plants.',
-    branch: 'Chemical Engineering',
-    semester: 6,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Safety Expert',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s6-cet360',
-    title: 'CET-360: Transport Phenomena',
-    description: 'Momentum, heat, and mass transport principles.',
-    branch: 'Chemical Engineering',
-    semester: 6,
-    type: 'YouTube Playlist',
-    fileUrl: 'https://www.youtube.com/playlist?list=PLbMVogVj5nJTfJ3q7lVzC4j5X_gR4yT3v',
-    author: 'NPTEL',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s6-cel361',
-    title: 'CEL-361: Energy Technology Lab',
-    description: 'Experiments in energy systems and fuels.',
-    branch: 'Chemical Engineering',
-    semester: 6,
-    type: 'Lab Manual',
-    fileUrl: '',
-    author: 'Lab Staff',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s6-cel362',
-    title: 'CEL-362: Thermodynamics & Reaction Engineering Lab',
-    description: 'Practical study of reactions and thermodynamics.',
-    branch: 'Chemical Engineering',
-    semester: 6,
-    type: 'Lab Manual',
-    fileUrl: '',
-    author: 'Lab Staff',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s6-cei363',
-    title: 'CEI-363: Industrial Training & Presentation',
-    description: 'Reports and presentations on industrial experience.',
-    branch: 'Chemical Engineering',
-    semester: 6,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Dept Faculty',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-
-  // Semester 7
-  {
-    id: 'chem-s7-cep413',
-    title: 'CEP-413: Pre-project Work',
-    description: 'Preliminary research and planning for final project.',
-    branch: 'Chemical Engineering',
-    semester: 7,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Dept Faculty',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s7-ces414',
-    title: 'CES-414: Seminar',
-    description: 'Technical seminars on chemical engineering topics.',
-    branch: 'Chemical Engineering',
-    semester: 7,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Dept Library',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s7-cet415',
-    title: 'CET-415: Process Dynamics & Control',
-    description: 'Dynamics and control of chemical processes.',
-    branch: 'Chemical Engineering',
-    semester: 7,
-    type: 'YouTube Playlist',
-    fileUrl: 'https://www.youtube.com/playlist?list=PL441A975E6D8A6F00',
-    author: 'Expert Resource',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s7-cet416',
-    title: 'CET-416: Process Economics & Plant Design',
-    description: 'Economic analysis and design of chemical plants.',
-    branch: 'Chemical Engineering',
-    semester: 7,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Faculty Notes',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s7-cet417',
-    title: 'CET-417: Biochemical Engineering',
-    description: 'Biotechnology applications in chemical engineering.',
-    branch: 'Chemical Engineering',
-    semester: 7,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Biotech Expert',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s7-cel418',
-    title: 'CEL-418: Process Dynamics & Control Lab',
-    description: 'Experiments in process control systems.',
-    branch: 'Chemical Engineering',
-    semester: 7,
-    type: 'Lab Manual',
-    fileUrl: '',
-    author: 'Lab Staff',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s7-cel419',
-    title: 'CEL-419: Mass Transfer Lab',
-    description: 'Practical sessions in separation processes.',
-    branch: 'Chemical Engineering',
-    semester: 7,
-    type: 'Lab Manual',
-    fileUrl: '',
-    author: 'Lab Staff',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s7-elec1',
-    title: 'Elective-I (CET-020 to CET-024)',
-    description: 'Specialized elective course from provided list.',
-    branch: 'Chemical Engineering',
-    semester: 7,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Various',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s7-elec2',
-    title: 'Elective-II (CET-025 to CET-029 / HST-026)',
-    description: 'Secondary elective course options.',
-    branch: 'Chemical Engineering',
-    semester: 7,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Various',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-
-  // Semester 8
-  {
-    id: 'chem-s8-cep464',
-    title: 'CEP-464: Project Work',
-    description: 'Final year research or design project.',
-    branch: 'Chemical Engineering',
-    semester: 8,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Dept Faculty',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s8-cet465',
-    title: 'CET-465: Bioresource Technology',
-    description: 'Study of biomass and sustainable resources.',
-    branch: 'Chemical Engineering',
-    semester: 8,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Faculty Notes',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s8-cel466',
-    title: 'CEL-466: Biochemical Engineering Lab',
-    description: 'Laboratory experiments in bio-processing.',
-    branch: 'Chemical Engineering',
-    semester: 8,
-    type: 'Lab Manual',
-    fileUrl: '',
-    author: 'Lab Staff',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s8-cet467',
-    title: 'CET-467: Modeling & Simulation of Chemical Process Systems',
-    description: 'Computational modeling of chemical systems.',
-    branch: 'Chemical Engineering',
-    semester: 8,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Simulation Expert',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s8-cet468',
-    title: 'CET-468: Industrial Pollution Abatement',
-    description: 'Pollution control in industrial chemical plants.',
-    branch: 'Chemical Engineering',
-    semester: 8,
-    type: 'Note',
-    fileUrl: '',
-    author: 'Environmental Faculty',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s8-elec3',
-    title: 'Elective-III (Online SWAYAM)',
-    description: 'Online elective courses from the SWAYAM platform.',
-    branch: 'Chemical Engineering',
-    semester: 8,
-    type: 'YouTube Playlist',
-    fileUrl: '',
-    author: 'SWAYAM',
-    uploaderId: 'system',
-    downloadCount: 0,
-    views: 0,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'chem-s8-elec4',
-    title: 'Elective-IV (Online SWAYAM)',
-    description: 'Secondary online elective course from SWAYAM.',
-    branch: 'Chemical Engineering',
-    semester: 8,
-    type: 'YouTube Playlist',
-    fileUrl: '',
-    author: 'SWAYAM',
     uploaderId: 'system',
     downloadCount: 0,
     views: 0,
