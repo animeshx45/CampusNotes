@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BrainCircuit, Download, FileText, Share2, MessageSquare, Info, Sparkles, AlertCircle, Loader2, Zap, ArrowLeft, ExternalLink, Youtube, Maximize2, Monitor, Eye } from 'lucide-react';
+import { BrainCircuit, Download, FileText, Share2, MessageSquare, Info, Sparkles, AlertCircle, Loader2, Zap, ArrowLeft, ExternalLink, Youtube, Monitor, Eye } from 'lucide-react';
 import { generateStudyMaterialSummary } from '@/ai/flows/generate-study-material-summary';
 import { generateExamQuestions } from '@/ai/flows/generate-exam-questions-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -42,7 +42,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
   const mockMaterial = useMemo(() => MOCK_MATERIALS.find(m => m.id === id), [id]);
 
   const materialRef = useMemoFirebase(() => {
-    if (!db || !id || id.startsWith('it-') || id.startsWith('cse-') || id.includes('s3-') || id.includes('s4-')) return null;
+    if (!db || !id || id.startsWith('it-') || id.startsWith('cse-') || id.includes('s3-') || id.includes('s4-') || id.includes('s5-') || id.includes('s6-') || id.includes('s7-') || id.includes('s8-')) return null;
     return doc(db, 'studyMaterials', id);
   }, [db, id]);
 
@@ -81,6 +81,10 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
   }
 
   const handleDownload = () => {
+    if (!material.fileUrl) {
+        toast({ title: "No Link", description: "This resource doesn't have a download link yet." });
+        return;
+    }
     materialService.incrementDownloadCount(id);
     window.open(material.fileUrl, '_blank');
   };
@@ -122,12 +126,12 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
   };
 
   const isYoutube = material.type === 'YouTube Playlist';
-  const isImage = material.fileUrl?.match(/\.(jpeg|jpg|gif|png|webp)$/i) || material.fileUrl?.includes('picsum.photos') || material.fileUrl?.includes('placehold.co');
+  const hasFile = !!material.fileUrl;
+  const isImage = hasFile && (material.fileUrl?.match(/\.(jpeg|jpg|gif|png|webp)$/i) || material.fileUrl?.includes('picsum.photos') || material.fileUrl?.includes('placehold.co'));
   
-  // Robust document preview URL using Google Docs viewer as a fallback
-  const previewUrl = material.fileUrl.includes('docs.google.com') 
+  const previewUrl = hasFile ? (material.fileUrl.includes('docs.google.com') 
     ? material.fileUrl 
-    : `https://docs.google.com/viewer?url=${encodeURIComponent(material.fileUrl)}&embedded=true`;
+    : `https://docs.google.com/viewer?url=${encodeURIComponent(material.fileUrl)}&embedded=true`) : null;
 
   return (
     <div className="container mx-auto px-4 py-12 flex flex-col gap-8 max-w-6xl animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -156,7 +160,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
             navigator.clipboard.writeText(window.location.href);
             toast({ title: "Link Copied!", description: "Share it with your friends." });
           }}><Share2 className="h-5 w-5" /></Button>
-          <Button size="lg" className="rounded-full px-8 h-12 shadow-lg shadow-primary/20 flex-1 md:flex-none font-bold text-base" onClick={handleDownload}>
+          <Button size="lg" className="rounded-full px-8 h-12 shadow-lg shadow-primary/20 flex-1 md:flex-none font-bold text-base" onClick={handleDownload} disabled={!hasFile}>
             {isYoutube ? <ExternalLink className="mr-2 h-5 w-5" /> : <Download className="mr-2 h-5 w-5" />}
             {isYoutube ? 'Open Link' : 'Download Now'}
           </Button>
@@ -196,7 +200,15 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
               </div>
             </CardHeader>
             <CardContent className="p-8">
-              {isYoutube ? (
+              {!hasFile ? (
+                <div className="aspect-video bg-secondary/20 rounded-[1.5rem] flex flex-col items-center justify-center border-2 border-dashed border-primary/20 p-10 text-center gap-4">
+                  <Monitor className="h-12 w-12 text-primary/40" />
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold">No Preview Available</h3>
+                    <p className="text-sm text-muted-foreground max-w-xs">We haven't added a link for this subject yet. Check back soon!</p>
+                  </div>
+                </div>
+              ) : isYoutube ? (
                 <div className="aspect-video bg-black rounded-[1.5rem] flex items-center justify-center overflow-hidden border border-primary/20 shadow-2xl relative group">
                    <div className="absolute inset-0 bg-gradient-to-br from-red-600/20 to-transparent opacity-50" />
                    <div className="text-center space-y-4 z-10">
@@ -224,12 +236,11 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
                   ) : (
                     <div className="w-full h-full relative">
                       <iframe 
-                        src={previewUrl}
+                        src={previewUrl!}
                         className="w-full h-full border-none bg-white rounded-[1.2rem]"
                         title="Document Preview"
                         onError={() => toast({ title: "Preview Error", description: "Use the button below to open the file." })}
                       />
-                      {/* Interaction Overlay for fallback */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity p-6 text-center z-20 pointer-events-none group-hover:pointer-events-auto">
                         <Monitor className="h-12 w-12 text-primary mb-4" />
                         <h3 className="text-xl font-bold mb-2">Can't see the document?</h3>
