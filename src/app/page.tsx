@@ -186,12 +186,12 @@ export default function Home() {
               <div className="space-y-4">
                  <div className="flex flex-col sm:flex-row gap-3">
                    <div className="flex-grow relative">
-                      <Zap className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary opacity-50" />
+                      <Zap className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary opacity-50 z-10" />
                       <input 
                         placeholder="e.g. Fourier Transform or MAIR11 Calculus" 
                         value={aiTopic}
                         onChange={(e) => setAiTopic(e.target.value)}
-                        className="w-full pl-12 pr-4 h-16 rounded-2xl bg-white border border-primary/10 focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none text-base font-medium shadow-inner"
+                        className="w-full pl-12 pr-4 h-16 rounded-2xl bg-secondary/30 border border-primary/10 focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none text-base font-bold text-foreground placeholder:text-muted-foreground shadow-inner relative z-0"
                       />
                    </div>
                    <Button 
@@ -209,7 +209,7 @@ export default function Home() {
 
             <div className="relative min-h-[350px] flex items-center justify-center">
               {aiResponse ? (
-                <Card className="w-full bg-white border-none shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] rounded-[2.5rem] p-10 animate-in zoom-in-95 fade-in duration-500">
+                <Card className="w-full bg-card border-none shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] rounded-[2.5rem] p-10 animate-in zoom-in-95 fade-in duration-500">
                    <CardHeader className="p-0 mb-6">
                       <div className="flex items-center gap-3 text-primary mb-2">
                         <BrainCircuit className="h-8 w-8" />
@@ -218,14 +218,14 @@ export default function Home() {
                       <p className="text-sm font-black uppercase tracking-widest text-muted-foreground">Topic: {aiTopic}</p>
                    </CardHeader>
                    <CardContent className="p-0 space-y-6">
-                      <div className="bg-primary/5 p-6 rounded-2xl border border-primary/5 text-lg leading-relaxed italic text-primary font-medium">
+                      <div className="bg-primary/10 p-6 rounded-2xl border border-primary/5 text-lg leading-relaxed italic text-primary font-medium">
                         "{aiResponse.explanation}"
                       </div>
                       <div className="space-y-3">
                         <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Key Takeaways</p>
                         <div className="grid grid-cols-1 gap-2">
                           {aiResponse.keyPoints.map((pt: string, i: number) => (
-                            <div key={i} className="flex items-center gap-3 text-sm font-bold bg-secondary/20 p-3 rounded-xl">
+                            <div key={i} className="flex items-center gap-3 text-sm font-bold bg-secondary/40 p-3 rounded-xl">
                               <div className="h-2 w-2 rounded-full bg-accent" />
                               {pt}
                             </div>
