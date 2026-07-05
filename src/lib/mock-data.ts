@@ -24,11 +24,11 @@ export const MATERIAL_TYPES: MaterialType[] = [
 ];
 
 export const MOCK_MATERIALS: StudyMaterial[] = [
-  // --- SEMESTER 3 (Based on CSE Scheme) ---
+  // --- SEMESTER 3 ---
   {
     id: 'it-s3-oop',
     title: 'Object Oriented Programming (CST201)',
-    description: 'Learn Classes, Objects, and Inheritance. This is a core 3rd semester subject for IT and CSE.',
+    description: 'Master Classes, Objects, and Inheritance. Core 3rd semester subject for IT and CSE.',
     branch: 'Information Technology',
     semester: 3,
     type: 'YouTube Playlist',
@@ -43,7 +43,7 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
   {
     id: 'cse-s3-dbms',
     title: 'Database Management Systems (CST203)',
-    description: 'Master SQL, ER-Diagrams, and Normalization. Essential for backend development.',
+    description: 'SQL, ER-Diagrams, and Normalization. Essential for backend development.',
     branch: 'Computer Science & Engineering',
     semester: 3,
     type: 'Note',
@@ -55,42 +55,12 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
     status: 'approved',
     createdAt: new Date().toISOString()
   },
-  {
-    id: 'it-s3-se',
-    title: 'Software Engineering (CST205)',
-    description: 'SDLC models, Agile, and Software Testing fundamentals.',
-    branch: 'Information Technology',
-    semester: 3,
-    type: 'Note',
-    fileUrl: 'https://picsum.photos/seed/software/1200/1600',
-    author: 'Animesh Kumar',
-    uploaderId: 'system',
-    downloadCount: 300,
-    views: 900,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'cse-s3-dm',
-    title: 'Discrete Mathematics (MAT207)',
-    description: 'Sets, Relations, Functions, and Graph Theory for computer scientists.',
-    branch: 'Computer Science & Engineering',
-    semester: 3,
-    type: 'YouTube Playlist',
-    fileUrl: 'https://www.youtube.com/playlist?list=PLBlnK6fEyqRhqJPDXcvYlLf5f_hV6V0S3',
-    author: 'Neso Academy',
-    uploaderId: 'system',
-    downloadCount: 720,
-    views: 1800,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
 
-  // --- SEMESTER 4 (Based on CSE Scheme) ---
+  // --- SEMESTER 4 ---
   {
     id: 'it-s4-ds',
     title: 'Data Structures (CST250)',
-    description: 'Crucial subject covering Stacks, Queues, Linked Lists, Trees, and Graphs.',
+    description: 'Stacks, Queues, Linked Lists, Trees, and Graphs. Very important for coding interviews.',
     branch: 'Information Technology',
     semester: 4,
     type: 'YouTube Playlist',
@@ -99,21 +69,6 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
     uploaderId: 'system',
     downloadCount: 1200,
     views: 4000,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'cse-s4-iwt',
-    title: 'Internet & Web Technologies (CST252)',
-    description: 'Full stack development notes: HTML, CSS, JS, and PHP.',
-    branch: 'Computer Science & Engineering',
-    semester: 4,
-    type: 'Note',
-    fileUrl: 'https://picsum.photos/seed/webtech/1200/1600',
-    author: 'Animesh Kumar',
-    uploaderId: 'system',
-    downloadCount: 900,
-    views: 2200,
     status: 'approved',
     createdAt: new Date().toISOString()
   },
@@ -132,41 +87,26 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
     status: 'approved',
     createdAt: new Date().toISOString()
   },
-  {
-    id: 'cse-s4-deld',
-    title: 'Digital Electronics & Logic Design (ECT251)',
-    description: 'Logic gates, Boolean algebra, and Sequential Circuits.',
-    branch: 'Computer Science & Engineering',
-    semester: 4,
-    type: 'Note',
-    fileUrl: 'https://picsum.photos/seed/digital/1200/1600',
-    author: 'Neso Academy',
-    uploaderId: 'system',
-    downloadCount: 850,
-    views: 2100,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'it-s4-stats',
-    title: 'Probability & Statistics (MAT217)',
-    description: 'Distributions, Hypothesis Testing, and Statistical Analysis for Engineers.',
-    branch: 'Information Technology',
-    semester: 4,
-    type: 'YouTube Playlist',
-    fileUrl: 'https://www.youtube.com/playlist?list=PLU6n9Vo6S2_vH0R0I-YvV1eUf6-k5f0wO',
-    author: 'NPTEL',
-    uploaderId: 'system',
-    downloadCount: 400,
-    views: 1100,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
 
   // --- SEMESTER 5 ---
   {
+    id: 'cse-s5-daa',
+    title: 'Design & Analysis of Algorithms (CST306)',
+    description: 'Sorting, Searching, Greedy, and Dynamic Programming. Analysis of time and space complexity.',
+    branch: 'Computer Science & Engineering',
+    semester: 5,
+    type: 'YouTube Playlist',
+    fileUrl: 'https://www.youtube.com/playlist?list=PLDN4rrl48XKpZkfzjtadpW96on6F_oXny',
+    author: 'Abdul Bari',
+    uploaderId: 'system',
+    downloadCount: 2500,
+    views: 6000,
+    status: 'approved',
+    createdAt: new Date().toISOString()
+  },
+  {
     id: 'it-s5-os',
-    title: 'Operating Systems',
+    title: 'Operating Systems (CST309)',
     description: 'Process management, Scheduling, Deadlocks, and Memory management.',
     branch: 'Information Technology',
     semester: 5,
@@ -180,27 +120,42 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
     createdAt: new Date().toISOString()
   },
   {
-    id: 'it-s5-daa',
-    title: 'Design and Analysis of Algorithms',
-    description: 'Sorting, Searching, Greedy, and Dynamic Programming algorithms.',
+    id: 'cse-s5-mp',
+    title: 'Microprocessor (CST307)',
+    description: 'Study of 8085 and 8086 architectures and assembly language programming.',
+    branch: 'Computer Science & Engineering',
+    semester: 5,
+    type: 'YouTube Playlist',
+    fileUrl: 'https://www.youtube.com/playlist?list=PLBlnK6fEyqRiw8V-N_mHeUizP5z_mFhY1',
+    author: 'Neso Academy',
+    uploaderId: 'system',
+    downloadCount: 1200,
+    views: 3000,
+    status: 'approved',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'it-s5-python',
+    title: 'Python Programming (CST310)',
+    description: 'Learning Python from basics to advanced concepts for software development.',
     branch: 'Information Technology',
     semester: 5,
     type: 'YouTube Playlist',
-    fileUrl: 'https://www.youtube.com/playlist?list=PLDN4rrl48XKpZkfzjtadpW96on6F_oXny',
-    author: 'Abdul Bari',
+    fileUrl: 'https://www.youtube.com/playlist?list=PLu0W_9lII9agICnT8L9zKWQqTuLxz96mG',
+    author: 'CodeWithHarry',
     uploaderId: 'system',
-    downloadCount: 2500,
-    views: 6000,
+    downloadCount: 1800,
+    views: 5000,
     status: 'approved',
     createdAt: new Date().toISOString()
   },
 
   // --- SEMESTER 6 ---
   {
-    id: 'it-s6-ai',
-    title: 'Artificial Intelligence',
+    id: 'cse-s6-ai',
+    title: 'Artificial Intelligence (CST354)',
     description: 'Heuristic Search, Machine Learning basics, and Logic programming.',
-    branch: 'Information Technology',
+    branch: 'Computer Science & Engineering',
     semester: 6,
     type: 'YouTube Playlist',
     fileUrl: 'https://www.youtube.com/playlist?list=PLxCzCOWd7aiHGhOHV-nwb0HR5n5nmfSIZ',
@@ -212,10 +167,10 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
     createdAt: new Date().toISOString()
   },
   {
-    id: 'cse-s6-networks',
-    title: 'Computer Networks',
+    id: 'it-s6-networks',
+    title: 'Computer Networks (CST356)',
     description: 'OSI Model, TCP/IP, Routing Algorithms, and Network Security.',
-    branch: 'Computer Science & Engineering',
+    branch: 'Information Technology',
     semester: 6,
     type: 'Note',
     fileUrl: 'https://picsum.photos/seed/networks/1200/1600',
@@ -223,6 +178,36 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
     uploaderId: 'system',
     downloadCount: 1500,
     views: 3800,
+    status: 'approved',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'cse-s6-coa',
+    title: 'Computer Organization & Architecture (CST358)',
+    description: 'Understanding computer hardware, ALU, CPU, and instruction sets.',
+    branch: 'Computer Science & Engineering',
+    semester: 6,
+    type: 'YouTube Playlist',
+    fileUrl: 'https://www.youtube.com/playlist?list=PLxCzCOWd7aiHMonh3G6QNKq53C6oNXGrX',
+    author: 'Gate Smashers',
+    uploaderId: 'system',
+    downloadCount: 1300,
+    views: 3200,
+    status: 'approved',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'it-s6-java',
+    title: 'Java Programming (CST359)',
+    description: 'Advanced Java concepts, Swing, AWT, and Collections framework.',
+    branch: 'Information Technology',
+    semester: 6,
+    type: 'YouTube Playlist',
+    fileUrl: 'https://www.youtube.com/playlist?list=PLVlQjwv71P1V9U26L3-7L4v8k-8y7d8y0',
+    author: 'Saurabh Shukla',
+    uploaderId: 'system',
+    downloadCount: 1600,
+    views: 4200,
     status: 'approved',
     createdAt: new Date().toISOString()
   },
@@ -243,21 +228,6 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
     status: 'approved',
     createdAt: new Date().toISOString()
   },
-  {
-    id: 'cse-s7-compiler',
-    title: 'Compiler Design',
-    description: 'Parsing, Syntax-Directed Translation, and Code Generation.',
-    branch: 'Computer Science & Engineering',
-    semester: 7,
-    type: 'YouTube Playlist',
-    fileUrl: 'https://www.youtube.com/playlist?list=PLxCzCOWd7aiGpx4v8Knt49Zt8G38_Y6h1',
-    author: 'Knowledge Gate',
-    uploaderId: 'system',
-    downloadCount: 600,
-    views: 1900,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
 
   // --- SEMESTER 8 ---
   {
@@ -272,21 +242,6 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
     uploaderId: 'system',
     downloadCount: 450,
     views: 1300,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'cse-s8-wireless',
-    title: 'Wireless Communication',
-    description: 'Cellular networks, 5G, and Wireless protocol architectures.',
-    branch: 'Computer Science & Engineering',
-    semester: 8,
-    type: 'Note',
-    fileUrl: 'https://picsum.photos/seed/wireless/1200/1600',
-    author: 'NPTEL',
-    uploaderId: 'system',
-    downloadCount: 300,
-    views: 850,
     status: 'approved',
     createdAt: new Date().toISOString()
   }

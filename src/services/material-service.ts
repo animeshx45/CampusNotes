@@ -29,7 +29,17 @@ class MaterialService {
    * Mock IDs typically start with branch prefixes (it-, cse-) or yt-.
    */
   private isMockId(id: string) {
-    return id.startsWith('it-') || id.startsWith('cse-') || id.startsWith('yt-') || id.includes('s3-') || id.includes('s4-') || id.includes('s5-') || id.includes('s6-') || id.includes('s7-') || id.includes('s8-');
+    return (
+      id.startsWith('it-') || 
+      id.startsWith('cse-') || 
+      id.startsWith('yt-') || 
+      id.includes('s3-') || 
+      id.includes('s4-') || 
+      id.includes('s5-') || 
+      id.includes('s6-') || 
+      id.includes('s7-') || 
+      id.includes('s8-')
+    );
   }
 
   /**
