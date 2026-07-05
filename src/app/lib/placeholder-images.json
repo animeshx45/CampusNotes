@@ -8,34 +8,52 @@
       "imageHint": "university campus"
     },
     {
-      "id": "it-dept-slider",
-      "description": "Information Technology Department",
+      "id": "it-dept-official",
+      "description": "Information Technology Department with students",
       "imageUrl": "https://nitsri.ac.in/SliderPhoto/2064.jpg",
       "imageHint": "it department"
     },
     {
-      "id": "cse-dept-slider",
-      "description": "Computer Science Department",
+      "id": "cse-dept-official",
+      "description": "Computer Science Department building",
       "imageUrl": "https://nitsri.ac.in/SliderPhoto/3665.jpg",
       "imageHint": "computer laboratory"
     },
     {
-      "id": "mech-dept-slider",
-      "description": "Mechanical Engineering Department",
+      "id": "mech-dept-official",
+      "description": "Mechanical Engineering Department workshop",
       "imageUrl": "https://nitsri.ac.in/SliderPhoto/4860.jpg",
       "imageHint": "mechanical laboratory"
     },
     {
-      "id": "ee-dept-slider",
-      "description": "Electrical Engineering Department",
+      "id": "ee-dept-official",
+      "description": "Electrical Engineering Department block",
       "imageUrl": "https://nitsri.ac.in/SliderPhoto/3225.jpg",
       "imageHint": "electrical department"
     },
     {
-      "id": "civil-dept-slider",
-      "description": "Civil Engineering Department",
+      "id": "civil-dept-official",
+      "description": "Civil Engineering Department block",
       "imageUrl": "https://nitsri.ac.in/SliderPhoto/3189.jpg",
       "imageHint": "civil laboratory"
+    },
+    {
+      "id": "chem-dept-official",
+      "description": "Chemical Engineering Department building",
+      "imageUrl": "https://nitsri.ac.in/SliderPhoto/3428.jpeg",
+      "imageHint": "chemical laboratory"
+    },
+    {
+      "id": "ece-dept-official",
+      "description": "Electronics and Communication Engineering labs",
+      "imageUrl": "https://nitsri.ac.in/SliderPhoto/3474.jpg",
+      "imageHint": "electronics department"
+    },
+    {
+      "id": "meta-dept-official",
+      "description": "Metallurgical and Materials Engineering department",
+      "imageUrl": "https://nitsri.ac.in/upload/department/met.jpg",
+      "imageHint": "metallurgy department"
     }
   ]
 }

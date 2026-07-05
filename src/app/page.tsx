@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,6 +20,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import placeholderData from "@/app/lib/placeholder-images.json";
 
 const BRANCH_ICONS: Record<string, any> = {
   'Information Technology': Code,
@@ -32,59 +33,27 @@ const BRANCH_ICONS: Record<string, any> = {
   'Metallurgical & Materials Engineering': Microscope,
 };
 
-const HERO_SLIDES = [
-  { 
-    url: 'https://nitsri.ac.in/upload/slide-1-new.jpg', 
-    title: 'NIT Srinagar', 
-    quote: 'Our beautiful home at Hazratbal.' 
-  },
-  { 
-    url: 'https://nitsri.ac.in/SliderPhoto/2064.jpg', 
-    title: 'IT Dept', 
-    quote: 'Building the software of tomorrow.' 
-  },
-  { 
-    url: 'https://nitsri.ac.in/SliderPhoto/3665.jpg', 
-    title: 'CSE Dept', 
-    quote: 'Where logic meets innovation.' 
-  },
-  { 
-    url: 'https://nitsri.ac.in/SliderPhoto/3428.jpeg', 
-    title: 'Chemical Dept', 
-    quote: 'Transforming matter for the future.' 
-  },
-  { 
-    url: 'https://nitsri.ac.in/SliderPhoto/3474.jpg', 
-    title: 'ECE Dept', 
-    quote: 'Connecting the world through signals.' 
-  },
-  { 
-    url: 'https://nitsri.ac.in/SliderPhoto/4860.jpg', 
-    title: 'Mech Dept', 
-    quote: 'Moving the world with design.' 
-  },
-  { 
-    url: 'https://nitsri.ac.in/SliderPhoto/3225.jpg', 
-    title: 'Electrical Dept', 
-    quote: 'Powering the future of the valley.' 
-  },
-  { 
-    url: 'https://nitsri.ac.in/SliderPhoto/3189.jpg', 
-    title: 'Civil Dept', 
-    quote: 'Strong foundations for a better life.' 
-  },
-  { 
-    url: 'https://nitsri.ac.in/upload/department/met.jpg', 
-    title: 'Metallurgy Dept', 
-    quote: 'Designing stronger materials.' 
-  },
-];
-
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const autoplayPlugin = useRef(
     Autoplay({ delay: 4000, stopOnInteraction: true })
   );
+
+  const heroSlides = useMemo(() => {
+    const getImg = (id: string) => placeholderData.placeholderImages.find(img => img.id === id);
+    
+    return [
+      { img: getImg('hero-nitsri-official'), title: 'NIT Srinagar', quote: 'Our beautiful home at Hazratbal.' },
+      { img: getImg('it-dept-official'), title: 'IT Dept', quote: 'Building the software of tomorrow.' },
+      { img: getImg('cse-dept-official'), title: 'CSE Dept', quote: 'Where logic meets innovation.' },
+      { img: getImg('chem-dept-official'), title: 'Chemical Dept', quote: 'Transforming matter for the future.' },
+      { img: getImg('ece-dept-official'), title: 'ECE Dept', quote: 'Connecting the world through signals.' },
+      { img: getImg('mech-dept-official'), title: 'Mech Dept', quote: 'Moving the world with design.' },
+      { img: getImg('ee-dept-official'), title: 'Electrical Dept', quote: 'Powering the future of the valley.' },
+      { img: getImg('civil-dept-official'), title: 'Civil Dept', quote: 'Strong foundations for a better life.' },
+      { img: getImg('meta-dept-official'), title: 'Metallurgy Dept', quote: 'Designing stronger materials.' },
+    ];
+  }, []);
 
   return (
     <div className="flex flex-col gap-12 pb-20">
@@ -98,16 +67,16 @@ export default function Home() {
           }}
         >
           <CarouselContent className="h-[70vh] -ml-0">
-            {HERO_SLIDES.map((slide, index) => (
+            {heroSlides.map((slide, index) => (
               <CarouselItem key={index} className="pl-0 relative h-full w-full">
                 <div className="relative h-full w-full">
                   <Image 
-                    src={slide.url} 
+                    src={slide.img?.imageUrl || 'https://picsum.photos/seed/nitsri/1200/800'} 
                     alt={slide.title}
                     fill
                     className="object-cover opacity-90 brightness-[0.95]"
                     priority={index === 0}
-                    data-ai-hint="university campus"
+                    data-ai-hint={slide.img?.imageHint || 'university campus'}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent" />
                   <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-transparent" />

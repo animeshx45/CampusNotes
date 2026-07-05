@@ -25,46 +25,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-
-const BRANCH_SLIDES: Record<string, { url: string; title: string; hint: string }[]> = {
-  'all': [
-    { url: 'https://nitsri.ac.in/upload/slide-1-new.jpg', title: 'Main Campus', hint: 'university campus' },
-    { url: 'https://picsum.photos/seed/nitsri1/1200/600', title: 'Library Block', hint: 'academic building' },
-    { url: 'https://picsum.photos/seed/nitsri2/1200/600', title: 'Green Campus', hint: 'campus trees' },
-  ],
-  'Information Technology': [
-    { url: 'https://nitsri.ac.in/SliderPhoto/2064.jpg', title: 'IT Block', hint: 'it department' },
-    { url: 'https://picsum.photos/seed/it1/1200/600', title: 'Innovation Lab', hint: 'coding lab' },
-  ],
-  'Computer Science & Engineering': [
-    { url: 'https://nitsri.ac.in/SliderPhoto/3665.jpg', title: 'CSE Dept', hint: 'computer lab' },
-    { url: 'https://picsum.photos/seed/cse1/1200/600', title: 'Server Room', hint: 'technology center' },
-  ],
-  'Electrical Engineering': [
-    { url: 'https://nitsri.ac.in/SliderPhoto/3225.jpg', title: 'Electrical Lab', hint: 'power engineering' },
-    { url: 'https://picsum.photos/seed/ee1/1200/600', title: 'Control Systems', hint: 'electrical circuits' },
-  ],
-  'Mechanical Engineering': [
-    { url: 'https://nitsri.ac.in/SliderPhoto/4860.jpg', title: 'Workshop', hint: 'mechanical workshop' },
-    { url: 'https://picsum.photos/seed/me1/1200/600', title: 'Design Lab', hint: 'mechanical engine' },
-  ],
-  'Chemical Engineering': [
-    { url: 'https://nitsri.ac.in/SliderPhoto/3428.jpeg', title: 'Chemical Dept', hint: 'chemical laboratory' },
-    { url: 'https://picsum.photos/seed/chem1/1200/600', title: 'Process Control', hint: 'chemistry lab' },
-  ],
-  'Civil Engineering': [
-    { url: 'https://nitsri.ac.in/SliderPhoto/3189.jpg', title: 'Civil Block', hint: 'civil construction' },
-    { url: 'https://picsum.photos/seed/civil1/1200/600', title: 'Geotech Lab', hint: 'building site' },
-  ],
-  'Electronics & Communication Engineering': [
-    { url: 'https://nitsri.ac.in/SliderPhoto/3474.jpg', title: 'ECE Labs', hint: 'electronics lab' },
-    { url: 'https://picsum.photos/seed/ece1/1200/600', title: 'Signals Lab', hint: 'circuit board' },
-  ],
-  'Metallurgical & Materials Engineering': [
-    { url: 'https://nitsri.ac.in/upload/department/met.jpg', title: 'Metallurgy Dept', hint: 'metallurgy lab' },
-    { url: 'https://picsum.photos/seed/met1/1200/600', title: 'Material Testing', hint: 'microscope testing' },
-  ],
-};
+import placeholderData from "@/app/lib/placeholder-images.json";
 
 export default function BrowsePage() {
   const searchParams = useSearchParams();
@@ -98,7 +59,49 @@ export default function BrowsePage() {
   }, [selectedBranch, selectedSemester, searchQuery, dbMaterials]);
 
   const activeSlides = useMemo(() => {
-    return BRANCH_SLIDES[selectedBranch] || BRANCH_SLIDES['all'];
+    const getImg = (id: string) => placeholderData.placeholderImages.find(img => img.id === id);
+    const commonSlides = [
+      getImg('hero-nitsri-official'),
+      { imageUrl: 'https://picsum.photos/seed/nitsri1/1200/600', title: 'Library Block', imageHint: 'academic building' },
+      { imageUrl: 'https://picsum.photos/seed/nitsri2/1200/600', title: 'Green Campus', imageHint: 'campus trees' },
+    ];
+
+    const branchSlides: Record<string, any[]> = {
+      'Information Technology': [
+        getImg('it-dept-official'),
+        { imageUrl: 'https://picsum.photos/seed/it1/1200/600', title: 'Innovation Lab', imageHint: 'coding lab' },
+      ],
+      'Computer Science & Engineering': [
+        getImg('cse-dept-official'),
+        { imageUrl: 'https://picsum.photos/seed/cse1/1200/600', title: 'Server Room', imageHint: 'technology center' },
+      ],
+      'Electrical Engineering': [
+        getImg('ee-dept-official'),
+        { imageUrl: 'https://picsum.photos/seed/ee1/1200/600', title: 'Control Systems', imageHint: 'electrical circuits' },
+      ],
+      'Mechanical Engineering': [
+        getImg('mech-dept-official'),
+        { imageUrl: 'https://picsum.photos/seed/me1/1200/600', title: 'Design Lab', imageHint: 'mechanical engine' },
+      ],
+      'Chemical Engineering': [
+        getImg('chem-dept-official'),
+        { imageUrl: 'https://picsum.photos/seed/chem1/1200/600', title: 'Process Control', imageHint: 'chemistry lab' },
+      ],
+      'Civil Engineering': [
+        getImg('civil-dept-official'),
+        { imageUrl: 'https://picsum.photos/seed/civil1/1200/600', title: 'Geotech Lab', imageHint: 'building site' },
+      ],
+      'Electronics & Communication Engineering': [
+        getImg('ece-dept-official'),
+        { imageUrl: 'https://picsum.photos/seed/ece1/1200/600', title: 'Signals Lab', imageHint: 'circuit board' },
+      ],
+      'Metallurgical & Materials Engineering': [
+        getImg('meta-dept-official'),
+        { imageUrl: 'https://picsum.photos/seed/met1/1200/600', title: 'Material Testing', imageHint: 'microscope testing' },
+      ],
+    };
+
+    return branchSlides[selectedBranch] || commonSlides;
   }, [selectedBranch]);
 
   const resetFilters = () => {
@@ -121,12 +124,12 @@ export default function BrowsePage() {
               <CarouselItem key={index} className="pl-0 relative h-full w-full">
                 <div className="relative h-full w-full">
                   <Image 
-                    src={slide.url} 
-                    alt={slide.title}
+                    src={slide.imageUrl || 'https://picsum.photos/seed/fallback/1200/600'} 
+                    alt={slide.title || 'Campus Slide'}
                     fill
                     className="object-cover opacity-95 brightness-110"
                     priority={index === 0}
-                    data-ai-hint={slide.hint}
+                    data-ai-hint={slide.imageHint || 'university campus'}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent" />
                   <div className="absolute inset-0 bg-gradient-to-r from-background/30 via-transparent to-transparent" />
