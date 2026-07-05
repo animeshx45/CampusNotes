@@ -55,6 +55,12 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'th.bing.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'media.istockphoto.com',
         port: '',
         pathname: '/**',
