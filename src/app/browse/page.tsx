@@ -3,30 +3,66 @@
 
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { BRANCHES, MOCK_MATERIALS, SEMESTERS, MATERIAL_TYPES } from '@/lib/mock-data';
-import { StudyMaterial, Branch } from '@/lib/types';
+import { BRANCHES, MOCK_MATERIALS, SEMESTERS } from '@/lib/mock-data';
+import { StudyMaterial } from '@/lib/types';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { 
-  Search, BookOpen, Download, FileText, Sparkles, ArrowRight,
-  Filter, CheckCircle, Info, X, GraduationCap, Video
+  Search, Download, FileText, ArrowRight,
+  Filter, X, GraduationCap, Video
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query } from 'firebase/firestore';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
-const BRANCH_BANNERS: Record<string, string> = {
-  'Information Technology': 'https://nitsri.ac.in/SliderPhoto/2064.jpg',
-  'Computer Science & Engineering': 'https://nitsri.ac.in/SliderPhoto/3665.jpg',
-  'Electrical Engineering': 'https://nitsri.ac.in/SliderPhoto/3225.jpg',
-  'Mechanical Engineering': 'https://nitsri.ac.in/SliderPhoto/4860.jpg',
-  'Chemical Engineering': 'https://nitsri.ac.in/SliderPhoto/3428.jpeg',
-  'Civil Engineering': 'https://nitsri.ac.in/SliderPhoto/3189.jpg',
-  'Electronics & Communication Engineering': 'https://nitsri.ac.in/SliderPhoto/3474.jpg',
-  'Metallurgical & Materials Engineering': 'https://nitsri.ac.in/upload/department/met.jpg',
+const BRANCH_SLIDES: Record<string, { url: string; title: string; hint: string }[]> = {
+  'all': [
+    { url: 'https://nitsri.ac.in/upload/slide-1-new.jpg', title: 'Main Campus', hint: 'university campus' },
+    { url: 'https://picsum.photos/seed/nitsri1/1200/600', title: 'Library Block', hint: 'academic building' },
+    { url: 'https://picsum.photos/seed/nitsri2/1200/600', title: 'Green Campus', hint: 'campus trees' },
+  ],
+  'Information Technology': [
+    { url: 'https://nitsri.ac.in/SliderPhoto/2064.jpg', title: 'IT Block', hint: 'it department' },
+    { url: 'https://picsum.photos/seed/it1/1200/600', title: 'Innovation Lab', hint: 'coding lab' },
+  ],
+  'Computer Science & Engineering': [
+    { url: 'https://nitsri.ac.in/SliderPhoto/3665.jpg', title: 'CSE Dept', hint: 'computer lab' },
+    { url: 'https://picsum.photos/seed/cse1/1200/600', title: 'Server Room', hint: 'technology center' },
+  ],
+  'Electrical Engineering': [
+    { url: 'https://nitsri.ac.in/SliderPhoto/3225.jpg', title: 'Electrical Lab', hint: 'power engineering' },
+    { url: 'https://picsum.photos/seed/ee1/1200/600', title: 'Control Systems', hint: 'electrical circuits' },
+  ],
+  'Mechanical Engineering': [
+    { url: 'https://nitsri.ac.in/SliderPhoto/4860.jpg', title: 'Workshop', hint: 'mechanical workshop' },
+    { url: 'https://picsum.photos/seed/me1/1200/600', title: 'Design Lab', hint: 'mechanical engine' },
+  ],
+  'Chemical Engineering': [
+    { url: 'https://nitsri.ac.in/SliderPhoto/3428.jpeg', title: 'Chemical Dept', hint: 'chemical laboratory' },
+    { url: 'https://picsum.photos/seed/chem1/1200/600', title: 'Process Control', hint: 'chemistry lab' },
+  ],
+  'Civil Engineering': [
+    { url: 'https://nitsri.ac.in/SliderPhoto/3189.jpg', title: 'Civil Block', hint: 'civil construction' },
+    { url: 'https://picsum.photos/seed/civil1/1200/600', title: 'Geotech Lab', hint: 'building site' },
+  ],
+  'Electronics & Communication Engineering': [
+    { url: 'https://nitsri.ac.in/SliderPhoto/3474.jpg', title: 'ECE Labs', hint: 'electronics lab' },
+    { url: 'https://picsum.photos/seed/ece1/1200/600', title: 'Signals Lab', hint: 'circuit board' },
+  ],
+  'Metallurgical & Materials Engineering': [
+    { url: 'https://nitsri.ac.in/upload/department/met.jpg', title: 'Metallurgy Dept', hint: 'metallurgy lab' },
+    { url: 'https://picsum.photos/seed/met1/1200/600', title: 'Material Testing', hint: 'microscope testing' },
+  ],
 };
 
 export default function BrowsePage() {
@@ -56,9 +92,8 @@ export default function BrowsePage() {
     });
   }, [selectedBranch, selectedSemester, searchQuery, dbMaterials]);
 
-  const activeBanner = useMemo(() => {
-    if (selectedBranch !== 'all') return BRANCH_BANNERS[selectedBranch] || 'https://nitsri.ac.in/upload/slide-1-new.jpg';
-    return 'https://nitsri.ac.in/upload/slide-1-new.jpg';
+  const activeSlides = useMemo(() => {
+    return BRANCH_SLIDES[selectedBranch] || BRANCH_SLIDES['all'];
   }, [selectedBranch]);
 
   const resetFilters = () => {
@@ -69,19 +104,46 @@ export default function BrowsePage() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="relative h-80 flex items-end overflow-hidden">
-        <Image src={activeBanner} alt="Branch Banner" fill className="object-cover opacity-40" priority />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-        <div className="container mx-auto px-4 relative z-10 pb-12 space-y-4">
-          <Badge className="bg-primary text-white rounded-full">KNOWLEDGE VAULT</Badge>
-          <h1 className="text-5xl md:text-7xl font-bold text-primary tracking-tighter">
-            {selectedBranch === 'all' ? 'Academic Resources.' : `${selectedBranch}.`}
-          </h1>
-          <p className="text-muted-foreground text-xl max-w-xl">
-            {filteredMaterials.length} curated resources available for your semester.
-          </p>
-        </div>
-      </div>
+      {/* Immersive Department Carousel Header */}
+      <section className="relative h-[400px] w-full overflow-hidden">
+        <Carousel 
+          className="w-full h-full"
+          opts={{ loop: true }}
+        >
+          <CarouselContent className="h-[400px] -ml-0">
+            {activeSlides.map((slide, index) => (
+              <CarouselItem key={index} className="pl-0 relative h-full w-full">
+                <div className="relative h-full w-full">
+                  <Image 
+                    src={slide.url} 
+                    alt={slide.title}
+                    fill
+                    className="object-cover opacity-50"
+                    priority={index === 0}
+                    data-ai-hint={slide.hint}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+                  <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-end pb-16 space-y-4">
+                    <Badge className="bg-primary text-white w-fit rounded-full px-4 py-1 animate-in fade-in slide-in-from-left-4 duration-500">
+                      {selectedBranch === 'all' ? 'UNIVERSITY VAULT' : 'DEPARTMENTAL RESOURCES'}
+                    </Badge>
+                    <h1 className="text-5xl md:text-7xl font-bold text-primary tracking-tighter animate-in fade-in slide-in-from-left-6 duration-700">
+                      {selectedBranch === 'all' ? 'Academic Resources.' : `${selectedBranch}.`}
+                    </h1>
+                    <p className="text-muted-foreground text-xl max-w-xl font-medium animate-in fade-in slide-in-from-left-8 duration-1000">
+                      {filteredMaterials.length} curated resources available for your semester.
+                    </p>
+                  </div>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <div className="absolute bottom-6 right-6 flex gap-2 z-20">
+            <CarouselPrevious className="relative left-0 translate-y-0 h-10 w-10 bg-background/50 backdrop-blur-md hover:bg-primary hover:text-white border-primary/20 rounded-xl" />
+            <CarouselNext className="relative right-0 translate-y-0 h-10 w-10 bg-background/50 backdrop-blur-md hover:bg-primary hover:text-white border-primary/20 rounded-xl" />
+          </div>
+        </Carousel>
+      </section>
 
       <div className="container mx-auto px-4 py-12">
         <div className="flex flex-col lg:flex-row gap-12">
