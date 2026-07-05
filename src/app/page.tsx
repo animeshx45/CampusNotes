@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useMemo } from 'react';
@@ -164,6 +165,37 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Department Quick Pick (Academic Vaults) */}
+      <section className="container mx-auto px-4 space-y-10 py-12">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 border-b border-primary/10 pb-8">
+          <div className="space-y-2">
+            <h2 className="text-3xl font-headline font-bold tracking-tight text-primary">Academic Vaults</h2>
+            <p className="text-muted-foreground font-medium text-lg">Quickly navigate to your department's specialized resources.</p>
+          </div>
+          <Button variant="ghost" asChild className="rounded-xl font-bold text-primary hover:bg-primary/10 h-12 px-6">
+            <Link href="/browse">Explore All <ArrowRight className="ml-2 h-4 w-4" /></Link>
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          {BRANCHES.map((branch) => {
+            const Icon = BRANCH_ICONS[branch] || BookOpen;
+            return (
+              <Link key={branch} href={`/browse?branch=${encodeURIComponent(branch)}`}>
+                <Card className="group hover:bg-primary transition-all duration-500 cursor-pointer rounded-[2rem] overflow-hidden border-primary/5 bg-secondary/30 hover:-translate-y-2 shadow-sm hover:shadow-2xl">
+                  <CardContent className="flex flex-col items-center justify-center p-8 gap-5 text-center">
+                    <div className="p-4 rounded-2xl bg-primary/10 group-hover:bg-white/20 transition-colors shadow-inner">
+                      <Icon className="h-10 w-10 text-primary group-hover:text-white" />
+                    </div>
+                    <span className="font-bold text-sm group-hover:text-white transition-colors">{branch}</span>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
       {/* Redefined AI Study Engine Section */}
       <section className="container mx-auto px-4 space-y-12 py-12">
         <div className="bg-primary/5 rounded-[3rem] p-8 md:p-16 border border-primary/10 relative overflow-hidden group/lab shadow-2xl">
@@ -254,37 +286,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Department Quick Pick */}
-      <section className="container mx-auto px-4 space-y-10">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 border-b border-primary/10 pb-8">
-          <div className="space-y-2">
-            <h2 className="text-3xl font-headline font-bold tracking-tight">Academic Vaults</h2>
-            <p className="text-muted-foreground font-medium text-lg">Quickly navigate to your department's specialized resources.</p>
-          </div>
-          <Button variant="ghost" asChild className="rounded-xl font-bold text-primary hover:bg-primary/10 h-12 px-6">
-            <Link href="/browse">Explore All <ArrowRight className="ml-2 h-4 w-4" /></Link>
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          {BRANCHES.map((branch) => {
-            const Icon = BRANCH_ICONS[branch] || BookOpen;
-            return (
-              <Link key={branch} href={`/browse?branch=${encodeURIComponent(branch)}`}>
-                <Card className="group hover:bg-primary transition-all duration-500 cursor-pointer rounded-[2rem] overflow-hidden border-primary/5 bg-secondary/30 hover:-translate-y-2 shadow-sm hover:shadow-2xl">
-                  <CardContent className="flex flex-col items-center justify-center p-8 gap-5 text-center">
-                    <div className="p-4 rounded-2xl bg-primary/10 group-hover:bg-white/20 transition-colors shadow-inner">
-                      <Icon className="h-10 w-10 text-primary group-hover:text-white" />
-                    </div>
-                    <span className="font-bold text-sm group-hover:text-white transition-colors">{branch}</span>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
       {/* Mentors Section - Community Guidance */}
       <section className="bg-primary/5 py-24 border-y border-primary/10 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
@@ -295,18 +296,18 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row gap-20 items-center">
             <div className="lg:w-1/3 space-y-8">
-              <Badge className="bg-accent text-accent-foreground px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest">Connect & Grow</Badge>
-              <h2 className="text-4xl md:text-5xl font-headline font-bold tracking-tight text-primary leading-tight">Meet Your <br /><span className="text-foreground">Mentors.</span></h2>
+              <Badge className="bg-accent text-accent-foreground px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest">Academic Mentors</Badge>
+              <h2 className="text-4xl md:text-5xl font-headline font-bold tracking-tight text-primary leading-tight">Branch-Wise <br /><span className="text-foreground">Support.</span></h2>
               <p className="text-lg text-muted-foreground font-medium leading-relaxed max-w-lg">
-                Get guidance from senior representatives who have navigated the same path. Your academic success is a collective effort.
+                Connect with departmental representatives across all engineering branches. Get specific guidance from those who've mastered your curriculum.
               </p>
               <Button asChild size="lg" className="rounded-2xl px-10 h-14 font-black text-lg shadow-2xl shadow-primary/20 hover:scale-105 transition-all">
-                <Link href="/about">Meet All Reps</Link>
+                <Link href="/about">See Full Directory</Link>
               </Button>
             </div>
             
-            <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-6">
-              {DEPARTMENT_REPRESENTATIVES.slice(0, 4).map((rep, idx) => (
+            <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[600px] overflow-y-auto pr-4 scrollbar-hide">
+              {DEPARTMENT_REPRESENTATIVES.map((rep, idx) => (
                 <Card key={idx} className="rounded-[2rem] border-primary/5 hover:border-primary/20 transition-all bg-card shadow-lg hover:shadow-2xl group overflow-hidden">
                   <CardContent className="p-8 flex items-center gap-6">
                     <div className="relative h-20 w-20 rounded-2xl overflow-hidden shrink-0 shadow-inner">
