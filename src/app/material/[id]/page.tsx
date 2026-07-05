@@ -123,7 +123,11 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
   const isYoutube = material.type === 'YouTube Playlist';
   const isImage = material.fileUrl?.match(/\.(jpeg|jpg|gif|png|webp)$/i) || material.fileUrl?.includes('picsum.photos');
-  const isPDFPlaceholder = material.fileUrl?.includes('placehold.co');
+  
+  // Use a more robust document preview URL
+  const previewUrl = material.fileUrl.includes('docs.google.com') 
+    ? material.fileUrl 
+    : `https://docs.google.com/viewer?url=${encodeURIComponent(material.fileUrl)}&embedded=true`;
 
   return (
     <div className="container mx-auto px-4 py-12 flex flex-col gap-8 max-w-6xl animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -154,7 +158,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
           }}><Share2 className="h-5 w-5" /></Button>
           <Button size="lg" className="rounded-full px-8 h-12 shadow-lg shadow-primary/20 flex-1 md:flex-none font-bold text-base" onClick={handleDownload}>
             {isYoutube ? <ExternalLink className="mr-2 h-5 w-5" /> : <Download className="mr-2 h-5 w-5" />}
-            {isYoutube ? 'Open on YouTube' : 'Download Now'}
+            {isYoutube ? 'Open Link' : 'Download Now'}
           </Button>
         </div>
       </div>
@@ -175,7 +179,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
                 <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                    <AlertCircle className="text-primary h-6 w-6" />
                 </div>
-                <p className="font-medium">Please check these notes with your latest syllabus before the exam.</p>
+                <p className="font-medium">Please verify these materials with the official syllabus at nitsri.ac.in before exams.</p>
               </div>
             </CardContent>
           </Card>
@@ -184,10 +188,10 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
             <CardHeader className="bg-primary/5 border-b border-primary/10 flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="font-headline font-bold text-primary">
-                  {isYoutube ? 'YouTube Study Guide' : 'Resource Preview'}
+                  {isYoutube ? 'Study Link' : 'In-App Preview'}
                 </CardTitle>
                 <CardDescription>
-                  Study directly from the portal.
+                  {isYoutube ? 'Click below to watch the playlist.' : 'Read and study without leaving the page.'}
                 </CardDescription>
               </div>
               {!isYoutube && (
@@ -206,36 +210,36 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
                       </div>
                       <p className="text-white font-headline font-bold text-xl">YouTube Study Hub</p>
                       <Button variant="secondary" className="rounded-full font-bold" asChild>
-                        <a href={material.fileUrl} target="_blank" rel="noopener noreferrer">Watch Videos Now <ExternalLink className="ml-2 h-4 w-4" /></a>
+                        <a href={material.fileUrl} target="_blank" rel="noopener noreferrer">Open Course Material <ExternalLink className="ml-2 h-4 w-4" /></a>
                       </Button>
                    </div>
                 </div>
               ) : (
-                <div className="aspect-[16/10] bg-muted/10 rounded-[1.5rem] flex flex-col items-center justify-center border-2 border-dashed border-primary/10 transition-all overflow-hidden relative group">
+                <div className="aspect-[16/10] bg-muted/10 rounded-[1.5rem] flex flex-col items-center justify-center border-2 border-primary/10 transition-all overflow-hidden relative group">
                   {isImage ? (
-                    <div className="w-full h-full relative p-4 bg-white/5">
+                    <div className="w-full h-full relative p-2">
                       <Image 
                         src={material.fileUrl} 
-                        alt="Study Notes Preview" 
+                        alt="Study Material Preview" 
                         fill 
                         className="object-contain"
                         unoptimized
                       />
                     </div>
                   ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center">
-                       <iframe 
-                        src={material.fileUrl.includes('docs.google.com') ? material.fileUrl : `https://docs.google.com/viewer?url=${encodeURIComponent(material.fileUrl)}&embedded=true`}
-                        className="w-full h-full border-none bg-white"
+                    <div className="w-full h-full relative">
+                      <iframe 
+                        src={previewUrl}
+                        className="w-full h-full border-none bg-white rounded-[1.2rem]"
                         title="Document Preview"
                       />
-                      {/* Overlay fallback for blocked embeds */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity p-6 text-center">
+                      {/* Interactive Fallback Overlay */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/90 backdrop-blur-md opacity-0 hover:opacity-100 transition-opacity p-6 text-center z-20 pointer-events-none group-hover:pointer-events-auto">
                         <Monitor className="h-12 w-12 text-primary mb-4" />
-                        <h3 className="text-xl font-bold mb-2">Better View?</h3>
-                        <p className="text-sm text-muted-foreground mb-6">Open this document in a new tab for a better reading experience.</p>
-                        <Button className="rounded-xl font-bold" onClick={handleDownload}>
-                          Open Full Document <ExternalLink className="ml-2 h-4 w-4" />
+                        <h3 className="text-xl font-bold mb-2">Can't see the document?</h3>
+                        <p className="text-sm text-muted-foreground mb-6 max-w-xs">Some security settings might block previews. You can open it in a new window instead.</p>
+                        <Button className="rounded-xl font-bold px-8 h-12" onClick={handleDownload}>
+                          Open in Full Tab <ExternalLink className="ml-2 h-4 w-4" />
                         </Button>
                       </div>
                     </div>
@@ -263,8 +267,8 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
             <CardContent className="space-y-6 pt-6 relative z-10">
               <Tabs defaultValue="summary" className="w-full">
                 <TabsList className="w-full grid grid-cols-2 bg-primary-foreground/10 mb-6 border-none p-1 rounded-xl h-11">
-                  <TabsTrigger value="summary" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-white font-bold transition-all">Small Note</TabsTrigger>
-                  <TabsTrigger value="questions" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-white font-bold transition-all">Practice Qs</TabsTrigger>
+                  <TabsTrigger value="summary" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-white font-bold transition-all">Summary</TabsTrigger>
+                  <TabsTrigger value="questions" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-white font-bold transition-all">Practice</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="summary" className="min-h-[250px] focus-visible:ring-0">
@@ -286,7 +290,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
                         disabled={isLoadingSummary}
                       >
                         {isLoadingSummary ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
-                        Make Summary
+                        Generate
                       </Button>
                     </div>
                   )}
@@ -307,7 +311,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
                       <div className="bg-white/10 p-4 rounded-full">
                         <MessageSquare className="h-12 w-12 opacity-40" />
                       </div>
-                      <p className="text-sm text-primary-foreground/60 max-w-[200px] font-medium">Get some practice questions to test yourself.</p>
+                      <p className="text-sm text-primary-foreground/60 max-w-[200px] font-medium">Get practice questions for this subject.</p>
                       <Button 
                         variant="secondary" 
                         size="lg" 
@@ -316,7 +320,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
                         disabled={isLoadingQuestions}
                       >
                         {isLoadingQuestions ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
-                        Get Questions
+                        Create Test
                       </Button>
                     </div>
                   )}
