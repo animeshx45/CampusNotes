@@ -1,36 +1,49 @@
-
 'use client';
 
 /**
- * A minimal, YouTube-style top loading progress bar.
- * This appears fixed at the very top of the viewport during page transitions.
+ * A centered, Google/Material Design style circular loading animation.
+ * This appears during page transitions and initial app loads.
  */
 export default function Loading() {
   return (
-    <div className="fixed top-0 left-0 w-full z-[9999] pointer-events-none">
-      {/* Progress Bar Container */}
-      <div className="h-[3px] w-full bg-primary/20 overflow-hidden">
-        {/* Sliding Progress Line */}
-        <div className="h-full bg-primary animate-youtube-loading shadow-[0_0_10px_rgba(var(--primary),0.5)]" />
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background/50 backdrop-blur-sm pointer-events-none transition-opacity duration-300">
+      <div className="relative">
+        {/* The Spinner Container */}
+        <svg
+          className="animate-spin h-12 w-12 text-primary"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          {/* Background circle (track) */}
+          <circle
+            className="opacity-20"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="3"
+          ></circle>
+          {/* Animated path (spinner) */}
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        
+        {/* Center dot/sparkle */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="h-1.5 w-1.5 bg-accent rounded-full animate-pulse" />
+        </div>
       </div>
-
-      <style jsx global>{`
-        @keyframes youtube-loading {
-          0% {
-            transform: translateX(-100%);
-          }
-          50% {
-            transform: translateX(-30%);
-          }
-          100% {
-            transform: translateX(100%);
-          }
-        }
-        .animate-youtube-loading {
-          animation: youtube-loading 2s infinite linear;
-          width: 100%;
-        }
-      `}</style>
+      
+      {/* Optional subtle text */}
+      <div className="absolute mt-24">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 animate-pulse">
+          Syncing Knowledge
+        </p>
+      </div>
     </div>
   );
 }
