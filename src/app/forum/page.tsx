@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,7 @@ import {
   MessageSquare, Search, Send, Plus, Filter, User, 
   Clock, TrendingUp, Hash, ArrowRight, Loader2, BookOpen
 } from 'lucide-react';
-import { collection, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { ForumPost } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -24,7 +24,7 @@ export default function ForumPage() {
   const db = useFirestore();
   const { toast } = useToast();
   
-  const [isPosting, setIsPosting] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', content: '', branch: 'Information Technology' as any });
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -35,25 +35,33 @@ export default function ForumPage() {
 
   const { data: posts, isLoading } = useCollection<ForumPost>(forumQuery);
 
-  const handleCreatePost = async () => {
-    if (!user || !newPost.title || !newPost.content) return;
-    setIsPosting(true);
-    try {
-      await addDoc(collection(db, 'forumPosts'), {
-        title: newPost.title,
-        content: newPost.content,
-        branch: newPost.branch,
-        authorId: user.uid,
-        authorName: user.displayName || 'Anonymous NITian',
-        createdAt: serverTimestamp(),
-      });
-      toast({ title: "Post Shared", description: "Your discussion thread has been created." });
-      setNewPost({ title: '', content: '', branch: 'Information Technology' });
-    } catch (e) {
-      toast({ title: "Error", description: "Failed to create post.", variant: "destructive" });
-    } finally {
-      setIsPosting(false);
+  const handleCreatePost = () => {
+    if (!user) {
+      toast({ title: "Authentication Required", description: "Please log in to start a discussion.", variant: "destructive" });
+      return;
     }
+    
+    if (!newPost.title.trim() || !newPost.content.trim()) {
+      toast({ title: "Missing Information", description: "Please provide both a title and content.", variant: "destructive" });
+      return;
+    }
+
+    const postData = {
+      title: newPost.title,
+      content: newPost.content,
+      branch: newPost.branch,
+      authorId: user.uid,
+      authorName: user.displayName || 'Anonymous NITian',
+      createdAt: serverTimestamp(),
+    };
+
+    // Use non-blocking write for immediate UI response
+    addDocumentNonBlocking(collection(db, 'forumPosts'), postData);
+    
+    // Optimistically reset and close
+    toast({ title: "Post Shared", description: "Your discussion thread has been created." });
+    setNewPost({ title: '', content: '', branch: 'Information Technology' });
+    setIsDialogOpen(false);
   };
 
   const filteredPosts = posts?.filter(p => 
@@ -80,7 +88,7 @@ export default function ForumPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Dialog>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button className="h-14 rounded-2xl font-bold shadow-xl shadow-primary/20 gap-2">
                 <Plus className="h-5 w-5" /> Start Discussion
@@ -93,7 +101,12 @@ export default function ForumPage() {
               <div className="p-8 space-y-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Title</label>
-                  <Input placeholder="What's your question?" value={newPost.title} onChange={(e) => setNewPost({...newPost, title: e.target.value})} className="rounded-xl h-12" />
+                  <Input 
+                    placeholder="What's your question?" 
+                    value={newPost.title} 
+                    onChange={(e) => setNewPost({...newPost, title: e.target.value})} 
+                    className="rounded-xl h-12" 
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Branch</label>
@@ -107,10 +120,15 @@ export default function ForumPage() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Content</label>
-                  <Textarea placeholder="Explain your doubt in detail..." value={newPost.content} onChange={(e) => setNewPost({...newPost, content: e.target.value})} className="rounded-2xl min-h-[150px] p-4" />
+                  <Textarea 
+                    placeholder="Explain your doubt in detail..." 
+                    value={newPost.content} 
+                    onChange={(e) => setNewPost({...newPost, content: e.target.value})} 
+                    className="rounded-2xl min-h-[150px] p-4" 
+                  />
                 </div>
-                <Button onClick={handleCreatePost} disabled={isPosting} className="w-full h-14 rounded-2xl font-bold text-lg">
-                  {isPosting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Send className="h-5 w-5 mr-2" />}
+                <Button onClick={handleCreatePost} className="w-full h-14 rounded-2xl font-bold text-lg">
+                  <Send className="h-5 w-5 mr-2" />
                   Publish Thread
                 </Button>
               </div>

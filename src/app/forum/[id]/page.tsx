@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, use, useMemo } from 'react';
-import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +11,7 @@ import {
   ArrowLeft, Send, MessageSquare, Clock, Hash, 
   User, Loader2, Sparkles, MoreVertical, ThumbsUp, Reply
 } from 'lucide-react';
-import { collection, query, orderBy, addDoc, serverTimestamp, doc } from 'firebase/firestore';
+import { collection, query, orderBy, serverTimestamp, doc } from 'firebase/firestore';
 import { ForumPost, ForumReply } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
@@ -24,7 +24,6 @@ export default function ForumThreadPage({ params }: { params: Promise<{ id: stri
   const { toast } = useToast();
   
   const [replyContent, setReplyContent] = useState('');
-  const [isReplying, setIsReplying] = useState(false);
 
   const postRef = useMemoFirebase(() => {
     if (!db || !id) return null;
@@ -40,25 +39,28 @@ export default function ForumThreadPage({ params }: { params: Promise<{ id: stri
 
   const { data: replies, isLoading: isRepliesLoading } = useCollection<ForumReply>(repliesQuery);
 
-  const handlePostReply = async (e: React.FormEvent) => {
+  const handlePostReply = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !replyContent.trim() || !id) return;
-    setIsReplying(true);
-    try {
-      await addDoc(collection(db, 'forumPosts', id, 'replies'), {
-        postId: id,
-        content: replyContent,
-        authorId: user.uid,
-        authorName: user.displayName || 'Anonymous NITian',
-        createdAt: serverTimestamp(),
-      });
-      setReplyContent('');
-      toast({ title: "Reply Sent", description: "Your comment has been added to the thread." });
-    } catch (e) {
-      toast({ title: "Error", description: "Failed to post reply.", variant: "destructive" });
-    } finally {
-      setIsReplying(false);
+    if (!user) {
+      toast({ title: "Authentication Required", description: "Please log in to participate in the discussion.", variant: "destructive" });
+      return;
     }
+    
+    if (!replyContent.trim() || !id) return;
+
+    const replyData = {
+      postId: id,
+      content: replyContent,
+      authorId: user.uid,
+      authorName: user.displayName || 'Anonymous NITian',
+      createdAt: serverTimestamp(),
+    };
+
+    // Non-blocking write for snappy interaction
+    addDocumentNonBlocking(collection(db, 'forumPosts', id, 'replies'), replyData);
+    
+    setReplyContent('');
+    toast({ title: "Reply Sent", description: "Your comment has been added to the thread." });
   };
 
   if (isPostLoading) {
@@ -155,10 +157,10 @@ export default function ForumThreadPage({ params }: { params: Promise<{ id: stri
                         <Button 
                           type="submit" 
                           size="sm" 
-                          disabled={!replyContent.trim() || isReplying}
+                          disabled={!replyContent.trim()}
                           className="rounded-full px-6 text-xs font-bold gap-2"
                         >
-                          {isReplying ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />}
+                          <Send className="h-3 w-3" />
                           Comment
                         </Button>
                       </div>
@@ -195,7 +197,6 @@ export default function ForumThreadPage({ params }: { params: Promise<{ id: stri
                           className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest"
                           onClick={() => {
                             setReplyContent(`@${reply.authorName} `);
-                            window.scrollTo({ top: document.querySelector('form')?.getBoundingClientRect().top! + window.scrollY - 200, behavior: 'smooth' });
                           }}
                          >
                             <Reply className="h-3 w-3" /> Reply
