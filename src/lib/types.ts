@@ -53,6 +53,15 @@ export interface ForumPost {
   createdAt: any;
 }
 
+export interface ForumReply {
+  id: string;
+  postId: string;
+  content: string;
+  authorId: string;
+  authorName: string;
+  createdAt: any;
+}
+
 export interface Notification {
   id: string;
   message: string;

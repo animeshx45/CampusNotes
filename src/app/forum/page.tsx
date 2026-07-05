@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,6 +17,7 @@ import { ForumPost } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { BRANCHES } from '@/lib/mock-data';
+import Link from 'next/link';
 
 export default function ForumPage() {
   const { user } = useUser();
@@ -64,9 +65,9 @@ export default function ForumPage() {
     <div className="container mx-auto px-4 py-12 max-w-6xl animate-in fade-in duration-500">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16 border-b border-primary/10 pb-12">
         <div className="space-y-4">
-          <Badge className="bg-accent text-accent-foreground rounded-full px-4 py-1 font-black tracking-widest uppercase text-[10px]">Campus Discourse</Badge>
-          <h1 className="text-5xl md:text-7xl font-headline font-bold text-primary tracking-tighter">Academic <br /><span className="text-foreground italic">Forum.</span></h1>
-          <p className="text-muted-foreground text-xl max-w-md">Clear your doubts with peers and professors across all engineering departments.</p>
+          <Badge className="bg-accent text-accent-foreground rounded-full px-4 py-1 font-black tracking-widest uppercase text-[10px]">Academic Discourse</Badge>
+          <h1 className="text-5xl md:text-7xl font-headline font-bold text-primary tracking-tighter">Campus <br /><span className="text-foreground italic">Feed.</span></h1>
+          <p className="text-muted-foreground text-xl max-w-md">Join the conversation. Ask anything, answer everything.</p>
         </div>
         
         <div className="flex flex-col w-full md:w-auto gap-4">
@@ -127,36 +128,38 @@ export default function ForumPage() {
              </div>
           ) : filteredPosts?.length ? (
             filteredPosts.map((post) => (
-              <Card key={post.id} className="rounded-[2rem] border-primary/5 hover:border-primary/20 transition-all group hover:shadow-2xl overflow-hidden bg-card border">
-                <CardHeader className="p-8 pb-4">
-                  <div className="flex justify-between items-start mb-6">
-                    <Badge variant="secondary" className="bg-primary/5 text-primary border-none rounded-lg px-3 py-1 font-bold text-[10px]">
-                       <Hash className="h-3 w-3 mr-1" /> {post.branch}
-                    </Badge>
-                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                       <Clock className="h-3 w-3" /> Recently
+              <Link key={post.id} href={`/forum/${post.id}`} className="block">
+                <Card className="rounded-[2rem] border-primary/5 hover:border-primary/20 transition-all group hover:shadow-2xl overflow-hidden bg-card border">
+                  <CardHeader className="p-8 pb-4">
+                    <div className="flex justify-between items-start mb-6">
+                      <Badge variant="secondary" className="bg-primary/5 text-primary border-none rounded-lg px-3 py-1 font-bold text-[10px]">
+                         <Hash className="h-3 w-3 mr-1" /> {post.branch}
+                      </Badge>
+                      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                         <Clock className="h-3 w-3" /> {new Date(post.createdAt?.seconds * 1000).toLocaleDateString() || 'Recently'}
+                      </div>
                     </div>
-                  </div>
-                  <CardTitle className="text-2xl font-bold group-hover:text-primary transition-colors leading-tight line-clamp-2">{post.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="p-8 pt-0">
-                  <p className="text-muted-foreground leading-relaxed line-clamp-3 text-sm">{post.content}</p>
-                </CardContent>
-                <CardFooter className="p-8 pt-0 flex items-center justify-between border-t border-primary/5 mt-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 bg-secondary rounded-full flex items-center justify-center text-primary font-bold shadow-inner">
-                      {post.authorName.charAt(0)}
+                    <CardTitle className="text-2xl font-bold group-hover:text-primary transition-colors leading-tight line-clamp-2">{post.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-8 pt-0">
+                    <p className="text-muted-foreground leading-relaxed line-clamp-3 text-sm">{post.content}</p>
+                  </CardContent>
+                  <CardFooter className="p-8 pt-0 flex items-center justify-between border-t border-primary/5 mt-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 bg-secondary rounded-full flex items-center justify-center text-primary font-bold shadow-inner uppercase">
+                        {post.authorName.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Author</p>
+                        <p className="text-sm font-bold">{post.authorName}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Author</p>
-                      <p className="text-sm font-bold">{post.authorName}</p>
-                    </div>
-                  </div>
-                  <Button variant="outline" className="rounded-xl border-primary/10 hover:bg-primary hover:text-white transition-all group/btn">
-                    Read Discussion <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
-                  </Button>
-                </CardFooter>
-              </Card>
+                    <Button variant="outline" className="rounded-xl border-primary/10 hover:bg-primary hover:text-white transition-all group/btn">
+                      Join Discussion <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </Link>
             ))
           ) : (
             <div className="text-center py-32 bg-secondary/5 rounded-[3rem] border-2 border-dashed border-primary/10 space-y-6">

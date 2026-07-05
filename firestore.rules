@@ -14,15 +14,14 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      // Allow public read for student count statistics on homepage
       allow read: if true;
       allow write: if isOwner(userId);
     }
 
     match /studyMaterials/{id} {
       allow read: if true;
-      allow create: if isSignedIn(); // Require auth for uploads in Portal mode
-      allow update: if true; // Allow view/download increments for everyone
+      allow create: if isSignedIn();
+      allow update: if true;
       allow delete: if isSignedIn() && (resource.data.uploaderId == request.auth.uid || getUserData().role == 'admin');
     }
     
@@ -30,6 +29,12 @@ service cloud.firestore {
       allow read: if true;
       allow create: if isSignedIn();
       allow delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || getUserData().role == 'admin');
+
+      match /replies/{replyId} {
+        allow read: if true;
+        allow create: if isSignedIn();
+        allow delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || getUserData().role == 'admin');
+      }
     }
     
     match /notifications/{id} {

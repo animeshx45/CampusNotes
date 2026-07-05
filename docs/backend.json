@@ -54,6 +54,20 @@
       },
       "required": ["id", "title", "content", "authorId"]
     },
+    "ForumReply": {
+      "title": "ForumReply",
+      "type": "object",
+      "description": "A comment or reply on a forum post.",
+      "properties": {
+        "id": { "type": "string" },
+        "postId": { "type": "string" },
+        "content": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "postId", "content", "authorId"]
+    },
     "Notification": {
       "title": "Notification",
       "type": "object",
@@ -82,6 +96,10 @@
     "/forumPosts/{postId}": {
       "schema": "#/backend/entities/ForumPost",
       "description": "Forum discussion threads."
+    },
+    "/forumPosts/{postId}/replies/{replyId}": {
+      "schema": "#/backend/entities/ForumReply",
+      "description": "Replies within a discussion thread."
     },
     "/notifications/{notifId}": {
       "schema": "#/backend/entities/Notification",
