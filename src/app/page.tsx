@@ -24,6 +24,9 @@ import Autoplay from "embla-carousel-autoplay";
 import placeholderData from "@/app/lib/placeholder-images.json";
 import { simplifyConcept } from '@/ai/flows/simplify-concept-flow';
 import { useToast } from '@/hooks/use-toast';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import { StudyMaterial, User } from '@/lib/types';
 
 const BRANCH_ICONS: Record<string, any> = {
   'Information Technology': Code,
@@ -42,10 +45,37 @@ export default function Home() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiResponse, setAiResponse] = useState<any>(null);
   const { toast } = useToast();
+  const db = useFirestore();
 
   const autoplayPlugin = useRef(
     Autoplay({ delay: 4000, stopOnInteraction: true })
   );
+
+  // Real-time data fetching for stats
+  const materialsQuery = useMemoFirebase(() => {
+    if (!db) return null;
+    return collection(db, 'studyMaterials');
+  }, [db]);
+
+  const usersQuery = useMemoFirebase(() => {
+    if (!db) return null;
+    return collection(db, 'users');
+  }, [db]);
+
+  const { data: materials } = useCollection<StudyMaterial>(materialsQuery);
+  const { data: users } = useCollection<User>(usersQuery);
+
+  const stats = useMemo(() => {
+    const totalNotes = materials?.length || 0;
+    const totalStudents = users?.length || 0;
+    const totalDownloads = materials?.reduce((acc, m) => acc + (m.downloadCount || 0), 0) || 0;
+
+    return [
+      { label: 'Total Notes', value: totalNotes.toLocaleString(), icon: FileText, color: 'text-primary' },
+      { label: 'Active Students', value: totalStudents.toLocaleString(), icon: Users, color: 'text-accent' },
+      { label: 'Total Downloads', value: totalDownloads.toLocaleString(), icon: Download, color: 'text-primary' },
+    ];
+  }, [materials, users]);
 
   const heroSlides = useMemo(() => {
     const getImg = (id: string) => placeholderData.placeholderImages.find(img => img.id === id);
@@ -143,14 +173,10 @@ export default function Home() {
         </Carousel>
       </section>
 
-      {/* Stats - Simple Labels */}
+      {/* Stats - Dynamic Labels */}
       <section className="container mx-auto px-4 -mt-12 relative z-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { label: 'Total Notes', value: '5,000+', icon: FileText, color: 'text-primary' },
-            { label: 'Active Students', value: '12,000+', icon: Users, color: 'text-accent' },
-            { label: 'Daily Downloads', value: '1,500+', icon: Download, color: 'text-primary' },
-          ].map((stat, i) => (
+          {stats.map((stat, i) => (
             <div key={i} className="bg-card/95 backdrop-blur-2xl p-8 rounded-[2rem] flex items-center gap-6 border border-primary/5 shadow-2xl hover:border-primary/40 transition-all group">
               <div className="h-16 w-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:rotate-6 transition-transform shadow-inner">
                 <stat.icon className="h-8 w-8" />
