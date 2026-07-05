@@ -15,7 +15,6 @@ const MATERIALS_COLLECTION = 'studyMaterials';
 
 /**
  * Service for interacting with Study Materials in Firestore.
- * Refactored to follow non-blocking patterns and handle mock IDs gracefully.
  */
 class MaterialService {
   private db: Firestore;
@@ -26,9 +25,15 @@ class MaterialService {
   }
 
   /**
+   * Checks if an ID belongs to a mock data item.
+   * Mock IDs typically start with branch prefixes (it-, cse-) or yt-.
+   */
+  private isMockId(id: string) {
+    return id.startsWith('it-') || id.startsWith('cse-') || id.startsWith('yt-') || id.includes('s3-') || id.includes('s4-') || id.includes('s5-') || id.includes('s6-') || id.includes('s7-') || id.includes('s8-');
+  }
+
+  /**
    * Initiates a material upload.
-   * Matches the StudyMaterial schema in backend.json.
-   * @param material The material data to upload.
    */
   async uploadMaterial(material: any) {
     return addDocumentNonBlocking(collection(this.db, MATERIALS_COLLECTION), {
@@ -42,11 +47,10 @@ class MaterialService {
 
   /**
    * Initiates an increment for the download count.
-   * Only attempts if the ID does not start with 'yt-' (curated playlists).
-   * @param id The material ID.
+   * Skips mock data IDs as they don't exist in Firestore.
    */
   incrementDownloadCount(id: string) {
-    if (id.startsWith('yt-')) return;
+    if (this.isMockId(id)) return;
     const docRef = doc(this.db, MATERIALS_COLLECTION, id);
     updateDocumentNonBlocking(docRef, {
       downloadCount: increment(1)
@@ -55,11 +59,10 @@ class MaterialService {
 
   /**
    * Initiates a view count increment.
-   * Only attempts if the ID does not start with 'yt-' (curated playlists).
-   * @param id The material ID.
+   * Skips mock data IDs as they don't exist in Firestore.
    */
   incrementViewCount(id: string) {
-    if (id.startsWith('yt-')) return;
+    if (this.isMockId(id)) return;
     const docRef = doc(this.db, MATERIALS_COLLECTION, id);
     updateDocumentNonBlocking(docRef, {
       views: increment(1)

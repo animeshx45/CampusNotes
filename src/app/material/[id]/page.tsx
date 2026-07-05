@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BrainCircuit, Download, FileText, Share2, MessageSquare, Info, Sparkles, AlertCircle, Loader2, Zap, ArrowLeft, ExternalLink, Youtube, Maximize2, Monitor } from 'lucide-react';
+import { BrainCircuit, Download, FileText, Share2, MessageSquare, Info, Sparkles, AlertCircle, Loader2, Zap, ArrowLeft, ExternalLink, Youtube, Maximize2, Monitor, Eye } from 'lucide-react';
 import { generateStudyMaterialSummary } from '@/ai/flows/generate-study-material-summary';
 import { generateExamQuestions } from '@/ai/flows/generate-exam-questions-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -42,7 +42,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
   const mockMaterial = useMemo(() => MOCK_MATERIALS.find(m => m.id === id), [id]);
 
   const materialRef = useMemoFirebase(() => {
-    if (!db || !id || id.startsWith('it-') || id.startsWith('cse-')) return null;
+    if (!db || !id || id.startsWith('it-') || id.startsWith('cse-') || id.includes('s3-') || id.includes('s4-')) return null;
     return doc(db, 'studyMaterials', id);
   }, [db, id]);
 
@@ -122,9 +122,9 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
   };
 
   const isYoutube = material.type === 'YouTube Playlist';
-  const isImage = material.fileUrl?.match(/\.(jpeg|jpg|gif|png|webp)$/i) || material.fileUrl?.includes('picsum.photos');
+  const isImage = material.fileUrl?.match(/\.(jpeg|jpg|gif|png|webp)$/i) || material.fileUrl?.includes('picsum.photos') || material.fileUrl?.includes('placehold.co');
   
-  // Use a more robust document preview URL
+  // Robust document preview URL using Google Docs viewer as a fallback
   const previewUrl = material.fileUrl.includes('docs.google.com') 
     ? material.fileUrl 
     : `https://docs.google.com/viewer?url=${encodeURIComponent(material.fileUrl)}&embedded=true`;
@@ -148,7 +148,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
           <div className="flex flex-wrap items-center gap-4 text-xs md:text-sm text-muted-foreground">
             <div className="flex items-center gap-1.5"><FileText className="h-4 w-4" /> Shared by <span className="font-bold text-foreground">{material.author}</span></div>
             <div className="flex items-center gap-1.5"><Info className="h-4 w-4" /> {formatDate(material.createdAt)}</div>
-            <div className="flex items-center gap-1.5"><Download className="h-4 w-4" /> {material.downloadCount || 0} downloads</div>
+            <div className="flex items-center gap-1.5"><Eye className="h-4 w-4" /> {material.views || 0} views</div>
           </div>
         </div>
         <div className="flex gap-3 shrink-0 w-full md:w-auto">
@@ -188,17 +188,12 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
             <CardHeader className="bg-primary/5 border-b border-primary/10 flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="font-headline font-bold text-primary">
-                  {isYoutube ? 'Study Link' : 'In-App Preview'}
+                  {isYoutube ? 'Study Link' : 'Study Materials'}
                 </CardTitle>
                 <CardDescription>
-                  {isYoutube ? 'Click below to watch the playlist.' : 'Read and study without leaving the page.'}
+                  {isYoutube ? 'Click below to watch the playlist.' : 'Read and study directly from the browser.'}
                 </CardDescription>
               </div>
-              {!isYoutube && (
-                <Button variant="ghost" size="sm" className="rounded-xl h-9 font-bold text-xs" onClick={handleDownload}>
-                  <Maximize2 className="h-4 w-4 mr-2" /> Full Screen
-                </Button>
-              )}
             </CardHeader>
             <CardContent className="p-8">
               {isYoutube ? (
@@ -232,9 +227,10 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
                         src={previewUrl}
                         className="w-full h-full border-none bg-white rounded-[1.2rem]"
                         title="Document Preview"
+                        onError={() => toast({ title: "Preview Error", description: "Use the button below to open the file." })}
                       />
-                      {/* Interactive Fallback Overlay */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/90 backdrop-blur-md opacity-0 hover:opacity-100 transition-opacity p-6 text-center z-20 pointer-events-none group-hover:pointer-events-auto">
+                      {/* Interaction Overlay for fallback */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity p-6 text-center z-20 pointer-events-none group-hover:pointer-events-auto">
                         <Monitor className="h-12 w-12 text-primary mb-4" />
                         <h3 className="text-xl font-bold mb-2">Can't see the document?</h3>
                         <p className="text-sm text-muted-foreground mb-6 max-w-xs">Some security settings might block previews. You can open it in a new window instead.</p>
