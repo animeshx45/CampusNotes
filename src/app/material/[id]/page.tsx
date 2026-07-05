@@ -1,21 +1,25 @@
-
 "use client";
 
 import { useState, use, useEffect, useMemo } from 'react';
-import { StudyMaterial } from '@/lib/types';
+import { StudyMaterial, User } from '@/lib/types';
 import { MOCK_MATERIALS } from '@/lib/mock-data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BrainCircuit, Download, FileText, Share2, MessageSquare, Info, Sparkles, AlertCircle, Loader2, Zap, ArrowLeft, ExternalLink, Youtube, Monitor, Eye } from 'lucide-react';
+import { 
+  BrainCircuit, Download, FileText, Share2, MessageSquare, 
+  Info, Sparkles, AlertCircle, Loader2, Zap, ArrowLeft, 
+  ExternalLink, Youtube, Monitor, Eye, ShieldCheck, Trash2, Edit
+} from 'lucide-react';
 import { generateStudyMaterialSummary } from '@/ai/flows/generate-study-material-summary';
 import { generateExamQuestions } from '@/ai/flows/generate-exam-questions-flow';
 import { useToast } from '@/hooks/use-toast';
 import { materialService } from '@/services/material-service';
 import Link from 'next/link';
-import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc, Timestamp } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
+import { useDoc, useFirestore, useMemoFirebase, useUser, useCollection } from '@/firebase';
+import { doc, Timestamp, query, collection, where, limit } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
@@ -37,12 +41,23 @@ const ModernLoader = ({ message }: { message: string }) => (
 export default function MaterialDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { toast } = useToast();
+  const { user } = useUser();
   const db = useFirestore();
+  const router = useRouter();
+
+  const userProfileQuery = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return query(collection(db, 'users'), where('id', '==', user.uid), limit(1));
+  }, [db, user]);
+
+  const { data: profiles } = useCollection<User>(userProfileQuery);
+  const profile = profiles?.[0];
+  const isAdmin = profile?.role === 'admin';
 
   const mockMaterial = useMemo(() => MOCK_MATERIALS.find(m => m.id === id), [id]);
 
   const materialRef = useMemoFirebase(() => {
-    if (!db || !id || id.startsWith('it-') || id.startsWith('cse-') || id.includes('s3-') || id.includes('s4-') || id.includes('s5-') || id.includes('s6-') || id.includes('s7-') || id.includes('s8-')) return null;
+    if (!db || !id || id.startsWith('it-') || id.startsWith('cse-') || id.startsWith('chem-') || id.includes('s3-') || id.includes('s4-') || id.includes('s5-') || id.includes('s6-') || id.includes('s7-') || id.includes('s8-')) return null;
     return doc(db, 'studyMaterials', id);
   }, [db, id]);
 
@@ -87,6 +102,14 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     }
     materialService.incrementDownloadCount(id);
     window.open(material.fileUrl, '_blank');
+  };
+
+  const handleAdminDelete = () => {
+    if (confirm("Management Decision: Delete this resource permanently?")) {
+      materialService.deleteMaterial(id);
+      toast({ title: "Material Removed", description: "This resource has been deleted by an administrator." });
+      router.push('/admin');
+    }
   };
 
   const handleGenerateSummary = async () => {
@@ -135,6 +158,22 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="container mx-auto px-4 py-12 flex flex-col gap-8 max-w-6xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {isAdmin && (
+        <div className="bg-primary/5 border border-primary/10 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-3 text-primary font-bold text-sm">
+            <ShieldCheck className="h-5 w-5" /> Manager Actions Enabled
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="rounded-xl border-primary/20 h-9" asChild>
+              <Link href="/admin"><Edit className="h-4 w-4 mr-2" /> Modify</Link>
+            </Button>
+            <Button variant="destructive" size="sm" className="rounded-xl h-9" onClick={handleAdminDelete}>
+              <Trash2 className="h-4 w-4 mr-2" /> Delete Permanently
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row justify-between items-start gap-6 border-b border-primary/10 pb-8">
         <div className="space-y-4 flex-grow">
           <div className="flex flex-wrap items-center gap-2">
