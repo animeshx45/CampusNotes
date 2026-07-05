@@ -9,9 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Mail, Lock, User, ArrowRight, Loader2, GraduationCap, Briefcase, Shield } from 'lucide-react';
-import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
-import { useAuth, useFirestore } from '@/firebase';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, serverTimestamp } from 'firebase/firestore';
+import { useAuth, useFirestore, setDocumentNonBlocking } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/logo';
 import { BRANCHES, SEMESTERS } from '@/lib/mock-data';
@@ -38,7 +38,8 @@ export default function SignupPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
       
-      await setDoc(doc(db, 'users', userCredential.user.uid), {
+      const userRef = doc(db, 'users', userCredential.user.uid);
+      setDocumentNonBlocking(userRef, {
         id: userCredential.user.uid,
         fullName: name,
         email,
@@ -48,9 +49,9 @@ export default function SignupPage() {
         semester: semester || null,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-      });
+      }, {});
 
-      toast({ title: "Account Created!", description: `Welcome to CampusNotes as a ${role}.` });
+      toast({ title: "Account Created!", description: `Welcome to CampusNotes.` });
       router.push('/dashboard');
     } catch (error: any) {
       toast({ 
@@ -66,14 +67,14 @@ export default function SignupPage() {
   return (
     <div className="container mx-auto px-4 py-12 flex justify-center items-center">
       <Card className="w-full max-w-xl shadow-2xl border-none rounded-[2.5rem] overflow-hidden">
-        <CardHeader className="text-center space-y-4 bg-primary text-primary-foreground p-8">
+        <CardHeader className="text-center space-y-4 bg-primary text-primary-foreground p-10">
           <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto p-2">
             <Logo className="h-full w-full" />
           </div>
           <CardTitle className="text-3xl font-headline font-bold">Join the Vault</CardTitle>
-          <CardDescription className="text-primary-foreground/80">Choose your role and start sharing knowledge</CardDescription>
+          <CardDescription className="text-primary-foreground/80">Start your academic journey with fellow NITians</CardDescription>
         </CardHeader>
-        <CardContent className="p-8 space-y-6">
+        <CardContent className="p-10 space-y-6 bg-card">
           <form onSubmit={handleSignup} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -93,7 +94,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-4">
-              <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Select Your Role</label>
+              <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">I am a...</label>
               <div className="grid grid-cols-3 gap-3">
                 {[
                   { id: 'student', label: 'Student', icon: GraduationCap },
@@ -107,7 +108,7 @@ export default function SignupPage() {
                     className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all gap-2 ${role === r.id ? 'border-primary bg-primary/5 text-primary' : 'border-muted hover:border-primary/20'}`}
                   >
                     <r.icon className="h-6 w-6" />
-                    <span className="text-xs font-bold">{r.label}</span>
+                    <span className="text-[10px] font-black uppercase tracking-tight">{r.label}</span>
                   </button>
                 ))}
               </div>
@@ -133,7 +134,7 @@ export default function SignupPage() {
                       <SelectValue placeholder="Current Sem" />
                     </SelectTrigger>
                     <SelectContent>
-                      {SEMESTERS.map(s => <SelectItem key={s} value={s.toString()}>Semester {s}</SelectItem>)}
+                      {SEMESTERS.map(s => <SelectItem key={s} value={s.toString()}>Sem {s}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
@@ -150,11 +151,11 @@ export default function SignupPage() {
 
             <Button type="submit" className="w-full h-14 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20" disabled={isLoading}>
               {isLoading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-              Create {role.charAt(0).toUpperCase() + role.slice(1)} Account
+              Create Account
             </Button>
           </form>
 
-          <div className="text-center">
+          <div className="text-center pt-4 border-t border-primary/5">
             <p className="text-sm text-muted-foreground">
               Already have an account? <Link href="/login" className="text-primary font-bold hover:underline">Sign In</Link>
             </p>
