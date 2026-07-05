@@ -27,8 +27,8 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
   // --- SEMESTER 3 ---
   {
     id: 'it-s3-oop',
-    title: 'Object Oriented Programming (OOPS)',
-    description: 'Learn Classes, Objects, and Polymorphism in C++. Essential for IT and CSE students.',
+    title: 'Object Oriented Programming Structure (OOPS)',
+    description: 'Learn Classes, Objects, and Polymorphism. Core syllabus for IT and CSE students.',
     branch: 'Information Technology',
     semester: 3,
     type: 'YouTube Playlist',
@@ -42,12 +42,12 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
   },
   {
     id: 'it-s3-web',
-    title: 'Web Development Basics',
+    title: 'Web Development Materials',
     description: 'HTML, CSS, and JS. Start building your first website with these simple notes.',
     branch: 'Information Technology',
     semester: 3,
-    type: 'YouTube Playlist',
-    fileUrl: 'https://www.youtube.com/playlist?list=PLu0W_9lII9agq5TrH9XLIKQvv0ia4KnZ3',
+    type: 'Note',
+    fileUrl: 'https://picsum.photos/seed/web/800/600',
     author: 'CodeWithHarry',
     uploaderId: 'system',
     downloadCount: 890,
@@ -59,7 +59,7 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
   // --- SEMESTER 4 ---
   {
     id: 'it-s4-ds',
-    title: 'Data Structures & Algorithms',
+    title: 'Data Structure (CSE/IT/ECE)',
     description: 'Advanced data structures like Trees, Graphs, and Hashing.',
     branch: 'Computer Science & Engineering',
     semester: 4,
@@ -69,6 +69,21 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
     uploaderId: 'system',
     downloadCount: 1200,
     views: 4000,
+    status: 'approved',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'it-s4-prob',
+    title: 'Probability and Statistics',
+    description: 'Core math for engineering. Mean, Variance, and Distributions.',
+    branch: 'Information Technology',
+    semester: 4,
+    type: 'Note',
+    fileUrl: 'https://picsum.photos/seed/math/800/600',
+    author: 'NPTEL',
+    uploaderId: 'system',
+    downloadCount: 300,
+    views: 800,
     status: 'approved',
     createdAt: new Date().toISOString()
   },
@@ -91,7 +106,7 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
   // --- SEMESTER 5 ---
   {
     id: 'it-s5-os',
-    title: 'Operating Systems (Detailed)',
+    title: 'Operating Systems',
     description: 'Process Management, Scheduling, and Memory. Every core concept covered.',
     branch: 'Information Technology',
     semester: 5,
@@ -106,7 +121,7 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
   },
   {
     id: 'it-s5-dbms',
-    title: 'Database Management Systems',
+    title: 'Database Management System',
     description: 'SQL, Normalization, and ER Diagrams. Perfect for IT/CSE 5th semester.',
     branch: 'Computer Science & Engineering',
     semester: 5,
@@ -116,6 +131,21 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
     uploaderId: 'system',
     downloadCount: 1800,
     views: 4200,
+    status: 'approved',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'it-s5-algo',
+    title: 'Design and Analysis of Algorithms (CSE/IT)',
+    description: 'Sorting, Searching, and Complexity analysis.',
+    branch: 'Information Technology',
+    semester: 5,
+    type: 'Note',
+    fileUrl: 'https://picsum.photos/seed/algo/800/600',
+    author: 'Abdul Bari',
+    uploaderId: 'system',
+    downloadCount: 2500,
+    views: 6000,
     status: 'approved',
     createdAt: new Date().toISOString()
   },
@@ -151,12 +181,27 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
     status: 'approved',
     createdAt: new Date().toISOString()
   },
+  {
+    id: 'it-s6-java',
+    title: 'Java Programming',
+    description: 'Master core Java for placement and exams.',
+    branch: 'Computer Science & Engineering',
+    semester: 6,
+    type: 'Note',
+    fileUrl: 'https://picsum.photos/seed/java/800/600',
+    author: 'Telusko',
+    uploaderId: 'system',
+    downloadCount: 1200,
+    views: 3000,
+    status: 'approved',
+    createdAt: new Date().toISOString()
+  },
 
   // --- SEMESTER 7 ---
   {
     id: 'it-s7-ml',
     title: 'Machine Learning',
-    description: 'Supervised and Unsupervised learning. The best guide for 7th sem projects.',
+    description: 'Supervised and Unsupervised learning. Great for final year projects.',
     branch: 'Computer Science & Engineering',
     semester: 7,
     type: 'YouTube Playlist',
@@ -183,12 +228,27 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
     status: 'approved',
     createdAt: new Date().toISOString()
   },
+  {
+    id: 'it-s7-cloud',
+    title: 'Cloud Computing',
+    description: 'AWS, Azure, and Virtualization basics.',
+    branch: 'Information Technology',
+    semester: 7,
+    type: 'Note',
+    fileUrl: 'https://picsum.photos/seed/cloud/800/600',
+    author: 'Edureka',
+    uploaderId: 'system',
+    downloadCount: 400,
+    views: 1100,
+    status: 'approved',
+    createdAt: new Date().toISOString()
+  },
 
   // --- SEMESTER 8 ---
   {
     id: 'it-s8-bigdata',
-    title: 'Big Data Analysis',
-    description: 'Hadoop, MapReduce, and massive data processing for 8th sem students.',
+    title: 'Big Data',
+    description: 'Hadoop, MapReduce, and massive data processing.',
     branch: 'Information Technology',
     semester: 8,
     type: 'YouTube Playlist',
@@ -212,6 +272,21 @@ export const MOCK_MATERIALS: StudyMaterial[] = [
     uploaderId: 'system',
     downloadCount: 340,
     views: 900,
+    status: 'approved',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'it-s8-ajava',
+    title: 'Advanced Java Programming',
+    description: 'Servlets, JSP, and Spring Framework.',
+    branch: 'Computer Science & Engineering',
+    semester: 8,
+    type: 'Note',
+    fileUrl: 'https://picsum.photos/seed/ajava/800/600',
+    author: 'DurgaSoft',
+    uploaderId: 'system',
+    downloadCount: 800,
+    views: 2000,
     status: 'approved',
     createdAt: new Date().toISOString()
   }
