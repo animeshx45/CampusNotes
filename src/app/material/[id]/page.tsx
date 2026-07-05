@@ -10,10 +10,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   BrainCircuit, Download, FileText, Share2, MessageSquare, 
   Info, Sparkles, AlertCircle, Loader2, Zap, ArrowLeft, 
-  ExternalLink, Youtube, Monitor, Eye, ShieldCheck, Trash2, Edit
+  ExternalLink, Youtube, Monitor, Eye, ShieldCheck, Trash2, Edit,
+  Terminal, Lightbulb, CheckCircle2
 } from 'lucide-react';
 import { generateStudyMaterialSummary } from '@/ai/flows/generate-study-material-summary';
 import { generateExamQuestions } from '@/ai/flows/generate-exam-questions-flow';
+import { simplifyConcept } from '@/ai/flows/simplify-concept-flow';
 import { useToast } from '@/hooks/use-toast';
 import { materialService } from '@/services/material-service';
 import Link from 'next/link';
@@ -67,8 +69,11 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
   const [summary, setSummary] = useState<string | null>(null);
   const [questions, setQuestions] = useState<string[] | null>(null);
+  const [simplified, setSimplified] = useState<any | null>(null);
+  
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
+  const [isLoadingSimplified, setIsLoadingSimplified] = useState(false);
 
   useEffect(() => {
     if (material) {
@@ -137,6 +142,21 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
       toast({ title: "Error making questions", description: "Try again in a bit.", variant: "destructive" });
     } finally {
       setIsLoadingQuestions(false);
+    }
+  };
+
+  const handleSimplifyConcept = async () => {
+    setIsLoadingSimplified(true);
+    try {
+      const result = await simplifyConcept({ 
+        concept: material.title,
+        branch: material.branch 
+      });
+      setSimplified(result);
+    } catch (error) {
+      toast({ title: "Error simplifying", description: "Try again in a bit.", variant: "destructive" });
+    } finally {
+      setIsLoadingSimplified(false);
     }
   };
 
@@ -304,68 +324,128 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
             <CardHeader className="relative z-10 border-b border-white/10 pb-6">
               <CardTitle className="font-headline font-bold text-xl flex items-center gap-2">
                 <Sparkles className="h-6 w-6 text-accent animate-pulse" />
-                AI Study Help
+                AI Redefined Assistant
               </CardTitle>
               <CardDescription className="text-primary-foreground/70 font-medium">
-                Tools to help you study faster.
+                Advanced tools for deep academic insight.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6 pt-6 relative z-10">
-              <Tabs defaultValue="summary" className="w-full">
-                <TabsList className="w-full grid grid-cols-2 bg-primary-foreground/10 mb-6 border-none p-1 rounded-xl h-11">
-                  <TabsTrigger value="summary" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-white font-bold transition-all">Summary</TabsTrigger>
-                  <TabsTrigger value="questions" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-white font-bold transition-all">Practice</TabsTrigger>
+            <CardContent className="p-0 relative z-10">
+              <Tabs defaultValue="simplify" className="w-full">
+                <TabsList className="w-full grid grid-cols-3 bg-primary-foreground/10 mb-0 border-none p-1 rounded-none h-14">
+                  <TabsTrigger value="simplify" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-white font-bold transition-all text-xs">Explain</TabsTrigger>
+                  <TabsTrigger value="summary" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-white font-bold transition-all text-xs">Summary</TabsTrigger>
+                  <TabsTrigger value="practice" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-white font-bold transition-all text-xs">Practice</TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="summary" className="min-h-[250px] focus-visible:ring-0">
-                  {summary ? (
-                    <div className="text-sm bg-white/10 p-5 rounded-2xl leading-relaxed whitespace-pre-wrap animate-in fade-in zoom-in duration-500 border border-white/5 shadow-inner">
-                      {summary}
+                <TabsContent value="simplify" className="p-6 min-h-[300px] focus-visible:ring-0">
+                  {simplified ? (
+                    <div className="space-y-6 animate-in fade-in zoom-in duration-500">
+                       <div className="bg-white/10 p-5 rounded-2xl border border-white/5 shadow-inner">
+                          <div className="flex items-center gap-2 text-accent mb-3">
+                             <Lightbulb className="h-5 w-5" />
+                             <span className="font-black uppercase tracking-widest text-[10px]">Simple Analogy</span>
+                          </div>
+                          <p className="text-sm leading-relaxed italic">{simplified.explanation}</p>
+                       </div>
+                       <div className="space-y-2">
+                          <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Key Intuitions</p>
+                          {simplified.keyPoints.map((pt: string, i: number) => (
+                            <div key={i} className="flex items-center gap-3 text-xs font-bold bg-white/5 p-3 rounded-xl">
+                              <CheckCircle2 className="h-4 w-4 text-accent shrink-0" />
+                              {pt}
+                            </div>
+                          ))}
+                       </div>
+                       <Button variant="ghost" size="sm" className="w-full text-[10px] font-black uppercase" onClick={() => setSimplified(null)}>Reset Assistant</Button>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-12 gap-6 text-center">
-                      <div className="bg-white/10 p-4 rounded-full">
-                        <BrainCircuit className="h-12 w-12 opacity-40" />
+                      <div className="bg-white/10 p-5 rounded-full">
+                        <Zap className="h-10 w-10 text-accent animate-pulse" />
                       </div>
-                      <p className="text-sm text-primary-foreground/60 max-w-[200px] font-medium">Get a very short summary of these notes.</p>
+                      <div className="space-y-2">
+                        <p className="text-sm font-bold">Concept Simplifier</p>
+                        <p className="text-xs text-primary-foreground/60 max-w-[200px]">Get a student-friendly explanation of "{material.title}".</p>
+                      </div>
                       <Button 
                         variant="secondary" 
                         size="lg" 
-                        className="rounded-full px-8 font-bold h-12 shadow-lg"
-                        onClick={handleGenerateSummary}
-                        disabled={isLoadingSummary}
+                        className="rounded-full px-10 font-bold h-12 shadow-xl"
+                        onClick={handleSimplifyConcept}
+                        disabled={isLoadingSimplified}
                       >
-                        {isLoadingSummary ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
-                        Generate
+                        {isLoadingSimplified ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
+                        Explain Simply
                       </Button>
                     </div>
                   )}
                 </TabsContent>
 
-                <TabsContent value="questions" className="min-h-[250px] focus-visible:ring-0">
-                  {questions ? (
-                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom duration-500">
-                      {questions.map((q, i) => (
-                        <div key={i} className="text-sm bg-white/10 p-4 rounded-2xl flex gap-3 border border-white/5 group/q hover:bg-white/15 transition-colors">
-                          <span className="font-black text-accent group-hover/q:scale-110 transition-transform">Q{i+1}</span> 
-                          <span className="leading-relaxed">{q}</span>
-                        </div>
-                      ))}
+                <TabsContent value="summary" className="p-6 min-h-[300px] focus-visible:ring-0">
+                  {summary ? (
+                    <div className="text-sm bg-white/10 p-5 rounded-2xl leading-relaxed whitespace-pre-wrap animate-in fade-in zoom-in duration-500 border border-white/5 shadow-inner">
+                      <div className="flex items-center gap-2 text-accent mb-4">
+                         <FileText className="h-5 w-5" />
+                         <span className="font-black uppercase tracking-widest text-[10px]">Structured Summary</span>
+                      </div>
+                      {summary}
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-12 gap-6 text-center">
-                      <div className="bg-white/10 p-4 rounded-full">
-                        <MessageSquare className="h-12 w-12 opacity-40" />
+                      <div className="bg-white/10 p-5 rounded-full">
+                        <BrainCircuit className="h-10 w-10 opacity-40" />
                       </div>
-                      <p className="text-sm text-primary-foreground/60 max-w-[200px] font-medium">Get practice questions for this subject.</p>
+                      <div className="space-y-2">
+                        <p className="text-sm font-bold">Smart Digest</p>
+                        <p className="text-xs text-primary-foreground/60 max-w-[200px]">Extract key points and a structured summary from these notes.</p>
+                      </div>
                       <Button 
                         variant="secondary" 
                         size="lg" 
-                        className="rounded-full px-8 font-bold h-12 shadow-lg"
+                        className="rounded-full px-10 font-bold h-12 shadow-xl"
+                        onClick={handleGenerateSummary}
+                        disabled={isLoadingSummary}
+                      >
+                        {isLoadingSummary ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
+                        Generate Digest
+                      </Button>
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="practice" className="p-6 min-h-[300px] focus-visible:ring-0">
+                  {questions ? (
+                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom duration-500">
+                      <div className="flex items-center gap-2 text-accent mb-4">
+                         <Terminal className="h-5 w-5" />
+                         <span className="font-black uppercase tracking-widest text-[10px]">Practice Lab</span>
+                      </div>
+                      {questions.map((q, i) => (
+                        <div key={i} className="text-sm bg-white/10 p-4 rounded-2xl flex gap-3 border border-white/5 group/q hover:bg-white/15 transition-colors">
+                          <span className="font-black text-accent group-hover/q:scale-110 transition-transform">Q{i+1}</span> 
+                          <span className="leading-relaxed font-medium">{q}</span>
+                        </div>
+                      ))}
+                      <Button variant="ghost" size="sm" className="w-full text-[10px] font-black uppercase" onClick={() => setQuestions(null)}>New Practice Set</Button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-12 gap-6 text-center">
+                      <div className="bg-white/10 p-5 rounded-full">
+                        <MessageSquare className="h-10 w-10 opacity-40" />
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-sm font-bold">Exam Simulator</p>
+                        <p className="text-xs text-primary-foreground/60 max-w-[200px]">Turn this material into a set of challenging practice questions.</p>
+                      </div>
+                      <Button 
+                        variant="secondary" 
+                        size="lg" 
+                        className="rounded-full px-10 font-bold h-12 shadow-xl"
                         onClick={handleGenerateQuestions}
                         disabled={isLoadingQuestions}
                       >
-                        {isLoadingQuestions ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
+                        {isLoadingQuestions ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Rocket className="h-4 w-4 mr-2" />}
                         Create Test
                       </Button>
                     </div>

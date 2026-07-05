@@ -1,17 +1,16 @@
-
 "use client";
 
 import { useState, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BRANCHES } from '@/lib/mock-data';
 import { DEPARTMENT_REPRESENTATIVES } from '@/lib/department-data';
 import { 
   Search, BookOpen, Users, ArrowRight, GraduationCap, 
   FileText, Download, Code, Cpu, Hammer, Droplets, Zap, Beaker, Building2, Microscope, Heart,
-  Linkedin, Mail
+  Linkedin, Mail, Sparkles, BrainCircuit, Rocket, Loader2
 } from 'lucide-react';
 import Image from 'next/image';
 import {
@@ -23,6 +22,8 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import placeholderData from "@/app/lib/placeholder-images.json";
+import { simplifyConcept } from '@/ai/flows/simplify-concept-flow';
+import { useToast } from '@/hooks/use-toast';
 
 const BRANCH_ICONS: Record<string, any> = {
   'Information Technology': Code,
@@ -37,6 +38,11 @@ const BRANCH_ICONS: Record<string, any> = {
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [aiTopic, setAiTopic] = useState('');
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiResponse, setAiResponse] = useState<any>(null);
+  const { toast } = useToast();
+
   const autoplayPlugin = useRef(
     Autoplay({ delay: 4000, stopOnInteraction: true })
   );
@@ -56,6 +62,20 @@ export default function Home() {
       { img: getImg('meta-dept-official'), title: 'Metallurgy Dept', quote: 'Designing stronger materials.' },
     ];
   }, []);
+
+  const handleAiSimplify = async () => {
+    if (!aiTopic.trim()) return;
+    setIsAiLoading(true);
+    setAiResponse(null);
+    try {
+      const result = await simplifyConcept({ concept: aiTopic });
+      setAiResponse(result);
+    } catch (error) {
+      toast({ title: "AI Busy", description: "The study engine is resting. Try again in a minute!", variant: "destructive" });
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-12 pb-20">
@@ -88,7 +108,7 @@ export default function Home() {
                       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/40 backdrop-blur-xl text-white text-[10px] font-black uppercase tracking-widest border border-white/20 shadow-xl">
                         <GraduationCap className="h-4 w-4" /> {slide.title}
                       </div>
-                      <h1 className="text-4xl md:text-6xl font-headline font-bold tracking-tighter text-white leading-tight drop-shadow-2xl">
+                      <h1 className="text-3xl md:text-5xl font-headline font-bold tracking-tighter text-white leading-tight drop-shadow-2xl">
                         {slide.quote}
                       </h1>
                       <p className="text-base md:text-lg text-white/90 font-medium max-w-lg leading-relaxed drop-shadow-lg">
@@ -144,8 +164,98 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Redefined AI Study Engine Section */}
+      <section className="container mx-auto px-4 space-y-12 py-12">
+        <div className="bg-primary/5 rounded-[3rem] p-8 md:p-16 border border-primary/10 relative overflow-hidden group/lab shadow-2xl">
+          <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none group-hover/lab:rotate-12 transition-transform duration-1000">
+             <BrainCircuit className="h-64 w-64 text-primary" />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-8 relative z-10">
+              <Badge className="bg-accent text-accent-foreground px-5 py-2 rounded-full font-black uppercase tracking-widest text-[11px] shadow-lg animate-pulse">
+                <Sparkles className="h-3.5 w-3.5 mr-2 inline" /> Redefined AI Study Lab
+              </Badge>
+              <h2 className="text-4xl md:text-6xl font-headline font-bold tracking-tight text-primary leading-tight">
+                Master Hard <br /><span className="text-foreground">Topics Instantly.</span>
+              </h2>
+              <p className="text-lg text-muted-foreground font-medium max-w-md leading-relaxed">
+                Stuck on a complex theory? Type it below and our NIT-tuned AI will explain it like a pro.
+              </p>
+              
+              <div className="space-y-4">
+                 <div className="flex flex-col sm:flex-row gap-3">
+                   <div className="flex-grow relative">
+                      <Zap className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary opacity-50" />
+                      <input 
+                        placeholder="e.g. Fourier Transform or MAIR11 Calculus" 
+                        value={aiTopic}
+                        onChange={(e) => setAiTopic(e.target.value)}
+                        className="w-full pl-12 pr-4 h-16 rounded-2xl bg-white border border-primary/10 focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none text-base font-medium shadow-inner"
+                      />
+                   </div>
+                   <Button 
+                    onClick={handleAiSimplify}
+                    disabled={isAiLoading || !aiTopic.trim()}
+                    size="lg" 
+                    className="rounded-2xl h-16 px-10 font-black text-lg bg-primary hover:scale-105 transition-all gap-2"
+                   >
+                     {isAiLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : <Rocket className="h-6 w-6" />}
+                     Simplify
+                   </Button>
+                 </div>
+              </div>
+            </div>
+
+            <div className="relative min-h-[350px] flex items-center justify-center">
+              {aiResponse ? (
+                <Card className="w-full bg-white border-none shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] rounded-[2.5rem] p-10 animate-in zoom-in-95 fade-in duration-500">
+                   <CardHeader className="p-0 mb-6">
+                      <div className="flex items-center gap-3 text-primary mb-2">
+                        <BrainCircuit className="h-8 w-8" />
+                        <CardTitle className="text-2xl font-bold">Concept Explained.</CardTitle>
+                      </div>
+                      <p className="text-sm font-black uppercase tracking-widest text-muted-foreground">Topic: {aiTopic}</p>
+                   </CardHeader>
+                   <CardContent className="p-0 space-y-6">
+                      <div className="bg-primary/5 p-6 rounded-2xl border border-primary/5 text-lg leading-relaxed italic text-primary font-medium">
+                        "{aiResponse.explanation}"
+                      </div>
+                      <div className="space-y-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Key Takeaways</p>
+                        <div className="grid grid-cols-1 gap-2">
+                          {aiResponse.keyPoints.map((pt: string, i: number) => (
+                            <div key={i} className="flex items-center gap-3 text-sm font-bold bg-secondary/20 p-3 rounded-xl">
+                              <div className="h-2 w-2 rounded-full bg-accent" />
+                              {pt}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <Button variant="ghost" className="w-full h-12 rounded-xl text-primary font-bold hover:bg-primary/5" onClick={() => setAiResponse(null)}>
+                        Clear & Try Another
+                      </Button>
+                   </CardContent>
+                </Card>
+              ) : (
+                <div className="text-center space-y-8 group/placeholder">
+                   <div className="h-32 w-32 bg-primary/10 rounded-full flex items-center justify-center mx-auto shadow-inner relative group-hover/lab:scale-110 transition-transform duration-500">
+                      <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary/20 animate-spin-slow" />
+                      <Sparkles className="h-14 w-14 text-primary animate-pulse" />
+                   </div>
+                   <div className="space-y-3">
+                     <p className="text-2xl font-headline font-bold text-primary/40">Enter a concept to start learning.</p>
+                     <p className="text-sm text-muted-foreground font-medium max-w-xs mx-auto">Our AI understands the specific NIT Srinagar syllabus and simplifies it just for you.</p>
+                   </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Department Quick Pick */}
-      <section className="container mx-auto px-4 space-y-10 mt-8">
+      <section className="container mx-auto px-4 space-y-10">
         <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 border-b border-primary/10 pb-8">
           <div className="space-y-2">
             <h2 className="text-3xl font-headline font-bold tracking-tight">Academic Vaults</h2>
