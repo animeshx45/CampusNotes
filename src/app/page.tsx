@@ -7,11 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BRANCHES } from '@/lib/mock-data';
-import { DEPARTMENT_REPRESENTATIVES } from '@/lib/department-data';
 import { 
   Search, BookOpen, Users, ArrowRight, GraduationCap, 
   FileText, Download, Code, Cpu, Hammer, Droplets, Zap, Beaker, Building2, Microscope, Heart,
-  Linkedin, Mail, Sparkles, BrainCircuit, Rocket, Loader2
+  Sparkles, BrainCircuit, Rocket, Loader2
 } from 'lucide-react';
 import Image from 'next/image';
 import {
@@ -281,58 +280,6 @@ export default function Home() {
                    </div>
                 </div>
               )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Mentors Section - Community Guidance */}
-      <section className="bg-primary/5 py-24 border-y border-primary/10 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
-          <div className="absolute top-20 left-10 h-64 w-64 rounded-full bg-primary blur-[100px]" />
-          <div className="absolute bottom-20 right-10 h-64 w-64 rounded-full bg-accent blur-[100px]" />
-        </div>
-        
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row gap-20 items-center">
-            <div className="lg:w-1/3 space-y-8">
-              <Badge className="bg-accent text-accent-foreground px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest">Academic Mentors</Badge>
-              <h2 className="text-4xl md:text-5xl font-headline font-bold tracking-tight text-primary leading-tight">Branch-Wise <br /><span className="text-foreground">Support.</span></h2>
-              <p className="text-lg text-muted-foreground font-medium leading-relaxed max-w-lg">
-                Connect with departmental representatives across all engineering branches. Get specific guidance from those who've mastered your curriculum.
-              </p>
-              <Button asChild size="lg" className="rounded-2xl px-10 h-14 font-black text-lg shadow-2xl shadow-primary/20 hover:scale-105 transition-all">
-                <Link href="/about">See Full Directory</Link>
-              </Button>
-            </div>
-            
-            <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[600px] overflow-y-auto pr-4 scrollbar-hide">
-              {DEPARTMENT_REPRESENTATIVES.map((rep, idx) => (
-                <Card key={idx} className="rounded-[2rem] border-primary/5 hover:border-primary/20 transition-all bg-card shadow-lg hover:shadow-2xl group overflow-hidden">
-                  <CardContent className="p-8 flex items-center gap-6">
-                    <div className="relative h-20 w-20 rounded-2xl overflow-hidden shrink-0 shadow-inner">
-                      <Image 
-                        src={rep.imageUrl} 
-                        alt={rep.name} 
-                        fill 
-                        className="object-cover group-hover:scale-110 transition-transform duration-500" 
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <h4 className="font-bold text-lg text-primary">{rep.name}</h4>
-                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">{rep.branch}</p>
-                      <div className="flex gap-3 pt-2">
-                        <a href={rep.linkedin} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                          <Linkedin className="h-4 w-4" />
-                        </a>
-                        <a href={`mailto:${rep.email}`} className="text-muted-foreground hover:text-accent transition-colors">
-                          <Mail className="h-4 w-4" />
-                        </a>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
             </div>
           </div>
         </div>
