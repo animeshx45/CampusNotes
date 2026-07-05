@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { BRANCHES, MOCK_MATERIALS, SEMESTERS } from '@/lib/mock-data';
 import { StudyMaterial } from '@/lib/types';
@@ -24,6 +24,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 const BRANCH_SLIDES: Record<string, { url: string; title: string; hint: string }[]> = {
   'all': [
@@ -73,6 +74,10 @@ export default function BrowsePage() {
   const [selectedSemester, setSelectedSemester] = useState<string>(searchParams.get('semester') || 'all');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
 
+  const autoplayPlugin = useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: true })
+  );
+
   const materialQuery = useMemoFirebase(() => {
     if (!db) return null;
     return query(collection(db, 'studyMaterials'));
@@ -108,6 +113,7 @@ export default function BrowsePage() {
       <section className="relative h-[400px] w-full overflow-hidden">
         <Carousel 
           className="w-full h-full"
+          plugins={[autoplayPlugin.current]}
           opts={{ loop: true }}
         >
           <CarouselContent className="h-[400px] -ml-0">

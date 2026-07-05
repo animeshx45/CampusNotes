@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -19,6 +19,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 const BRANCH_ICONS: Record<string, any> = {
   'Information Technology': Code,
@@ -66,6 +67,9 @@ const HERO_SLIDES = [
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
+  const autoplayPlugin = useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: true })
+  );
 
   return (
     <div className="flex flex-col gap-12 pb-20">
@@ -73,6 +77,7 @@ export default function Home() {
       <section className="relative h-[60vh] min-h-[400px] overflow-hidden">
         <Carousel 
           className="w-full h-full"
+          plugins={[autoplayPlugin.current]}
           opts={{
             loop: true,
           }}
