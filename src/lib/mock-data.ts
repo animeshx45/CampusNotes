@@ -23,7 +23,10 @@ export const MATERIAL_TYPES: MaterialType[] = [
   'YouTube Playlist'
 ];
 
-// Helper to generate universal Sem 1 & 2 subjects for all branches
+/**
+ * Generates the common 1st year syllabus (Sem 1 & 2) for all branches.
+ * These are the same across all departments at NIT Srinagar.
+ */
 const generateFirstYearSyllabus = (): StudyMaterial[] => {
   const materials: StudyMaterial[] = [];
   const now = new Date().toISOString();
@@ -31,22 +34,22 @@ const generateFirstYearSyllabus = (): StudyMaterial[] => {
   BRANCHES.forEach(branch => {
     // --- SEMESTER 1 ---
     const sem1Common = [
-      { id: 'HSIR11', title: 'English for Communication (Theory + Lab)', desc: 'Academic English and communication skills.' },
-      { id: 'MAIR11', title: 'Matrices and Calculus', desc: 'Linear algebra and foundational calculus.' },
-      { id: 'CHIR11', title: 'Chemistry', desc: 'Engineering chemistry principles.' },
-      { id: 'EEIR11', title: 'Basics of Electrical & Electronics Engineering', desc: 'Intro to circuits and devices.' },
-      { id: 'MEIR12', title: 'Engineering Graphics', desc: 'Design principles and CAD basics.' },
-      { id: 'CHIR12', title: 'Chemistry Lab', desc: 'Practical chemical analysis.' }
+      { id: 'HSIR11', title: 'English for Communication', type: 'Note' },
+      { id: 'MAIR11', title: 'Matrices and Calculus', type: 'Note' },
+      { id: 'CHIR11', title: 'Chemistry', type: 'Note' },
+      { id: 'EEIR11', title: 'Basics of Electrical & Electronics Engineering', type: 'Note' },
+      { id: 'MEIR12', title: 'Engineering Graphics', type: 'Note' },
+      { id: 'CHIR12', title: 'Chemistry Lab', type: 'Lab Manual' }
     ];
 
     sem1Common.forEach(sub => {
       materials.push({
         id: `s1-${branch.toLowerCase().replace(/ /g, '-')}-${sub.id}`,
         title: `${sub.title} (${sub.id})`,
-        description: sub.desc,
+        description: `Common foundation course for first-year students.`,
         branch,
         semester: 1,
-        type: 'Note',
+        type: sub.type as MaterialType,
         fileUrl: '',
         author: 'NIT Srinagar Faculty',
         uploaderId: 'system',
@@ -57,41 +60,17 @@ const generateFirstYearSyllabus = (): StudyMaterial[] => {
       });
     });
 
-    // Sem 1 Branch Specific Intro
-    let introCourse = null;
-    if (branch === 'Chemical Engineering') introCourse = { id: 'CLIR15', title: 'Intro to Chemical Engineering' };
+    // Branch specific Intro for Sem 1
     if (branch === 'Civil Engineering') {
-      introCourse = { id: 'CEIR15', title: 'Intro to Civil Engineering' };
-      // Extra for CE
       materials.push({
         id: `s1-ce-meir11`,
         title: 'Basics of Mechanical Engineering (MEIR11)',
-        description: 'Fundamental mechanical concepts for civil engineers.',
+        description: 'Mechanical foundations for civil engineers.',
         branch: 'Civil Engineering',
         semester: 1,
         type: 'Note',
         fileUrl: '',
-        author: 'Mech Dept Faculty',
-        uploaderId: 'system',
-        downloadCount: 0,
-        views: 0,
-        status: 'approved',
-        createdAt: now
-      });
-    }
-    if (branch === 'Mechanical Engineering') introCourse = { id: 'MEIR15', title: 'Intro to Mechanical Engineering' };
-    if (branch === 'Metallurgical & Materials Engineering') introCourse = { id: 'MTIR15', title: 'Intro to Metallurgical & Materials Engineering' };
-
-    if (introCourse) {
-      materials.push({
-        id: `s1-${branch.toLowerCase().replace(/ /g, '-')}-${introCourse.id}`,
-        title: `${introCourse.title} (${introCourse.id})`,
-        description: `Introduction to the principles of ${branch}.`,
-        branch,
-        semester: 1,
-        type: 'Note',
-        fileUrl: '',
-        author: 'Department Faculty',
+        author: 'Dept of ME',
         uploaderId: 'system',
         downloadCount: 0,
         views: 0,
@@ -102,22 +81,22 @@ const generateFirstYearSyllabus = (): StudyMaterial[] => {
 
     // --- SEMESTER 2 ---
     const sem2Common = [
-      { id: 'MAIR21', title: 'Complex Analysis & Differential Equations', desc: 'Advanced math for engineering modeling.' },
-      { id: 'PHIR11', title: 'Physics', desc: 'Core engineering physics.' },
-      { id: 'CSIR12', title: 'Intro to Computer Programming (Theory + Lab)', desc: 'C Programming and logic building.' },
-      { id: 'ENIR11', title: 'Energy & Environmental Engineering', desc: 'Sustainability and energy systems.' },
-      { id: 'PRIR11', title: 'Engineering Practice', desc: 'Hands-on workshop skills.' },
-      { id: 'PHIR12', title: 'Physics Lab', desc: 'Physics experimental work.' }
+      { id: 'MAIR21', title: 'Complex Analysis & Differential Equations', type: 'Note' },
+      { id: 'PHIR11', title: 'Physics', type: 'Note' },
+      { id: 'CSIR12', title: 'Intro to Computer Programming', type: 'Note' },
+      { id: 'ENIR11', title: 'Energy & Environmental Engineering', type: 'Note' },
+      { id: 'PRIR11', title: 'Engineering Practice', type: 'Lab Manual' },
+      { id: 'PHIR12', title: 'Physics Lab', type: 'Lab Manual' }
     ];
 
     sem2Common.forEach(sub => {
       materials.push({
         id: `s2-${branch.toLowerCase().replace(/ /g, '-')}-${sub.id}`,
         title: `${sub.title} (${sub.id})`,
-        description: sub.desc,
+        description: `Foundation course for second semester students.`,
         branch,
         semester: 2,
-        type: 'Note',
+        type: sub.type as MaterialType,
         fileUrl: '',
         author: 'NIT Srinagar Faculty',
         uploaderId: 'system',
@@ -127,61 +106,20 @@ const generateFirstYearSyllabus = (): StudyMaterial[] => {
         createdAt: now
       });
     });
-
-    // Sem 2 Branch Specific
-    if (['Chemical Engineering', 'Mechanical Engineering', 'Metallurgical & Materials Engineering'].includes(branch)) {
-      materials.push({
-        id: `s2-${branch.toLowerCase().replace(/ /g, '-')}-ceir11`,
-        title: 'Basics of Civil Engineering (CEIR11)',
-        description: 'Fundamental civil engineering concepts for other branches.',
-        branch,
-        semester: 2,
-        type: 'Note',
-        fileUrl: '',
-        author: 'Civil Dept Faculty',
-        uploaderId: 'system',
-        downloadCount: 0,
-        views: 0,
-        status: 'approved',
-        createdAt: now
-      });
-    }
-
-    let coreCourse = null;
-    if (branch === 'Chemical Engineering') coreCourse = { id: 'CLPC11', title: 'Process Calculations' };
-    if (branch === 'Civil Engineering') coreCourse = { id: 'CEPC10', title: 'Engineering Mechanics' };
-    if (branch === 'Mechanical Engineering') coreCourse = { id: 'MEPC10', title: 'Engineering Mechanics' };
-    if (branch === 'Metallurgical & Materials Engineering') coreCourse = { id: 'MTPC11', title: 'Metallurgical Thermodynamics & Kinetics' };
-
-    if (coreCourse) {
-      materials.push({
-        id: `s2-${branch.toLowerCase().replace(/ /g, '-')}-${coreCourse.id}`,
-        title: `${coreCourse.title} (${coreCourse.id})`,
-        description: `Major core subject for ${branch}.`,
-        branch,
-        semester: 2,
-        type: 'Note',
-        fileUrl: '',
-        author: 'Department Faculty',
-        uploaderId: 'system',
-        downloadCount: 0,
-        views: 0,
-        status: 'approved',
-        createdAt: now
-      });
-    }
   });
 
   return materials;
 };
 
-// Chemical Engineering Syllabus (Sem 3-8)
-const generateChemicalEngineeringSyllabus = (): StudyMaterial[] => {
+/**
+ * Generates the Chemical Engineering syllabus for Sem 3-8.
+ */
+const generateChemicalSyllabus = (): StudyMaterial[] => {
   const materials: StudyMaterial[] = [];
   const now = new Date().toISOString();
   const branch = 'Chemical Engineering';
 
-  const chemicalSyllabus = [
+  const subjects = [
     // Sem 3
     { sem: 3, id: 'CET-201', title: 'Introduction to Chemical Engineering' },
     { sem: 3, id: 'CET-202', title: 'Material and Energy Balance' },
@@ -198,46 +136,35 @@ const generateChemicalEngineeringSyllabus = (): StudyMaterial[] => {
     { sem: 4, id: 'CET-254', title: 'Process Instrumentation' },
     { sem: 4, id: 'MAT-250', title: 'Chemical Engineering Mathematics-II' },
     { sem: 4, id: 'CEL-255', title: 'Fluid Mechanics & Mechanical Operations Lab' },
-    { sem: 4, id: 'ECL-256', title: 'Basic Electronics Engineering Lab' },
     // Sem 5
     { sem: 5, id: 'CET-305', title: 'Process Equipment Design-I' },
     { sem: 5, id: 'CET-306', title: 'Chemical Reaction Engineering' },
     { sem: 5, id: 'CET-307', title: 'Mass Transfer-I' },
     { sem: 5, id: 'CET-308', title: 'Chemical Technology-I' },
-    { sem: 5, id: 'HST-309', title: 'Basic Management Principles' },
-    { sem: 5, id: 'MAT-310', title: 'Numerical Methods' },
-    { sem: 5, id: 'CEL-311', title: 'Heat Transfer Lab' },
-    { sem: 5, id: 'CEL-312', title: 'Computer Simulation Lab' },
     // Sem 6
     { sem: 6, id: 'CET-355', title: 'Process Equipment Design-II' },
     { sem: 6, id: 'CET-356', title: 'Mass Transfer-II' },
     { sem: 6, id: 'CET-357', title: 'Chemical Technology-II' },
     { sem: 6, id: 'CET-358', title: 'Energy Technology' },
-    { sem: 6, id: 'CET-359', title: 'Chemical Process Safety' },
     { sem: 6, id: 'CET-360', title: 'Transport Phenomena' },
-    { sem: 6, id: 'CEL-361', title: 'Energy Technology Lab' },
-    { sem: 6, id: 'CEL-362', title: 'Thermodynamics & Reaction Engineering Lab' },
     // Sem 7
     { sem: 7, id: 'CET-415', title: 'Process Dynamics & Control' },
     { sem: 7, id: 'CET-416', title: 'Process Economics & Plant Design' },
     { sem: 7, id: 'CET-417', title: 'Biochemical Engineering' },
-    { sem: 7, id: 'CEL-418', title: 'Process Dynamics & Control Lab' },
-    { sem: 7, id: 'CEL-419', title: 'Mass Transfer Lab' },
     // Sem 8
     { sem: 8, id: 'CET-465', title: 'Bioresource Technology' },
-    { sem: 8, id: 'CEL-466', title: 'Biochemical Engineering Lab' },
-    { sem: 8, id: 'CET-467', title: 'Modeling & Simulation of Chemical Process Systems' },
+    { sem: 8, id: 'CET-467', title: 'Modeling & Simulation of Chemical Systems' },
     { sem: 8, id: 'CET-468', title: 'Industrial Pollution Abatement' },
   ];
 
-  chemicalSyllabus.forEach(item => {
+  subjects.forEach(sub => {
     materials.push({
-      id: `chem-${item.sem}-${item.id.toLowerCase()}`,
-      title: `${item.title} (${item.id})`,
-      description: `Core academic resource for Chemical Engineering students in semester ${item.sem}.`,
+      id: `chem-${sub.sem}-${sub.id.toLowerCase()}`,
+      title: `${sub.title} (${sub.id})`,
+      description: `Academic course for Chemical Engineering, Semester ${sub.sem}.`,
       branch,
-      semester: item.sem as Semester,
-      type: item.id.includes('L-') ? 'Lab Manual' : 'Note',
+      semester: sub.sem as Semester,
+      type: sub.id.startsWith('CEL') ? 'Lab Manual' : 'Note',
       fileUrl: '',
       author: 'Dept of Chemical Engineering',
       uploaderId: 'system',
@@ -251,68 +178,67 @@ const generateChemicalEngineeringSyllabus = (): StudyMaterial[] => {
   return materials;
 };
 
+/**
+ * Generates the IT and CSE syllabus for Sem 3-8.
+ */
+const generateITCSESyllabus = (): StudyMaterial[] => {
+  const materials: StudyMaterial[] = [];
+  const now = new Date().toISOString();
+
+  const branches: Branch[] = ['Information Technology', 'Computer Science & Engineering'];
+
+  branches.forEach(branch => {
+    const subjects = [
+      // Sem 3
+      { sem: 3, id: 'CST201', title: 'Data Structures' },
+      { sem: 3, id: 'CST202', title: 'Discrete Mathematics' },
+      { sem: 3, id: 'CST203', title: 'Object Oriented Programming' },
+      // Sem 4
+      { sem: 4, id: 'CST251', title: 'Database Management Systems' },
+      { sem: 4, id: 'CST252', title: 'Theory of Computation' },
+      { sem: 4, id: 'CST253', title: 'Software Engineering' },
+      // Sem 5
+      { sem: 5, id: 'CST301', title: 'Operating Systems' },
+      { sem: 5, id: 'CST302', title: 'Design & Analysis of Algorithms' },
+      { sem: 5, id: 'CST303', title: 'Computer Organization' },
+      // Sem 6
+      { sem: 6, id: 'CST351', title: 'Computer Networks' },
+      { sem: 6, id: 'CST352', title: 'Artificial Intelligence' },
+      { sem: 6, id: 'CST353', title: 'Compiler Design' },
+      // Sem 7
+      { sem: 7, id: 'CST401', title: 'Cloud Computing' },
+      { sem: 7, id: 'CST402', title: 'Cyber Security' },
+      { sem: 7, id: 'CST403', title: 'Machine Learning' },
+      // Sem 8
+      { sem: 8, id: 'CST451', title: 'Big Data Analytics' },
+      { sem: 8, id: 'CST452', title: 'Internet of Things' },
+      { sem: 8, id: 'CST453', title: 'Neural Networks' },
+    ];
+
+    subjects.forEach(sub => {
+      materials.push({
+        id: `${branch.substring(0,2).toLowerCase()}-${sub.sem}-${sub.id.toLowerCase()}`,
+        title: `${sub.title} (${sub.id})`,
+        description: `Academic course for ${branch}, Semester ${sub.sem}.`,
+        branch,
+        semester: sub.sem as Semester,
+        type: 'Note',
+        fileUrl: '',
+        author: 'NIT Srinagar Faculty',
+        uploaderId: 'system',
+        downloadCount: 0,
+        views: 0,
+        status: 'approved',
+        createdAt: now
+      });
+    });
+  });
+
+  return materials;
+};
+
 export const MOCK_MATERIALS: StudyMaterial[] = [
   ...generateFirstYearSyllabus(),
-  ...generateChemicalEngineeringSyllabus(),
-  // IT & CSE Core Subjects (Sem 3-8)
-  {
-    id: 'it-s3-oop',
-    title: 'Object Oriented Programming (CST201)',
-    description: 'Classes, Objects, Inheritance and Polymorphism in C++.',
-    branch: 'Information Technology',
-    semester: 3,
-    type: 'YouTube Playlist',
-    fileUrl: 'https://www.youtube.com/playlist?list=PLVlQjwv71P1W5_0nreD9_9H1Gk8nJ6i9f',
-    author: 'Saurabh Shukla',
-    uploaderId: 'system',
-    downloadCount: 450,
-    views: 1200,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'it-s4-dbms',
-    title: 'Database Management Systems (CST250)',
-    description: 'SQL, Normalization, and Transaction Control.',
-    branch: 'Information Technology',
-    semester: 4,
-    type: 'YouTube Playlist',
-    fileUrl: 'https://www.youtube.com/playlist?list=PLxCzCOWd7aiFAN6I8KuIsVinqnKVn67p-',
-    author: 'Gate Smashers',
-    uploaderId: 'system',
-    downloadCount: 1500,
-    views: 4200,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'cse-s5-os',
-    title: 'Operating Systems (CST302)',
-    description: 'Process management, Memory management, and File systems.',
-    branch: 'Computer Science & Engineering',
-    semester: 5,
-    type: 'YouTube Playlist',
-    fileUrl: 'https://www.youtube.com/playlist?list=PLxCzCOWd7aiGz9donxtWsi5OzBn690wz-',
-    author: 'Gate Smashers',
-    uploaderId: 'system',
-    downloadCount: 900,
-    views: 2800,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'it-s6-ai',
-    title: 'Artificial Intelligence (CST351)',
-    description: 'Search algorithms, Knowledge representation, and Intro to ML.',
-    branch: 'Information Technology',
-    semester: 6,
-    type: 'YouTube Playlist',
-    fileUrl: 'https://www.youtube.com/playlist?list=PLxCzCOWd7aiHGhOHV-nwb0HR5n5hlFi7j',
-    author: 'Gate Smashers',
-    uploaderId: 'system',
-    downloadCount: 300,
-    views: 1100,
-    status: 'approved',
-    createdAt: new Date().toISOString()
-  }
+  ...generateChemicalSyllabus(),
+  ...generateITCSESyllabus()
 ];
