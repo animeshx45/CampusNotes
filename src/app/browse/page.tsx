@@ -124,23 +124,23 @@ export default function BrowsePage() {
                     src={slide.url} 
                     alt={slide.title}
                     fill
-                    className="object-cover opacity-85 brightness-[0.8]"
+                    className="object-cover opacity-95 brightness-110"
                     priority={index === 0}
                     data-ai-hint={slide.hint}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-background/30 via-transparent to-transparent" />
                   
                   <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-end pb-20 space-y-6">
-                    <Badge className="bg-primary text-white w-fit rounded-full px-5 py-1.5 animate-in fade-in slide-in-from-left-4 duration-500 font-black tracking-widest text-[11px]">
+                    <Badge className="bg-primary text-white w-fit rounded-full px-5 py-1.5 animate-in fade-in slide-in-from-left-4 duration-500 font-black tracking-widest text-[11px] shadow-lg">
                       {selectedBranch === 'all' ? 'CENTRAL REPOSITORY' : 'BRANCH RESOURCES'}
                     </Badge>
                     <div className="space-y-2">
-                      <h1 className="text-6xl md:text-8xl font-headline font-bold text-white tracking-tighter animate-in fade-in slide-in-from-left-6 duration-700 leading-none">
+                      <h1 className="text-6xl md:text-8xl font-headline font-bold text-white tracking-tighter animate-in fade-in slide-in-from-left-6 duration-700 leading-none drop-shadow-2xl">
                         {selectedBranch === 'all' ? 'Knowledge Hub.' : `${selectedBranch}.`}
                       </h1>
-                      <p className="text-white/80 text-2xl max-w-2xl font-medium animate-in fade-in slide-in-from-left-8 duration-1000 leading-relaxed">
-                        Explore {filteredMaterials.length} academic resources specifically curated for your branch and semester.
+                      <p className="text-white text-2xl max-w-2xl font-medium animate-in fade-in slide-in-from-left-8 duration-1000 leading-relaxed drop-shadow-md">
+                        Explore academic resources specifically curated for your branch and semester.
                       </p>
                     </div>
                   </div>
@@ -149,8 +149,8 @@ export default function BrowsePage() {
             ))}
           </CarouselContent>
           <div className="absolute bottom-10 right-10 flex gap-3 z-20">
-            <CarouselPrevious className="relative left-0 translate-y-0 h-12 w-12 bg-white/10 backdrop-blur-md hover:bg-primary hover:text-white border-white/20 rounded-2xl transition-all" />
-            <CarouselNext className="relative right-0 translate-y-0 h-12 w-12 bg-white/10 backdrop-blur-md hover:bg-primary hover:text-white border-white/20 rounded-2xl transition-all" />
+            <CarouselPrevious className="relative left-0 translate-y-0 h-12 w-12 bg-white/20 backdrop-blur-md hover:bg-primary hover:text-white border-white/30 rounded-2xl transition-all" />
+            <CarouselNext className="relative right-0 translate-y-0 h-12 w-12 bg-white/20 backdrop-blur-md hover:bg-primary hover:text-white border-white/30 rounded-2xl transition-all" />
           </div>
         </Carousel>
       </section>
