@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useMemo } from 'react';
@@ -87,10 +86,10 @@ export default function Home() {
       { img: getImg('cse-dept-official'), title: 'CSE Dept.', quote: 'Coding and Computer Science notes.' },
       { img: getImg('ee-dept-official'), title: 'Electrical Dept.', quote: 'Electrical Engineering exam prep.' },
       { img: getImg('ece-dept-official'), title: 'ECE Dept.', quote: 'Signals, Systems, and Electronics.' },
-      { img: getImg('mech-dept-official'), title: 'Mechanical Dept.', quote: 'Mechanics and Design materials.' },
-      { img: getImg('civil-dept-official'), title: 'Civil Dept.', quote: 'Structural and Surveying notes.' },
-      { img: getImg('chem-dept-official'), title: 'Chemical Dept.', quote: 'Process and Chemistry resources.' },
-      { img: getImg('meta-dept-official'), title: 'Metallurgy Dept.', quote: 'Material Science study aids.' },
+      { img: getImg('mech-dept-official'), title: 'Mechanical Dept.', quote: 'Mechanical engineering study materials.' },
+      { img: getImg('civil-dept-official'), title: 'Civil Dept.', quote: 'Civil engineering notes and papers.' },
+      { img: getImg('chem-dept-official'), title: 'Chemical Dept.', quote: 'Chemical engineering notes and papers.' },
+      { img: getImg('meta-dept-official'), title: 'Metallurgy Dept.', quote: 'Material science study aids.' },
     ];
   }, []);
 
