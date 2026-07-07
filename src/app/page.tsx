@@ -358,40 +358,40 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Community Section */}
-      <section className="container mx-auto px-4 pt-24 md:pt-40 pb-20 md:pb-32">
-        <div className="relative rounded-[3rem] md:rounded-[6rem] overflow-hidden bg-white/5 backdrop-blur-3xl border border-white/10 group/cta shadow-3xl">
+      {/* Community Section - Reverted to reasonable size */}
+      <section className="container mx-auto px-4 pt-16 md:pt-24 pb-20 md:pb-24">
+        <div className="relative rounded-[2.5rem] md:rounded-[4rem] overflow-hidden bg-white/5 backdrop-blur-3xl border border-white/10 group/cta shadow-3xl">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(22,163,74,0.2),transparent_70%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(45,185,116,0.15),transparent_70%)]" />
           
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-24 p-10 md:p-32 items-center">
-            <div className="space-y-10 md:space-y-14 text-center lg:text-left">
-              <div className="space-y-6 md:space-y-8">
-                <Badge className="bg-primary/10 text-primary border border-white/10 backdrop-blur-xl rounded-full px-6 py-2 font-black tracking-widest text-[10px] md:text-[11px]">HELP YOUR FRIENDS</Badge>
-                <h2 className="text-5xl md:text-8xl lg:text-9xl font-headline font-bold tracking-tighter text-white leading-[0.85]">
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 p-8 md:p-20 items-center">
+            <div className="space-y-8 md:space-y-10 text-center lg:text-left">
+              <div className="space-y-4 md:space-y-6">
+                <Badge className="bg-primary/10 text-primary border border-white/10 backdrop-blur-xl rounded-full px-5 py-1.5 font-black tracking-widest text-[10px]">HELP YOUR FRIENDS</Badge>
+                <h2 className="text-4xl md:text-6xl lg:text-7xl font-headline font-bold tracking-tighter text-white leading-[0.95]">
                   Share and <br />Help <span className="text-primary italic">Others.</span>
                 </h2>
-                <p className="text-xl md:text-3xl text-muted-foreground font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed opacity-90">
+                <p className="text-lg md:text-xl text-muted-foreground font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed opacity-90">
                   Join NIT Srinagar's fastest-growing student community sharing resources for every exam.
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-6 md:gap-8 justify-center lg:justify-start">
-                <Button asChild size="lg" className="h-18 md:h-24 rounded-2xl md:rounded-[2rem] px-10 md:px-16 font-black text-xl md:text-2xl shadow-2xl bg-primary/95 hover:bg-primary backdrop-blur-xl border border-white/20 transition-all hover:scale-105 active:scale-95 group/btn w-full sm:w-auto">
-                  <Link href="/upload" className="flex items-center justify-center gap-4">
-                    Start Sharing <Share2 className="h-6 w-6 md:h-8 md:w-8 group-hover/btn:rotate-12 transition-transform duration-500" />
+              <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center lg:justify-start">
+                <Button asChild size="lg" className="h-14 md:h-16 rounded-xl md:rounded-2xl px-8 md:px-12 font-black text-lg md:text-xl shadow-2xl bg-primary/95 hover:bg-primary backdrop-blur-xl border border-white/20 transition-all hover:scale-105 active:scale-95 group/btn w-full sm:w-auto">
+                  <Link href="/upload" className="flex items-center justify-center gap-3">
+                    Start Sharing <Share2 className="h-5 w-5 md:h-6 md:w-6 group-hover/btn:rotate-12 transition-transform duration-500" />
                   </Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="h-18 md:h-24 rounded-2xl md:rounded-[2rem] px-10 md:px-16 font-black text-xl md:text-2xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-all hover:scale-105 active:scale-95 group/btn2 w-full sm:w-auto shadow-xl">
-                  <Link href="/forum" className="flex items-center justify-center gap-4">
-                    Join Chat <MessageCircle className="h-6 w-6 md:h-8 md:w-8 group-hover/btn2:-translate-y-2 transition-transform duration-500" />
+                <Button asChild size="lg" variant="outline" className="h-14 md:h-16 rounded-xl md:rounded-2xl px-8 md:px-12 font-black text-lg md:text-xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-all hover:scale-105 active:scale-95 group/btn2 w-full sm:w-auto shadow-xl">
+                  <Link href="/forum" className="flex items-center justify-center gap-3">
+                    Join Chat <MessageCircle className="h-5 w-5 md:h-6 md:w-6 group-hover/btn2:-translate-y-2 transition-transform duration-500" />
                   </Link>
                 </Button>
               </div>
             </div>
 
             {/* Benefit Cards */}
-            <div className="grid grid-cols-2 gap-6 md:gap-10 relative pt-12 lg:pt-0">
+            <div className="grid grid-cols-2 gap-4 md:gap-8 relative pt-8 lg:pt-0">
               {[
                 { title: 'Study Hub', desc: 'All 8 branches covered.', icon: GraduationCap, color: 'text-primary' },
                 { title: 'Verified', desc: 'Notes from top seniors.', icon: ShieldCheck, color: 'text-accent' },
@@ -399,17 +399,17 @@ export default function Home() {
                 { title: 'Support', desc: 'By students, for students.', icon: Heart, color: 'text-accent' },
               ].map((benefit, i) => (
                 <Card key={i} className={cn(
-                  "bg-white/5 backdrop-blur-3xl border border-white/10 p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] hover:-translate-y-4 transition-all duration-700 shadow-2xl group/card gpu-smooth",
-                  i % 2 !== 0 ? "translate-y-10 md:translate-y-16 hover:translate-y-6 md:hover:translate-y-12" : ""
+                  "bg-white/5 backdrop-blur-3xl border border-white/10 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] hover:-translate-y-2 transition-all duration-700 shadow-2xl group/card gpu-smooth",
+                  i % 2 !== 0 ? "translate-y-6 md:translate-y-12 hover:translate-y-4 md:hover:translate-y-10" : ""
                 )}>
                   <div className={cn(
-                    "h-12 w-12 md:h-16 md:w-16 rounded-2xl flex items-center justify-center mb-4 md:mb-6 group-hover/card:bg-foreground group-hover/card:text-background transition-all duration-500 border border-white/5 shadow-inner",
+                    "h-10 w-10 md:h-14 md:w-14 rounded-xl md:rounded-2xl flex items-center justify-center mb-3 md:mb-4 group-hover/card:bg-foreground group-hover/card:text-background transition-all duration-500 border border-white/5 shadow-inner",
                     benefit.color === 'text-primary' ? 'bg-primary/10 text-primary' : 'bg-accent/10 text-accent'
                   )}>
-                    <benefit.icon className="h-6 w-6 md:h-8 md:w-8" />
+                    <benefit.icon className="h-5 w-5 md:h-7 md:w-7" />
                   </div>
-                  <h3 className="text-lg md:text-2xl font-bold mb-2 text-white">{benefit.title}</h3>
-                  <p className="text-xs md:text-sm text-muted-foreground font-medium leading-relaxed">{benefit.desc}</p>
+                  <h3 className="text-base md:text-xl font-bold mb-1 text-white">{benefit.title}</h3>
+                  <p className="text-[10px] md:text-xs text-muted-foreground font-medium leading-relaxed">{benefit.desc}</p>
                 </Card>
               ))}
             </div>
