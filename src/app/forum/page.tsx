@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useUser, useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,12 +20,11 @@ import { BRANCHES } from '@/lib/mock-data';
 import Link from 'next/link';
 
 export default function ForumPage() {
-  const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newPost, setNewPost] = useState({ title: '', content: '', branch: 'Information Technology' as any });
+  const [newPost, setNewPost] = useState({ title: '', content: '', author: '', branch: 'Information Technology' as any });
   const [searchQuery, setSearchQuery] = useState('');
 
   const forumQuery = useMemoFirebase(() => {
@@ -36,13 +35,8 @@ export default function ForumPage() {
   const { data: posts, isLoading } = useCollection<ForumPost>(forumQuery);
 
   const handleCreatePost = () => {
-    if (!user) {
-      toast({ title: "Authentication Required", description: "Please log in to start a discussion.", variant: "destructive" });
-      return;
-    }
-    
-    if (!newPost.title.trim() || !newPost.content.trim()) {
-      toast({ title: "Missing Information", description: "Please provide both a title and content.", variant: "destructive" });
+    if (!newPost.title.trim() || !newPost.content.trim() || !newPost.author.trim()) {
+      toast({ title: "Missing Information", description: "Please provide a name, title, and content.", variant: "destructive" });
       return;
     }
 
@@ -50,17 +44,15 @@ export default function ForumPage() {
       title: newPost.title,
       content: newPost.content,
       branch: newPost.branch,
-      authorId: user.uid,
-      authorName: user.displayName || 'Anonymous NITian',
+      authorId: 'public-user',
+      authorName: newPost.author,
       createdAt: serverTimestamp(),
     };
 
-    // Use non-blocking write for immediate UI response
     addDocumentNonBlocking(collection(db, 'forumPosts'), postData);
     
-    // Optimistically reset and close
     toast({ title: "Post Shared", description: "Your discussion thread has been created." });
-    setNewPost({ title: '', content: '', branch: 'Information Technology' });
+    setNewPost({ title: '', content: '', author: '', branch: 'Information Technology' });
     setIsDialogOpen(false);
   };
 
@@ -73,7 +65,7 @@ export default function ForumPage() {
     <div className="container mx-auto px-4 py-12 max-w-6xl animate-in fade-in duration-500">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16 border-b border-primary/10 pb-12">
         <div className="space-y-4">
-          <Badge className="bg-accent text-accent-foreground rounded-full px-4 py-1 font-black tracking-widest uppercase text-[10px]">Academic Discourse</Badge>
+          <Badge className="bg-accent text-accent-foreground rounded-full px-4 py-1 font-black tracking-widest uppercase text-[10px]">Public Discourse</Badge>
           <h1 className="text-5xl md:text-7xl font-headline font-bold text-primary tracking-tighter">Campus <br /><span className="text-foreground italic">Feed.</span></h1>
           <p className="text-muted-foreground text-xl max-w-md">Join the conversation. Ask anything, answer everything.</p>
         </div>
@@ -99,6 +91,15 @@ export default function ForumPage() {
                 <DialogTitle className="text-2xl font-headline font-bold">New Discussion Thread</DialogTitle>
               </DialogHeader>
               <div className="p-8 space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Your Name</label>
+                  <Input 
+                    placeholder="Enter your name" 
+                    value={newPost.author} 
+                    onChange={(e) => setNewPost({...newPost, author: e.target.value})} 
+                    className="rounded-xl h-12" 
+                  />
+                </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Title</label>
                   <Input 
@@ -165,10 +166,10 @@ export default function ForumPage() {
                   <CardFooter className="p-8 pt-0 flex items-center justify-between border-t border-primary/5 mt-4">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 bg-secondary rounded-full flex items-center justify-center text-primary font-bold shadow-inner uppercase">
-                        {post.authorName.charAt(0)}
+                        {post.authorName?.charAt(0) || 'A'}
                       </div>
                       <div>
-                        <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Author</p>
+                        <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Contributor</p>
                         <p className="text-sm font-bold">{post.authorName}</p>
                       </div>
                     </div>
@@ -199,7 +200,7 @@ export default function ForumPage() {
              </div>
              <CardHeader className="relative z-10 border-b border-white/10 pb-6">
                 <CardTitle className="font-headline font-bold text-xl flex items-center gap-2">
-                  <TrendingUp className="h-6 w-6 text-accent" /> Trending Topics
+                  <TrendingUp className="h-6 w-6 text-accent" /> Hot Topics
                 </CardTitle>
              </CardHeader>
              <CardContent className="p-8 relative z-10 space-y-6">
@@ -223,21 +224,21 @@ export default function ForumPage() {
           <Card className="rounded-[2.5rem] border-primary/5 shadow-xl bg-card overflow-hidden">
              <CardHeader className="bg-primary/5 p-8">
                 <CardTitle className="text-lg font-bold flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-primary" /> Guidelines
+                  <BookOpen className="h-5 w-5 text-primary" /> Forum Rules
                 </CardTitle>
              </CardHeader>
              <CardContent className="p-8 space-y-6">
                 <div className="space-y-1 text-sm">
-                   <p className="font-bold text-primary italic">1. Be Academic</p>
-                   <p className="text-muted-foreground">Keep discussions strictly related to course curricula.</p>
+                   <p className="font-bold text-primary italic">1. Academic Only</p>
+                   <p className="text-muted-foreground">Keep discussions related to NIT Srinagar courses.</p>
                 </div>
                 <div className="space-y-1 text-sm">
-                   <p className="font-bold text-primary italic">2. Respect Privacy</p>
-                   <p className="text-muted-foreground">Don't share private IDs or exam question papers during tests.</p>
+                   <p className="font-bold text-primary italic">2. Use Real Names</p>
+                   <p className="text-muted-foreground">For better academic trust, use your actual name.</p>
                 </div>
                 <div className="space-y-1 text-sm">
-                   <p className="font-bold text-primary italic">3. Helping Hands</p>
-                   <p className="text-muted-foreground">Contribute constructive answers to help juniors.</p>
+                   <p className="font-bold text-primary italic">3. Be Helpful</p>
+                   <p className="text-muted-foreground">Encourage and support juniors and fellow students.</p>
                 </div>
              </CardContent>
           </Card>

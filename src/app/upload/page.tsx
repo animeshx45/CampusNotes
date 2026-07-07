@@ -13,13 +13,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Upload, CheckCircle2, Loader2, Zap, GraduationCap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { materialService } from '@/services/material-service';
-import { useUser } from '@/firebase';
 import { Branch, MaterialType, Semester } from '@/lib/types';
 
 export default function UploadPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { user } = useUser();
   
   const [isUploading, setIsUploading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -44,8 +42,8 @@ export default function UploadPage() {
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.branch || !formData.title || !formData.description) {
-      toast({ title: "Wait!", description: "Please fill in all the details.", variant: "destructive" });
+    if (!formData.branch || !formData.title || !formData.description || !formData.author) {
+      toast({ title: "Wait!", description: "Please fill in all the details including your name.", variant: "destructive" });
       return;
     }
 
@@ -57,17 +55,14 @@ export default function UploadPage() {
     setIsUploading(true);
     
     try {
-      const uploaderId = user?.uid || 'anonymous';
-      const authorName = formData.author || user?.displayName || user?.email?.split('@')[0] || 'Anonymous';
-
       await materialService.uploadMaterial({
         title: formData.title,
         description: formData.description,
         branch: formData.branch,
         semester: formData.semester,
         type: formData.type,
-        author: authorName,
-        uploaderId: uploaderId,
+        author: formData.author,
+        uploaderId: 'public-user',
         fileUrl: formData.type === 'YouTube Playlist' ? formData.fileUrl : 'https://placehold.co/600x400/064e3b/ffffff?text=Study+Notes',
         status: 'approved',
         createdAt: new Date().toISOString()
@@ -113,7 +108,7 @@ export default function UploadPage() {
       <div className="text-center space-y-4 mb-12">
         <h1 className="text-4xl md:text-6xl font-bold text-primary">Share Your <span className="text-foreground">Notes</span></h1>
         <p className="text-muted-foreground text-sm md:text-lg max-w-2xl mx-auto font-medium">
-          Help your fellow students at NIT Srinagar. A single share can help hundreds of people!
+          Help your fellow students at NIT Srinagar. No account needed!
         </p>
       </div>
 
@@ -122,37 +117,38 @@ export default function UploadPage() {
            <div className="absolute -top-10 -right-10 p-8 opacity-10">
               <GraduationCap className="h-48 w-48" />
            </div>
-           <CardTitle className="text-2xl relative z-10 font-bold">Tell us about your notes</CardTitle>
+           <CardTitle className="text-2xl relative z-10 font-bold">Resource Details</CardTitle>
            <CardDescription className="text-primary-foreground/80 relative z-10 font-medium">Add some simple details so others can find your work easily.</CardDescription>
         </CardHeader>
         <CardContent className="p-8">
           <form onSubmit={handleUpload} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-xs font-bold uppercase tracking-wide">Title</Label>
+                <Label htmlFor="title" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Title</Label>
                 <Input 
                   id="title" 
                   placeholder="e.g. Physics Mid-Sem Notes" 
                   value={formData.title}
                   onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  className="rounded-xl h-12"
+                  className="rounded-xl h-12 bg-secondary/20 border-none shadow-inner"
                   required 
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="author" className="text-xs font-bold uppercase tracking-wide">Your Name (Optional)</Label>
+                <Label htmlFor="author" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Contributor Name</Label>
                 <Input 
                   id="author" 
-                  placeholder="Your Name" 
+                  placeholder="Your Name (e.g. Animesh Kumar)" 
                   value={formData.author}
                   onChange={(e) => setFormData({...formData, author: e.target.value})}
-                  className="rounded-xl h-12"
+                  className="rounded-xl h-12 bg-secondary/20 border-none shadow-inner"
+                  required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="branch" className="text-xs font-bold uppercase tracking-wide">Department</Label>
+                <Label htmlFor="branch" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Department</Label>
                 <Select onValueChange={(v) => setFormData({...formData, branch: v as Branch})} required>
-                  <SelectTrigger id="branch" className="rounded-xl h-12">
+                  <SelectTrigger id="branch" className="rounded-xl h-12 bg-secondary/20 border-none shadow-inner">
                     <SelectValue placeholder="Which branch?" />
                   </SelectTrigger>
                   <SelectContent>
@@ -161,9 +157,9 @@ export default function UploadPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="semester" className="text-xs font-bold uppercase tracking-wide">Semester</Label>
+                <Label htmlFor="semester" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Semester</Label>
                 <Select onValueChange={(v) => setFormData({...formData, semester: parseInt(v) as Semester})} required>
-                  <SelectTrigger id="semester" className="rounded-xl h-12">
+                  <SelectTrigger id="semester" className="rounded-xl h-12 bg-secondary/20 border-none shadow-inner">
                     <SelectValue placeholder="Which semester?" />
                   </SelectTrigger>
                   <SelectContent>
@@ -174,9 +170,9 @@ export default function UploadPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="type" className="text-xs font-bold uppercase tracking-wide">Note Type</Label>
+              <Label htmlFor="type" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Note Type</Label>
               <Select onValueChange={(v) => setFormData({...formData, type: v as MaterialType})} defaultValue="Note">
-                <SelectTrigger id="type" className="rounded-xl h-12">
+                <SelectTrigger id="type" className="rounded-xl h-12 bg-secondary/20 border-none shadow-inner">
                   <SelectValue placeholder="What is this?" />
                 </SelectTrigger>
                 <SelectContent>
@@ -191,11 +187,11 @@ export default function UploadPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-xs font-bold uppercase tracking-wide">Brief Description</Label>
+              <Label htmlFor="description" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Brief Description</Label>
               <Textarea 
                 id="description" 
                 placeholder="What is inside this file?"
-                className="min-h-[120px] rounded-xl p-4"
+                className="min-h-[120px] rounded-xl p-4 bg-secondary/20 border-none shadow-inner"
                 value={formData.description}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
                 required
@@ -203,7 +199,7 @@ export default function UploadPage() {
             </div>
 
             <div className="space-y-4">
-              <Label className="text-xs font-bold uppercase tracking-wide">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                 {formData.type === 'YouTube Playlist' ? 'Link to Video' : 'Pick Your File'}
               </Label>
               {formData.type === 'YouTube Playlist' ? (
@@ -211,11 +207,11 @@ export default function UploadPage() {
                   placeholder="https://www.youtube.com/..." 
                   value={formData.fileUrl}
                   onChange={(e) => setFormData({...formData, fileUrl: e.target.value})}
-                  className="rounded-xl h-12"
+                  className="rounded-xl h-12 bg-secondary/20 border-none shadow-inner"
                   required
                 />
               ) : (
-                <div className="relative border-2 border-dashed rounded-2xl p-10 text-center hover:border-primary transition-colors group cursor-pointer">
+                <div className="relative border-2 border-dashed rounded-2xl p-10 text-center hover:border-primary transition-colors group cursor-pointer bg-secondary/5">
                   <input 
                     type="file" 
                     className="absolute inset-0 opacity-0 cursor-pointer" 
@@ -231,15 +227,15 @@ export default function UploadPage() {
               )}
             </div>
 
-            <Button type="submit" className="w-full h-16 rounded-xl text-lg font-bold shadow-lg" disabled={isUploading}>
+            <Button type="submit" className="w-full h-16 rounded-xl text-lg font-black bg-primary shadow-xl hover:scale-[1.02] transition-transform" disabled={isUploading}>
               {isUploading ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Sharing...
+                  Syncing Knowledge...
                 </>
               ) : (
                 <>
-                  Share Notes with Friends <Zap className="ml-2 h-5 w-5" />
+                  Publish for Everyone <Zap className="ml-2 h-5 w-5" />
                 </>
               )}
             </Button>

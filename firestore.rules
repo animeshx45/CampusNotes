@@ -2,44 +2,35 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper functions
-    function isSignedIn() {
-      return request.auth != null;
-    }
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-    function getUserData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
-    }
-
+    // Public Access Rules for CampusNotes
+    
     match /users/{userId} {
       allow read: if true;
-      allow write: if isOwner(userId);
+      allow write: if false; // Auth removed, writing users is no longer supported
     }
 
     match /studyMaterials/{id} {
       allow read: if true;
-      allow create: if isSignedIn();
+      allow create: if true; // Public uploads enabled
       allow update: if true;
-      allow delete: if isSignedIn() && (resource.data.uploaderId == request.auth.uid || getUserData().role == 'admin');
+      allow delete: if false; // Prevent public deletion
     }
     
     match /forumPosts/{id} {
       allow read: if true;
-      allow create: if isSignedIn();
-      allow delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || getUserData().role == 'admin');
+      allow create: if true; // Public discussions enabled
+      allow delete: if false;
 
       match /replies/{replyId} {
         allow read: if true;
-        allow create: if isSignedIn();
-        allow delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || getUserData().role == 'admin');
+        allow create: if true; // Public replies enabled
+        allow delete: if false;
       }
     }
     
     match /notifications/{id} {
       allow read: if true;
-      allow write: if isSignedIn() && getUserData().role == 'admin';
+      allow write: if false;
     }
   }
 }

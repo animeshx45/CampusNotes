@@ -1,29 +1,28 @@
 
 "use client";
 
-import { useState, use, useMemo } from 'react';
-import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { useState, use } from 'react';
+import { useFirestore, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { 
   ArrowLeft, Send, MessageSquare, Clock, Hash, 
-  User, Loader2, Sparkles, MoreVertical, ThumbsUp, Reply
+  Loader2, Sparkles, MoreVertical, ThumbsUp, Reply
 } from 'lucide-react';
 import { collection, query, orderBy, serverTimestamp, doc } from 'firebase/firestore';
 import { ForumPost, ForumReply } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function ForumThreadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
   
   const [replyContent, setReplyContent] = useState('');
+  const [replierName, setReplierName] = useState('');
 
   const postRef = useMemoFirebase(() => {
     if (!db || !id) return null;
@@ -41,22 +40,19 @@ export default function ForumThreadPage({ params }: { params: Promise<{ id: stri
 
   const handlePostReply = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast({ title: "Authentication Required", description: "Please log in to participate in the discussion.", variant: "destructive" });
+    if (!replyContent.trim() || !replierName.trim() || !id) {
+      toast({ title: "Name & Content Required", description: "Please enter your name and message to reply.", variant: "destructive" });
       return;
     }
-    
-    if (!replyContent.trim() || !id) return;
 
     const replyData = {
       postId: id,
       content: replyContent,
-      authorId: user.uid,
-      authorName: user.displayName || 'Anonymous NITian',
+      authorId: 'public-user',
+      authorName: replierName,
       createdAt: serverTimestamp(),
     };
 
-    // Non-blocking write for snappy interaction
     addDocumentNonBlocking(collection(db, 'forumPosts', id, 'replies'), replyData);
     
     setReplyContent('');
@@ -76,7 +72,7 @@ export default function ForumThreadPage({ params }: { params: Promise<{ id: stri
     return (
       <div className="container mx-auto py-40 text-center space-y-6">
         <h1 className="text-3xl font-bold">Post Not Found</h1>
-        <Button asChild rounded-xl><Link href="/forum">Back to Forum</Link></Button>
+        <Button asChild className="rounded-xl px-8"><Link href="/forum">Back to Forum</Link></Button>
       </div>
     );
   }
@@ -103,11 +99,11 @@ export default function ForumThreadPage({ params }: { params: Promise<{ id: stri
           
           <div className="flex items-center gap-4 py-4 border-y border-primary/5">
              <div className="h-12 w-12 bg-primary text-white rounded-full flex items-center justify-center font-bold text-xl uppercase shadow-lg">
-                {post.authorName.charAt(0)}
+                {post.authorName?.charAt(0) || 'A'}
              </div>
              <div>
                 <p className="font-bold text-lg">{post.authorName}</p>
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">Post Author</p>
+                <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">Post Contributor</p>
              </div>
           </div>
 
@@ -130,10 +126,19 @@ export default function ForumThreadPage({ params }: { params: Promise<{ id: stri
 
           {/* New Comment Input */}
           <Card className="rounded-[1.5rem] border-primary/5 shadow-sm overflow-hidden bg-secondary/20">
-             <CardContent className="p-4">
+             <CardContent className="p-4 space-y-4">
+                <div className="flex gap-4 items-center mb-2">
+                   <Input 
+                      placeholder="Your Name" 
+                      value={replierName}
+                      onChange={(e) => setReplierName(e.target.value)}
+                      className="bg-background border-none rounded-xl h-10 text-sm font-bold shadow-inner max-w-[200px]"
+                   />
+                   <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Replying to {post.authorName}</span>
+                </div>
                 <form onSubmit={handlePostReply} className="flex gap-4 items-start">
-                   <div className="h-10 w-10 bg-accent text-accent-foreground rounded-full flex items-center justify-center font-bold uppercase shrink-0">
-                      {user?.displayName?.charAt(0) || 'U'}
+                   <div className="h-10 w-10 bg-accent text-accent-foreground rounded-full flex items-center justify-center font-bold uppercase shrink-0 shadow-lg">
+                      {replierName?.charAt(0) || '?'}
                    </div>
                    <div className="flex-grow space-y-3">
                       <Input 
@@ -157,8 +162,8 @@ export default function ForumThreadPage({ params }: { params: Promise<{ id: stri
                         <Button 
                           type="submit" 
                           size="sm" 
-                          disabled={!replyContent.trim()}
-                          className="rounded-full px-6 text-xs font-bold gap-2"
+                          disabled={!replyContent.trim() || !replierName.trim()}
+                          className="rounded-full px-6 text-xs font-bold gap-2 shadow-lg"
                         >
                           <Send className="h-3 w-3" />
                           Comment
@@ -178,8 +183,8 @@ export default function ForumThreadPage({ params }: { params: Promise<{ id: stri
             ) : replies?.length ? (
               replies.map((reply) => (
                 <div key={reply.id} className="flex gap-4 group animate-in fade-in slide-in-from-top-2 duration-300">
-                   <div className="h-10 w-10 bg-secondary rounded-full flex items-center justify-center font-bold text-sm uppercase shrink-0 shadow-inner">
-                      {reply.authorName.charAt(0)}
+                   <div className="h-10 w-10 bg-secondary rounded-full flex items-center justify-center font-bold text-sm uppercase shrink-0 shadow-inner border border-primary/5">
+                      {reply.authorName?.charAt(0) || 'A'}
                    </div>
                    <div className="flex-grow space-y-2">
                       <div className="flex items-center gap-2">
