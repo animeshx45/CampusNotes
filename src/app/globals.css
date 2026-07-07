@@ -23,7 +23,7 @@
     --border: 142 30% 15%;
     --input: 142 30% 15%;
     --ring: 142 76% 36%;
-    --radius: 1rem;
+    --radius: 1.5rem;
   }
   .dark {
     --background: 142 30% 2%;
@@ -48,6 +48,22 @@
 
 @layer base {
   * { @apply border-border; }
-  body { @apply bg-background text-foreground font-body antialiased; }
+  body { @apply bg-background text-foreground font-body antialiased selection:bg-primary selection:text-white; }
   h1, h2, h3, h4 { @apply font-headline font-bold tracking-tight; }
+}
+
+@layer utilities {
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+  @keyframes marquee {
+    from { transform: translateX(100%); }
+    to { transform: translateX(-100%); }
+  }
+  .pause {
+    animation-play-state: paused;
+  }
+  .shadow-3xl {
+    box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.5);
+  }
 }

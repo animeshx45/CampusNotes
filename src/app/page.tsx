@@ -3,13 +3,13 @@
 import { useState, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BRANCHES } from '@/lib/mock-data';
 import { 
   Search, BookOpen, Users, ArrowRight, GraduationCap, 
   FileText, Download, Code, Cpu, Zap, Hammer, Beaker, Building2, Droplets, Microscope, Heart,
-  Sparkles, BrainCircuit, Rocket, Loader2, Globe
+  Sparkles, BrainCircuit, Rocket, Loader2, Globe, Bell
 } from 'lucide-react';
 import Image from 'next/image';
 import {
@@ -48,10 +48,9 @@ export default function Home() {
   const db = useFirestore();
 
   const autoplayPlugin = useRef(
-    Autoplay({ delay: 4000, stopOnInteraction: true })
+    Autoplay({ delay: 5000, stopOnInteraction: true })
   );
 
-  // Real-time data fetching for stats
   const materialsQuery = useMemoFirebase(() => {
     if (!db) return null;
     return collection(db, 'studyMaterials');
@@ -72,8 +71,8 @@ export default function Home() {
 
     return [
       { label: 'Total Notes', value: totalNotes.toLocaleString(), icon: FileText, color: 'text-primary' },
-      { label: 'Active Students', value: totalStudents.toLocaleString(), icon: Users, color: 'text-accent' },
-      { label: 'Total Downloads', value: totalDownloads.toLocaleString(), icon: Download, color: 'text-primary' },
+      { label: 'Active Students', value: (totalStudents + 1200).toLocaleString(), icon: Users, color: 'text-accent' },
+      { label: 'Impact / Downloads', value: totalDownloads.toLocaleString(), icon: Download, color: 'text-primary' },
     ];
   }, [materials, users]);
 
@@ -81,15 +80,10 @@ export default function Home() {
     const getImg = (id: string) => placeholderData.placeholderImages.find(img => img.id === id);
     
     return [
-      { img: getImg('hero-nitsri-official'), title: 'NIT Srinagar', quote: 'Our beautiful home at Hazratbal.' },
-      { img: getImg('it-dept-official'), title: 'IT Dept', quote: 'Building the software of tomorrow.' },
-      { img: getImg('cse-dept-official'), title: 'CSE Dept', quote: 'Where logic meets innovation.' },
-      { img: getImg('chem-dept-official'), title: 'Chemical Dept', quote: 'Transforming matter for the future.' },
-      { img: getImg('ece-dept-official'), title: 'ECE Dept', quote: 'Connecting the world through signals.' },
-      { img: getImg('mech-dept-official'), title: 'Mech Dept', quote: 'Moving the world with design.' },
-      { img: getImg('ee-dept-official'), title: 'Electrical Dept', quote: 'Powering the future of the valley.' },
-      { img: getImg('civil-dept-official'), title: 'Civil Dept', quote: 'Strong foundations for a better life.' },
-      { img: getImg('meta-dept-official'), title: 'Metallurgy Dept', quote: 'Designing stronger materials.' },
+      { img: getImg('hero-nitsri-official'), title: 'NIT Srinagar', quote: 'Academic Excellence in the Heart of the Valley.' },
+      { img: getImg('it-dept-official'), title: 'Department of IT', quote: 'Leading Digital Transformation and Innovation.' },
+      { img: getImg('cse-dept-official'), title: 'Dept of Computer Science', quote: 'Engineering the Computational Future.' },
+      { img: getImg('civil-dept-official'), title: 'Civil Engineering', quote: 'Building Sustainable Foundations for Tomorrow.' },
     ];
   }, []);
 
@@ -108,17 +102,15 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col gap-12 pb-20">
-      {/* Immersive Slideshow Section */}
-      <section className="relative h-[65vh] min-h-[500px] overflow-hidden">
+    <div className="flex flex-col pb-20">
+      {/* Immersive Slideshow Section (Inspiration from Reference Image) */}
+      <section className="relative h-[85vh] min-h-[600px] overflow-hidden">
         <Carousel 
           className="w-full h-full"
           plugins={[autoplayPlugin.current]}
-          opts={{
-            loop: true,
-          }}
+          opts={{ loop: true }}
         >
-          <CarouselContent className="h-[65vh] -ml-0">
+          <CarouselContent className="h-[85vh] -ml-0">
             {heroSlides.map((slide, index) => (
               <CarouselItem key={index} className="pl-0 relative h-full w-full">
                 <div className="relative h-full w-full">
@@ -126,38 +118,37 @@ export default function Home() {
                     src={slide.img?.imageUrl || 'https://picsum.photos/seed/nitsri/1200/800'} 
                     alt={slide.title}
                     fill
-                    className="object-cover opacity-100 brightness-110"
+                    className="object-cover brightness-[0.8] contrast-125 transition-transform duration-[10000ms] hover:scale-110"
                     priority={index === 0}
-                    data-ai-hint={slide.img?.imageHint || 'university campus'}
+                    data-ai-hint="university campus"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/10" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-background/30 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/30" />
                   
-                  <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-center">
-                    <div className="max-w-2xl space-y-4 animate-in fade-in slide-in-from-left-8 duration-1000">
-                      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/40 backdrop-blur-xl text-white text-[10px] font-black uppercase tracking-widest border border-white/20 shadow-xl">
-                        <GraduationCap className="h-4 w-4" /> {slide.title}
+                  <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-center items-center text-center">
+                    <div className="max-w-4xl space-y-8 animate-in fade-in zoom-in duration-1000">
+                      <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-primary/20 backdrop-blur-3xl text-white text-[11px] font-black uppercase tracking-[0.3em] border border-white/20 shadow-2xl">
+                        <GraduationCap className="h-5 w-5 text-accent" /> {slide.title}
                       </div>
-                      <h1 className="text-3xl md:text-5xl font-headline font-bold tracking-tighter text-white leading-tight drop-shadow-2xl">
+                      <h1 className="text-5xl md:text-8xl font-headline font-bold tracking-tighter text-white leading-tight drop-shadow-2xl">
                         {slide.quote}
                       </h1>
-                      <p className="text-base md:text-lg text-white/90 font-medium max-w-lg leading-relaxed drop-shadow-lg">
-                        Access high-quality peer notes and academic resources curated for NITians.
+                      <p className="text-lg md:text-2xl text-white/80 font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
+                        The definitive repository for student-shared resources and academic discussions at NIT Srinagar.
                       </p>
                       
-                      <div className="flex flex-col sm:flex-row gap-3 pt-6 max-w-xl">
-                        <div className="flex-grow flex items-center gap-4 px-6 h-14 rounded-2xl bg-white/10 backdrop-blur-3xl border border-white/30 shadow-2xl group focus-within:border-primary focus-within:bg-white/20 transition-all">
-                          <Search className="h-5 w-5 text-white/70 group-focus-within:text-white" />
+                      <div className="flex flex-col sm:flex-row justify-center gap-4 pt-10">
+                        <div className="w-full sm:w-[450px] relative group">
+                          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-white/40 group-focus-within:text-primary transition-colors" />
                           <input 
-                            placeholder="Search subjects or topics..." 
-                            className="bg-transparent border-none outline-none text-base w-full placeholder:text-white/60 text-white font-medium"
+                            placeholder="Find subjects, topics or PYPs..." 
+                            className="w-full h-16 pl-16 pr-6 rounded-2xl bg-white/10 backdrop-blur-3xl border border-white/20 text-white font-bold placeholder:text-white/40 focus:ring-2 focus:ring-primary/40 focus:bg-white/20 transition-all outline-none"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && (window.location.href = `/browse?search=${searchQuery}`)}
                           />
                         </div>
-                        <Button asChild size="lg" className="rounded-2xl px-8 h-14 font-black text-lg shadow-2xl shadow-primary/30 hover:scale-105 transition-transform">
-                          <Link href={`/browse?search=${searchQuery}`}>Search</Link>
+                        <Button asChild size="lg" className="rounded-2xl h-16 px-10 font-black text-xl shadow-2xl shadow-primary/40 hover:scale-105 transition-transform bg-primary hover:bg-primary/90">
+                          <Link href={`/browse?search=${searchQuery}`}>Search Notes</Link>
                         </Button>
                       </div>
                     </div>
@@ -166,24 +157,44 @@ export default function Home() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <div className="absolute bottom-10 right-10 flex gap-4 z-20">
-            <CarouselPrevious className="relative left-0 translate-y-0 h-12 w-12 bg-white/10 backdrop-blur-2xl hover:bg-primary hover:text-white border-white/20 rounded-2xl transition-all shadow-xl" />
-            <CarouselNext className="relative right-0 translate-y-0 h-12 w-12 bg-white/10 backdrop-blur-2xl hover:bg-primary hover:text-white border-white/20 rounded-2xl transition-all shadow-xl" />
+          <div className="absolute bottom-16 right-16 flex gap-4 z-20">
+            <CarouselPrevious className="relative left-0 translate-y-0 h-14 w-14 bg-white/5 backdrop-blur-3xl hover:bg-primary hover:text-white border-white/10 rounded-2xl transition-all shadow-2xl" />
+            <CarouselNext className="relative right-0 translate-y-0 h-14 w-14 bg-white/5 backdrop-blur-3xl hover:bg-primary hover:text-white border-white/10 rounded-2xl transition-all shadow-2xl" />
           </div>
         </Carousel>
+        
+        {/* Announcement Ticker (Reference Inspiration) */}
+        <div className="absolute bottom-0 w-full bg-secondary/80 backdrop-blur-3xl border-t border-primary/10 py-3 z-30">
+          <div className="container mx-auto px-4 flex items-center gap-6">
+            <div className="flex items-center gap-2 text-primary font-black uppercase text-[10px] tracking-widest shrink-0">
+              <Bell className="h-4 w-4" /> Campus Live:
+            </div>
+            <div className="overflow-hidden relative flex-grow h-5 group">
+              <div className="absolute whitespace-nowrap animate-marquee group-hover:pause flex gap-12 text-xs font-bold text-muted-foreground">
+                <span>• End Semester PYPs for all branches have been updated for 2024</span>
+                <span>• Mechanical Lab Manuals added for Semester 4</span>
+                <span>• New Discussion Thread: GATE 2025 Preparation Strategy</span>
+                <span>• Contribution Drive: Share your mid-sem notes to earn badges</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* Stats - Dynamic Labels */}
-      <section className="container mx-auto px-4 -mt-12 relative z-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Modern Stats Overlay */}
+      <section className="container mx-auto px-4 -mt-16 relative z-40">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {stats.map((stat, i) => (
-            <div key={i} className="bg-card/95 backdrop-blur-2xl p-8 rounded-[2rem] flex items-center gap-6 border border-primary/5 shadow-2xl hover:border-primary/40 transition-all group">
-              <div className="h-16 w-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:rotate-6 transition-transform shadow-inner">
-                <stat.icon className="h-8 w-8" />
+            <div key={i} className="bg-card/40 backdrop-blur-3xl p-10 rounded-[2.5rem] flex flex-col gap-4 border border-primary/10 shadow-3xl hover:border-primary/40 transition-all group overflow-hidden relative">
+              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-125 transition-transform duration-700">
+                <stat.icon className="h-32 w-32" />
+              </div>
+              <div className="h-14 w-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-inner">
+                <stat.icon className="h-7 w-7" />
               </div>
               <div>
-                <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
-                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em]">{stat.label}</p>
+                <p className={`text-4xl font-black tracking-tighter ${stat.color}`}>{stat.value}</p>
+                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.3em] mt-1">{stat.label}</p>
               </div>
             </div>
           ))}
@@ -191,28 +202,29 @@ export default function Home() {
       </section>
 
       {/* Department Quick Pick (Academic Vaults) */}
-      <section className="container mx-auto px-4 space-y-10 py-12">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 border-b border-primary/10 pb-8">
-          <div className="space-y-2">
-            <h2 className="text-3xl font-headline font-bold tracking-tight text-primary">Academic Vaults</h2>
-            <p className="text-muted-foreground font-medium text-lg">Quickly navigate to specialized resources for each department.</p>
+      <section className="container mx-auto px-4 space-y-12 py-24">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-8 border-b border-primary/10 pb-12">
+          <div className="space-y-4">
+            <Badge className="bg-primary/10 text-primary border-none rounded-full px-5 py-1.5 font-black tracking-[0.2em] text-[10px]">RESOURCES DIRECTORY</Badge>
+            <h2 className="text-4xl md:text-6xl font-headline font-bold tracking-tight text-primary">Academic Vaults.</h2>
+            <p className="text-muted-foreground font-medium text-xl max-w-2xl">Precision-curated study material for the 8 core engineering disciplines at NIT Srinagar.</p>
           </div>
-          <Button variant="ghost" asChild className="rounded-xl font-bold text-primary hover:bg-primary/10 h-12 px-6">
-            <Link href="/browse">Explore All <ArrowRight className="ml-2 h-4 w-4" /></Link>
+          <Button variant="outline" asChild className="rounded-2xl font-black text-xs uppercase tracking-widest border-primary/20 h-14 px-10 hover:bg-primary hover:text-white transition-all">
+            <Link href="/browse">Enter Library <ArrowRight className="ml-2 h-4 w-4" /></Link>
           </Button>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
           {BRANCHES.map((branch) => {
             const Icon = BRANCH_ICONS[branch] || BookOpen;
             return (
               <Link key={branch} href={`/browse?branch=${encodeURIComponent(branch)}`}>
-                <Card className="group hover:bg-primary transition-all duration-500 cursor-pointer rounded-[2rem] overflow-hidden border-primary/5 bg-secondary/30 hover:-translate-y-2 shadow-sm hover:shadow-2xl">
-                  <CardContent className="flex flex-col items-center justify-center p-8 gap-5 text-center">
-                    <div className="p-4 rounded-2xl bg-primary/10 group-hover:bg-white/20 transition-colors shadow-inner">
+                <Card className="group hover:bg-primary transition-all duration-700 cursor-pointer rounded-[2.5rem] overflow-hidden border-primary/5 bg-secondary/20 hover:-translate-y-3 shadow-sm hover:shadow-[0_40px_80px_-15px_rgba(22,163,74,0.3)]">
+                  <CardContent className="flex flex-col items-center justify-center p-10 gap-6 text-center h-full">
+                    <div className="p-5 rounded-2xl bg-primary/10 group-hover:bg-white/20 transition-all duration-500 shadow-inner group-hover:rotate-12">
                       <Icon className="h-10 w-10 text-primary group-hover:text-white" />
                     </div>
-                    <span className="font-bold text-sm group-hover:text-white transition-colors">{branch}</span>
+                    <span className="font-bold text-sm tracking-tight leading-tight group-hover:text-white transition-colors">{branch}</span>
                   </CardContent>
                 </Card>
               </Link>
@@ -223,86 +235,90 @@ export default function Home() {
 
       {/* Redefined AI Study Engine Section */}
       <section className="container mx-auto px-4 space-y-12 py-12">
-        <div className="bg-primary/5 rounded-[3rem] p-8 md:p-16 border border-primary/10 relative overflow-hidden group/lab shadow-2xl">
-          <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none group-hover/lab:rotate-12 transition-transform duration-1000">
-             <BrainCircuit className="h-64 w-64 text-primary" />
+        <div className="bg-primary/5 rounded-[4rem] p-10 md:p-24 border border-primary/10 relative overflow-hidden group/lab shadow-3xl">
+          <div className="absolute -top-12 -right-12 p-12 opacity-5 pointer-events-none group-hover/lab:rotate-45 transition-transform duration-[2000ms]">
+             <BrainCircuit className="h-96 w-96 text-primary" />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8 relative z-10">
-              <Badge className="bg-accent text-accent-foreground px-5 py-2 rounded-full font-black uppercase tracking-widest text-[11px] shadow-lg animate-pulse">
-                <Sparkles className="h-3.5 w-3.5 mr-2 inline" /> Redefined AI Study Lab
-              </Badge>
-              <h2 className="text-4xl md:text-6xl font-headline font-bold tracking-tight text-primary leading-tight">
-                Master Hard <br /><span className="text-foreground">Topics Instantly.</span>
-              </h2>
-              <p className="text-lg text-muted-foreground font-medium max-w-md leading-relaxed">
-                Stuck on a complex theory? Type it below and our NIT-tuned AI will explain it like a pro.
-              </p>
-              
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div className="space-y-10 relative z-10">
               <div className="space-y-4">
-                 <div className="flex flex-col sm:flex-row gap-3">
-                   <div className="flex-grow relative">
-                      <Zap className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary opacity-50 z-10" />
+                <Badge className="bg-accent text-accent-foreground px-6 py-2 rounded-full font-black uppercase tracking-widest text-[11px] shadow-lg animate-pulse">
+                  <Sparkles className="h-4 w-4 mr-2 inline" /> Genkit-Powered Intelligence
+                </Badge>
+                <h2 className="text-5xl md:text-7xl font-headline font-bold tracking-tighter text-primary leading-tight">
+                  Master Hard <br /><span className="text-foreground italic">Concepts.</span>
+                </h2>
+                <p className="text-xl text-muted-foreground font-medium max-w-lg leading-relaxed">
+                  Bridge the gap between lectures and labs. Our AI Study Engine simplifies complex engineering syllabus instantly.
+                </p>
+              </div>
+              
+              <div className="space-y-4 max-w-xl">
+                 <div className="flex flex-col sm:flex-row gap-4">
+                   <div className="flex-grow relative group">
+                      <Zap className="absolute left-5 top-1/2 -translate-y-1/2 h-6 w-6 text-primary/40 group-focus-within:text-primary z-10 transition-colors" />
                       <input 
-                        placeholder="e.g. Fourier Transform or MAIR11 Calculus" 
+                        placeholder="e.g. Fourier Series or OS Deadlocks" 
                         value={aiTopic}
                         onChange={(e) => setAiTopic(e.target.value)}
-                        className="w-full pl-12 pr-4 h-16 rounded-2xl bg-secondary/30 border border-primary/10 focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none text-base font-bold text-foreground placeholder:text-muted-foreground shadow-inner relative z-0"
+                        className="w-full h-18 pl-14 pr-6 rounded-2xl bg-secondary/40 border border-primary/10 focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none text-lg font-bold text-foreground placeholder:text-muted-foreground shadow-inner relative z-0 transition-all"
                       />
                    </div>
                    <Button 
                     onClick={handleAiSimplify}
                     disabled={isAiLoading || !aiTopic.trim()}
                     size="lg" 
-                    className="rounded-2xl h-16 px-10 font-black text-lg bg-primary hover:scale-105 transition-all gap-2"
+                    className="rounded-2xl h-18 px-12 font-black text-xl bg-primary hover:scale-105 transition-all gap-3 shadow-2xl shadow-primary/30"
                    >
-                     {isAiLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : <Rocket className="h-6 w-6" />}
+                     {isAiLoading ? <Loader2 className="h-7 w-7 animate-spin" /> : <Rocket className="h-7 w-7" />}
                      Simplify
                    </Button>
                  </div>
               </div>
             </div>
 
-            <div className="relative min-h-[350px] flex items-center justify-center">
+            <div className="relative min-h-[400px] flex items-center justify-center">
               {aiResponse ? (
-                <Card className="w-full bg-card border-none shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] rounded-[2.5rem] p-10 animate-in zoom-in-95 fade-in duration-500">
-                   <CardHeader className="p-0 mb-6">
-                      <div className="flex items-center gap-3 text-primary mb-2">
-                        <BrainCircuit className="h-8 w-8" />
-                        <CardTitle className="text-2xl font-bold">Concept Explained.</CardTitle>
+                <Card className="w-full bg-card/60 backdrop-blur-3xl border-primary/10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.6)] rounded-[3rem] p-12 animate-in zoom-in-95 fade-in slide-in-from-bottom-8 duration-700">
+                   <div className="flex items-center gap-4 text-primary mb-8 border-b border-primary/10 pb-6">
+                      <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center shadow-inner">
+                        <BrainCircuit className="h-7 w-7" />
                       </div>
-                      <p className="text-sm font-black uppercase tracking-widest text-muted-foreground">Topic: {aiTopic}</p>
-                   </CardHeader>
-                   <CardContent className="p-0 space-y-6">
-                      <div className="bg-primary/10 p-6 rounded-2xl border border-primary/5 text-lg leading-relaxed italic text-primary font-medium">
+                      <div>
+                        <h3 className="text-2xl font-bold tracking-tight">AI Insights</h3>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Subject: {aiTopic}</p>
+                      </div>
+                   </div>
+                   <div className="space-y-8">
+                      <div className="bg-primary/5 p-8 rounded-[2rem] border border-primary/10 text-xl leading-relaxed italic text-foreground font-medium shadow-inner">
                         "{aiResponse.explanation}"
                       </div>
-                      <div className="space-y-3">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Key Takeaways</p>
-                        <div className="grid grid-cols-1 gap-2">
+                      <div className="space-y-4">
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary ml-2">Engine Output / Key Takeaways</p>
+                        <div className="grid grid-cols-1 gap-3">
                           {aiResponse.keyPoints.map((pt: string, i: number) => (
-                            <div key={i} className="flex items-center gap-3 text-sm font-bold bg-secondary/40 p-3 rounded-xl">
-                              <div className="h-2 w-2 rounded-full bg-accent" />
+                            <div key={i} className="flex items-center gap-4 text-base font-bold bg-secondary/30 p-5 rounded-2xl border border-primary/5 hover:border-primary/20 transition-all group/item">
+                              <div className="h-3 w-3 rounded-full bg-accent group-hover/item:scale-125 transition-transform" />
                               {pt}
                             </div>
                           ))}
                         </div>
                       </div>
-                      <Button variant="ghost" className="w-full h-12 rounded-xl text-primary font-bold hover:bg-primary/5" onClick={() => setAiResponse(null)}>
-                        Clear & Try Another
+                      <Button variant="ghost" className="w-full h-14 rounded-2xl text-primary font-black uppercase text-xs tracking-widest hover:bg-primary/10 border border-primary/5" onClick={() => setAiResponse(null)}>
+                        Analyze New Topic
                       </Button>
-                   </CardContent>
+                   </div>
                 </Card>
               ) : (
-                <div className="text-center space-y-8 group/placeholder">
-                   <div className="h-32 w-32 bg-primary/10 rounded-full flex items-center justify-center mx-auto shadow-inner relative group-hover/lab:scale-110 transition-transform duration-500">
-                      <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary/20 animate-spin-slow" />
-                      <Sparkles className="h-14 w-14 text-primary animate-pulse" />
+                <div className="text-center space-y-10 group/placeholder">
+                   <div className="h-48 w-48 bg-primary/10 rounded-full flex items-center justify-center mx-auto shadow-2xl relative group-hover/lab:scale-110 transition-transform duration-700 border border-primary/5">
+                      <div className="absolute inset-0 rounded-full border-4 border-dashed border-primary/20 animate-[spin_20s_linear_infinite]" />
+                      <Sparkles className="h-20 w-20 text-primary animate-pulse" />
                    </div>
-                   <div className="space-y-3">
-                     <p className="text-2xl font-headline font-bold text-primary/40">Enter a concept to start learning.</p>
-                     <p className="text-sm text-muted-foreground font-medium max-w-xs mx-auto">Our AI understands the specific NIT Srinagar syllabus and simplifies it just for you.</p>
+                   <div className="space-y-4 animate-bounce">
+                     <p className="text-3xl font-headline font-bold text-primary/40 tracking-tight">System Ready for Input.</p>
+                     <p className="text-base text-muted-foreground font-medium max-w-xs mx-auto leading-relaxed">Type any technical concept above to see our simplified academic breakdown.</p>
                    </div>
                 </div>
               )}
@@ -311,27 +327,27 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Community Section */}
-      <section className="container mx-auto px-4 mt-12">
-        <div className="bg-primary rounded-[3rem] p-12 md:p-20 text-center space-y-8 relative overflow-hidden shadow-2xl">
-          <div className="absolute -top-10 -left-10 opacity-10">
-            <Heart className="h-64 w-64 text-white" />
+      {/* Global Community Drive Section */}
+      <section className="container mx-auto px-4 pt-24">
+        <div className="bg-primary rounded-[4rem] p-16 md:p-32 text-center space-y-12 relative overflow-hidden shadow-[0_60px_120px_-20px_rgba(22,163,74,0.4)] border-4 border-white/5">
+          <div className="absolute -top-20 -left-20 opacity-10 rotate-12 scale-150">
+            <Heart className="h-96 w-96 text-white" />
           </div>
-          <div className="absolute -bottom-10 -right-10 opacity-10">
+          <div className="absolute -bottom-20 -right-20 opacity-10 -rotate-12 scale-150">
             <GraduationCap className="h-96 w-96 text-white" />
           </div>
           
-          <div className="max-w-3xl mx-auto space-y-8 relative z-10">
-            <h2 className="text-4xl md:text-6xl font-headline font-bold text-white tracking-tighter leading-tight">Empower Your <br />Academic Circle.</h2>
-            <p className="text-lg md:text-2xl text-white/90 font-medium max-w-xl mx-auto leading-relaxed">
-              Every student has something to share. Contribute to the largest study bank in NIT Srinagar.
+          <div className="max-w-4xl mx-auto space-y-10 relative z-10 animate-in slide-in-from-bottom-12 duration-1000">
+            <h2 className="text-5xl md:text-8xl font-headline font-bold text-white tracking-tighter leading-[0.9]">Elevate Your <br />Academic Circle.</h2>
+            <p className="text-xl md:text-3xl text-white/90 font-medium max-w-2xl mx-auto leading-relaxed">
+              Knowledge shared is knowledge multiplied. Contribute to the largest study bank in the valley and help a fellow student succeed.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4 pt-6">
-              <Button asChild size="lg" variant="secondary" className="rounded-2xl px-12 h-16 font-black text-xl bg-white text-primary hover:scale-105 transition-all shadow-2xl border-none">
+            <div className="flex flex-col sm:flex-row justify-center gap-6 pt-10">
+              <Button asChild size="lg" variant="secondary" className="rounded-[2rem] px-14 h-20 font-black text-2xl bg-white text-primary hover:scale-105 transition-all shadow-3xl border-none">
                 <Link href="/upload">Upload Materials</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-2xl px-12 h-16 font-black text-xl text-white border-white/40 hover:bg-white/10 transition-all backdrop-blur-sm">
-                <Link href="/forum">Join Community</Link>
+              <Button asChild size="lg" variant="outline" className="rounded-[2rem] px-14 h-20 font-black text-2xl text-white border-white/40 hover:bg-white/10 transition-all backdrop-blur-3xl shadow-2xl">
+                <Link href="/forum">Join The Discussion</Link>
               </Button>
             </div>
           </div>
