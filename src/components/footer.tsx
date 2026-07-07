@@ -11,7 +11,7 @@ export function Footer() {
   
   return (
     <footer className="w-full flex flex-col font-body">
-      {/* Top Ticker / Weather Bar - Switched to Academic Green */}
+      {/* Top Ticker / Weather Bar - Academic Green */}
       <div className="bg-primary text-primary-foreground py-2 px-4 text-xs font-bold shadow-lg relative z-10">
         <div className="container mx-auto flex flex-wrap justify-between items-center gap-4">
           <div className="flex items-center gap-2">
@@ -39,20 +39,12 @@ export function Footer() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(22,163,74,0.05),transparent_40%)]" />
         <div className="container mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 relative z-10">
           
-          {/* Left Column: Institution Branding */}
+          {/* Left Column: Portal Branding */}
           <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
-            <div className="relative h-24 w-24 bg-white rounded-full p-1 shadow-2xl">
-               <Image 
-                src="https://cdn.corenexis.com/f/DEzTAKmN1Fm.png"
-                alt="NIT Srinagar Logo"
-                fill
-                className="object-contain rounded-full"
-                unoptimized
-               />
-            </div>
+            <Logo className="scale-125 origin-left" />
             <div className="space-y-1">
-              <h2 className="text-2xl font-headline font-bold tracking-tight">National Institute of Technology Srinagar</h2>
-              <p className="text-sm font-medium opacity-60">An Institute of National Importance</p>
+              <h2 className="text-2xl font-headline font-bold tracking-tight">CampusNotes</h2>
+              <p className="text-sm font-medium opacity-60">NIT Srinagar Study Portal</p>
             </div>
             <div className="space-y-4 text-sm opacity-80 font-medium">
               <p className="flex items-center justify-center lg:justify-start gap-2">
@@ -70,7 +62,7 @@ export function Footer() {
           {/* Divider (Desktop) */}
           <div className="hidden lg:block lg:col-span-1 border-r border-white/10 my-4 h-full mx-auto" />
 
-          {/* Middle Columns: Links (Removed Portals) */}
+          {/* Middle Columns: Links */}
           <div className="lg:col-span-3">
             <div className="space-y-6">
               <h3 className="text-lg font-headline font-bold border-b border-primary/30 pb-2 w-fit">Explore Portal</h3>
@@ -113,7 +105,7 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Partner Logos Bar - Darker theme */}
+      {/* Partner Logos Bar */}
       <div className="bg-secondary/50 py-8 overflow-hidden border-b border-white/5">
         <div className="container mx-auto flex flex-wrap justify-center items-center gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
           <div className="h-10 w-32 relative"><Image src="https://placehold.co/200x60/transparent/ffffff?text=Samarth+eGov" alt="Partner" fill className="object-contain" unoptimized /></div>
@@ -136,7 +128,7 @@ export function Footer() {
       <div className="bg-background text-muted-foreground py-6 px-4 text-[10px] font-bold uppercase tracking-widest">
         <div className="container mx-auto flex flex-col lg:flex-row justify-between items-center gap-4 text-center lg:text-left">
           <div className="flex flex-wrap justify-center items-center gap-4">
-            <span className="text-foreground">Copyrights © National Institute of Technology Srinagar</span>
+            <span className="text-foreground">Copyrights © CampusNotes | NIT Srinagar</span>
             <span className="opacity-20 hidden md:block">|</span>
             <span>All rights Reserved</span>
             <span className="opacity-20 hidden md:block">|</span>
@@ -150,4 +142,3 @@ export function Footer() {
     </footer>
   );
 }
-
