@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useMemo } from 'react';
@@ -190,22 +191,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Moving Disclaimer Notice */}
-      <div className="bg-accent/10 border-y border-accent/20 py-3 overflow-hidden relative z-50">
-        <div className="flex whitespace-nowrap animate-marquee">
-          <span className="text-accent font-black uppercase text-[10px] tracking-[0.3em] flex items-center gap-8 px-4">
-            <AlertTriangle className="h-3.5 w-3.5" />
-            NOTICE: THIS IS NOT THE OFFICIAL NIT SRINAGAR WEBSITE AND IS MADE BY STUDENTS OF NIT SRINAGAR.
-            <AlertTriangle className="h-3.5 w-3.5" />
-            NOTICE: THIS IS NOT THE OFFICIAL NIT SRINAGAR WEBSITE AND IS MADE BY STUDENTS OF NIT SRINAGAR.
-            <AlertTriangle className="h-3.5 w-3.5" />
-            NOTICE: THIS IS NOT THE OFFICIAL NIT SRINAGAR WEBSITE AND IS MADE BY STUDENTS OF NIT SRINAGAR.
-            <AlertTriangle className="h-3.5 w-3.5" />
-            NOTICE: THIS IS NOT THE OFFICIAL NIT SRINAGAR WEBSITE AND IS MADE BY STUDENTS OF NIT SRINAGAR.
-          </span>
-        </div>
-      </div>
-
       {/* Stats - Liquid Glass Cards */}
       <section className="container mx-auto px-4 -mt-20 relative z-50">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -225,6 +210,22 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/* Moving Disclaimer Notice - Positioned below stats to avoid being blocked */}
+      <div className="bg-accent/10 border-y border-accent/20 py-3 overflow-hidden relative z-40 mt-8">
+        <div className="flex whitespace-nowrap animate-marquee">
+          <span className="text-accent font-black uppercase text-[10px] tracking-[0.3em] flex items-center gap-8 px-4">
+            <AlertTriangle className="h-3.5 w-3.5" />
+            NOTICE: THIS IS NOT THE OFFICIAL NIT SRINAGAR WEBSITE AND IS MADE BY STUDENTS OF NIT SRINAGAR.
+            <AlertTriangle className="h-3.5 w-3.5" />
+            NOTICE: THIS IS NOT THE OFFICIAL NIT SRINAGAR WEBSITE AND IS MADE BY STUDENTS OF NIT SRINAGAR.
+            <AlertTriangle className="h-3.5 w-3.5" />
+            NOTICE: THIS IS NOT THE OFFICIAL NIT SRINAGAR WEBSITE AND IS MADE BY STUDENTS OF NIT SRINAGAR.
+            <AlertTriangle className="h-3.5 w-3.5" />
+            NOTICE: THIS IS NOT THE OFFICIAL NIT SRINAGAR WEBSITE AND IS MADE BY STUDENTS OF NIT SRINAGAR.
+          </span>
+        </div>
+      </div>
 
       {/* Branches */}
       <section className="container mx-auto px-4 space-y-16 py-24">
