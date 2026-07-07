@@ -31,7 +31,7 @@ export function Navbar() {
     <header className={cn(
       "sticky top-0 z-50 w-full transition-all duration-500 border-b",
       isScrolled 
-        ? "bg-background/80 backdrop-blur-3xl py-2 border-primary/10 shadow-2xl" 
+        ? "bg-background/40 backdrop-blur-3xl py-2 border-white/10 shadow-2xl" 
         : "bg-transparent py-4 border-transparent"
     )}>
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -56,7 +56,7 @@ export function Navbar() {
           <ThemeToggle />
 
           <div className="hidden sm:flex items-center gap-3">
-            <Button asChild className="rounded-2xl font-black text-[10px] uppercase tracking-widest h-12 px-8 shadow-xl shadow-primary/20 hover:scale-105 transition-all bg-primary border-none">
+            <Button asChild className="rounded-2xl font-black text-[10px] uppercase tracking-widest h-12 px-8 shadow-xl backdrop-blur-xl bg-primary/90 hover:bg-primary border border-white/10 hover:scale-105 transition-all">
               <Link href="/upload" className="flex items-center gap-2">Share Material <ChevronRight className="h-3 w-3" /></Link>
             </Button>
           </div>
@@ -64,11 +64,11 @@ export function Navbar() {
           <div className="md:hidden">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-xl h-11 w-11 bg-primary/5 hover:bg-primary/10 border border-primary/10 transition-all">
+                <Button variant="ghost" size="icon" className="rounded-xl h-11 w-11 bg-white/5 backdrop-blur-xl hover:bg-white/10 border border-white/10 transition-all">
                   <Menu className="h-6 w-6 text-primary" />
                 </Button>
               </SheetTrigger>
-              <SheetContent className="rounded-l-[3rem] border-primary/10 bg-background/95 backdrop-blur-3xl p-10">
+              <SheetContent className="rounded-l-[3rem] border-white/10 bg-background/95 backdrop-blur-3xl p-10">
                 <SheetHeader>
                   <SheetTitle className="text-left font-headline font-bold text-3xl pt-4 text-primary tracking-tighter">Menu.</SheetTitle>
                 </SheetHeader>
@@ -78,7 +78,7 @@ export function Navbar() {
                       key={link.name} 
                       href={link.href}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-xl font-bold p-6 hover:bg-primary/5 rounded-[2rem] flex items-center justify-between group transition-all"
+                      className="text-xl font-bold p-6 hover:bg-white/5 rounded-[2rem] flex items-center justify-between group transition-all"
                     >
                       <div className="flex items-center gap-4">
                         <link.icon className="h-6 w-6 text-primary/60 group-hover:text-primary" />
@@ -87,8 +87,8 @@ export function Navbar() {
                       <ChevronRight className="h-5 w-5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
                     </Link>
                   ))}
-                  <div className="border-t border-primary/10 pt-10 mt-6 flex flex-col gap-4">
-                    <Button asChild className="w-full rounded-[2rem] h-20 font-black text-xl bg-primary shadow-2xl shadow-primary/20" onClick={() => setIsMobileMenuOpen(false)}>
+                  <div className="border-t border-white/10 pt-10 mt-6 flex flex-col gap-4">
+                    <Button asChild className="w-full rounded-[2rem] h-20 font-black text-xl bg-primary/90 shadow-2xl backdrop-blur-xl border border-white/10" onClick={() => setIsMobileMenuOpen(false)}>
                       <Link href="/upload">Share Material</Link>
                     </Button>
                   </div>

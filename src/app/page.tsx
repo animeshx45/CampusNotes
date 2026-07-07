@@ -134,7 +134,7 @@ export default function Home() {
                   {/* Hero Content */}
                   <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-center items-center text-center pt-32 pb-48">
                     <div className="max-w-5xl space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                      <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-primary/20 backdrop-blur-3xl text-white text-[12px] font-black uppercase tracking-[0.3em] border border-white/10 shadow-2xl">
+                      <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-white/5 backdrop-blur-3xl text-white text-[12px] font-black uppercase tracking-[0.3em] border border-white/10 shadow-2xl">
                         <GraduationCap className="h-5 w-5 text-accent" /> {slide.title}
                       </div>
                       <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline font-bold tracking-tighter text-white leading-[1.1] drop-shadow-2xl">
@@ -144,19 +144,19 @@ export default function Home() {
                         The best place to find shared notes and papers for your exams at NIT Srinagar.
                       </p>
                       
-                      {/* Cleaner Search Bar */}
-                      <div className="flex flex-col sm:flex-row justify-center gap-2 pt-4">
+                      {/* Search Bar - Liquid Glass Style */}
+                      <div className="flex flex-col sm:flex-row justify-center gap-3 pt-4">
                         <div className="w-full sm:w-[500px] relative group z-20">
                           <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-white/60" />
                           <input 
                             placeholder="Search subjects or papers..." 
-                            className="w-full h-16 pl-14 pr-6 rounded-xl bg-white text-black font-bold placeholder:text-gray-400 focus:ring-4 focus:ring-primary/40 transition-all outline-none text-lg shadow-2xl"
+                            className="w-full h-16 pl-14 pr-6 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 text-white font-bold placeholder:text-white/40 focus:ring-4 focus:ring-primary/30 transition-all outline-none text-lg shadow-2xl shadow-black/40"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && (window.location.href = `/browse?search=${searchQuery}`)}
                           />
                         </div>
-                        <Button asChild size="lg" className="rounded-xl h-16 px-10 font-black text-xl shadow-2xl hover:scale-[1.02] transition-all bg-primary hover:bg-primary/90">
+                        <Button asChild size="lg" className="rounded-2xl h-16 px-10 font-black text-xl shadow-2xl backdrop-blur-xl bg-primary/90 hover:bg-primary border border-white/10 hover:scale-[1.05] transition-all">
                           <Link href={`/browse?search=${searchQuery}`}>Find Notes</Link>
                         </Button>
                       </div>
@@ -167,15 +167,15 @@ export default function Home() {
             ))}
           </CarouselContent>
           <div className="absolute bottom-40 right-8 md:right-16 flex gap-4 z-30">
-            <CarouselPrevious className="relative left-0 translate-y-0 h-14 w-14 bg-white/5 backdrop-blur-3xl hover:bg-primary hover:text-white border-white/10 rounded-2xl transition-all shadow-2xl" />
-            <CarouselNext className="relative right-0 translate-y-0 h-14 w-14 bg-white/5 backdrop-blur-3xl hover:bg-primary hover:text-white border-white/10 rounded-2xl transition-all shadow-2xl" />
+            <CarouselPrevious className="relative left-0 translate-y-0 h-14 w-14 bg-white/5 backdrop-blur-3xl hover:bg-primary/50 hover:text-white border border-white/10 rounded-2xl transition-all shadow-2xl" />
+            <CarouselNext className="relative right-0 translate-y-0 h-14 w-14 bg-white/5 backdrop-blur-3xl hover:bg-primary/50 hover:text-white border border-white/10 rounded-2xl transition-all shadow-2xl" />
           </div>
         </Carousel>
         
         {/* Ticker */}
-        <div className="absolute bottom-0 w-full bg-secondary/95 backdrop-blur-3xl border-t border-primary/10 py-4 z-40">
+        <div className="absolute bottom-0 w-full bg-secondary/80 backdrop-blur-3xl border-t border-white/5 py-4 z-40">
           <div className="container mx-auto px-4 flex items-center gap-6">
-            <div className="flex items-center gap-2 text-primary font-black uppercase text-[11px] tracking-widest shrink-0 border-r border-primary/20 pr-6">
+            <div className="flex items-center gap-2 text-primary font-black uppercase text-[11px] tracking-widest shrink-0 border-r border-white/10 pr-6">
               <Bell className="h-4 w-4" /> Latest Updates:
             </div>
             <div className="overflow-hidden relative flex-grow h-6 group">
@@ -191,15 +191,15 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats */}
+      {/* Stats - Liquid Glass Cards */}
       <section className="container mx-auto px-4 -mt-20 relative z-50">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {stats.map((stat, i) => (
-            <div key={i} className="bg-card/80 backdrop-blur-3xl p-10 rounded-[2.5rem] flex flex-col gap-4 border border-primary/20 shadow-3xl hover:border-primary/50 transition-all group overflow-hidden relative">
+            <div key={i} className="bg-white/5 backdrop-blur-3xl p-10 rounded-[2.5rem] flex flex-col gap-4 border border-white/10 shadow-3xl hover:border-primary/40 hover:bg-white/10 transition-all group overflow-hidden relative">
               <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-125 transition-transform duration-700">
-                <stat.icon className="h-32 w-32" />
+                <stat.icon className="h-32 w-32 text-white" />
               </div>
-              <div className="h-14 w-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-inner">
+              <div className="h-14 w-14 bg-white/5 rounded-2xl flex items-center justify-center text-primary shadow-inner border border-white/5">
                 <stat.icon className="h-7 w-7" />
               </div>
               <div>
@@ -213,13 +213,13 @@ export default function Home() {
 
       {/* Branches */}
       <section className="container mx-auto px-4 space-y-16 py-24">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-8 border-b border-primary/10 pb-12">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-8 border-b border-white/5 pb-12">
           <div className="space-y-4">
             <Badge className="bg-primary/10 text-primary border-none rounded-full px-5 py-1.5 font-black tracking-[0.2em] text-[10px]">NOTES LIBRARY</Badge>
             <h2 className="text-4xl md:text-6xl font-headline font-bold tracking-tight text-primary">See Notes by Branch.</h2>
             <p className="text-muted-foreground font-medium text-xl max-w-2xl">Find study material for all 8 engineering branches at NIT Srinagar.</p>
           </div>
-          <Button variant="outline" asChild className="rounded-2xl font-black text-xs uppercase tracking-widest border-primary/20 h-14 px-10 hover:bg-primary hover:text-white transition-all">
+          <Button variant="outline" asChild className="rounded-2xl font-black text-xs uppercase tracking-widest border border-white/10 bg-white/5 backdrop-blur-xl h-14 px-10 hover:bg-primary hover:text-white transition-all">
             <Link href="/browse">See All Notes <ArrowRight className="ml-2 h-4 w-4" /></Link>
           </Button>
         </div>
@@ -229,9 +229,9 @@ export default function Home() {
             const Icon = BRANCH_ICONS[branch] || BookOpen;
             return (
               <Link key={branch} href={`/browse?branch=${encodeURIComponent(branch)}`}>
-                <Card className="group hover:bg-primary transition-all duration-700 cursor-pointer rounded-[3rem] overflow-hidden border-primary/10 bg-secondary/30 hover:-translate-y-4 shadow-sm hover:shadow-[0_50px_100px_-20px_rgba(22,163,74,0.4)]">
+                <Card className="group hover:bg-primary/90 transition-all duration-700 cursor-pointer rounded-[3rem] overflow-hidden border border-white/10 bg-white/5 backdrop-blur-xl hover:-translate-y-4 shadow-sm hover:shadow-[0_50px_100px_-20px_rgba(22,163,74,0.4)]">
                   <CardContent className="flex flex-col items-center justify-center p-12 gap-6 text-center h-full">
-                    <div className="p-6 rounded-2xl bg-primary/10 group-hover:bg-white/20 transition-all duration-500 shadow-inner group-hover:rotate-12">
+                    <div className="p-6 rounded-2xl bg-white/5 group-hover:bg-white/20 transition-all duration-500 shadow-inner group-hover:rotate-12 border border-white/5">
                       <Icon className="h-10 w-10 text-primary group-hover:text-white" />
                     </div>
                     <span className="font-bold text-base tracking-tight leading-tight group-hover:text-white transition-colors">{branch}</span>
@@ -243,9 +243,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* AI Help */}
+      {/* AI Help - Refined Search Bar and Button */}
       <section className="container mx-auto px-4 space-y-12 py-12">
-        <div className="bg-primary/5 rounded-[4rem] p-10 md:p-24 border border-primary/10 relative overflow-hidden group/lab shadow-3xl">
+        <div className="bg-white/5 backdrop-blur-2xl rounded-[4rem] p-10 md:p-24 border border-white/10 relative overflow-hidden group/lab shadow-3xl">
           <div className="absolute -top-12 -right-12 p-12 opacity-5 pointer-events-none group-hover/lab:rotate-45 transition-transform duration-[2000ms]">
              <BrainCircuit className="h-96 w-96 text-primary" />
           </div>
@@ -253,7 +253,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <div className="space-y-10 relative z-10">
               <div className="space-y-4">
-                <Badge className="bg-accent text-accent-foreground px-6 py-2 rounded-full font-black uppercase tracking-widest text-[11px] shadow-lg animate-pulse">
+                <Badge className="bg-accent/80 text-accent-foreground px-6 py-2 rounded-full font-black uppercase tracking-widest text-[11px] shadow-lg animate-pulse backdrop-blur-xl border border-white/20">
                   <Sparkles className="h-4 w-4 mr-2 inline" /> AI Study Assistant
                 </Badge>
                 <h2 className="text-5xl md:text-7xl font-headline font-bold tracking-tighter text-primary leading-tight">
@@ -272,17 +272,17 @@ export default function Home() {
                         placeholder="e.g. Fourier Series or OS Deadlocks" 
                         value={aiTopic}
                         onChange={(e) => setAiTopic(e.target.value)}
-                        className="w-full h-18 pl-14 pr-6 rounded-2xl bg-secondary/40 border border-primary/10 focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none text-lg font-bold text-foreground placeholder:text-muted-foreground shadow-inner relative z-0 transition-all"
+                        className="w-full h-18 pl-14 pr-6 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 focus:ring-4 focus:ring-primary/30 outline-none text-lg font-bold text-white placeholder:text-white/40 shadow-inner relative z-0 transition-all"
                       />
                    </div>
                    <Button 
                     onClick={handleAiSimplify}
                     disabled={isAiLoading || !aiTopic.trim()}
                     size="lg" 
-                    className="rounded-2xl h-18 px-12 font-black text-xl bg-primary hover:scale-[1.02] transition-all gap-3 shadow-2xl shadow-primary/30"
+                    className="rounded-2xl h-18 px-12 font-black text-xl bg-primary/90 hover:bg-primary backdrop-blur-xl border border-white/20 hover:scale-[1.05] transition-all gap-3 shadow-2xl shadow-primary/30"
                    >
                      {isAiLoading ? <Loader2 className="h-7 w-7 animate-spin" /> : <Rocket className="h-7 w-7" />}
-                     Explain Simply
+                     Simplify
                    </Button>
                  </div>
               </div>
@@ -290,9 +290,9 @@ export default function Home() {
 
             <div className="relative min-h-[450px] flex items-center justify-center">
               {aiResponse ? (
-                <Card className="w-full bg-card/70 backdrop-blur-3xl border-primary/20 shadow-[0_60px_120px_-20px_rgba(0,0,0,0.7)] rounded-[3rem] p-12 animate-in zoom-in-95 fade-in slide-in-from-bottom-8 duration-700">
-                   <div className="flex items-center gap-4 text-primary mb-8 border-b border-primary/10 pb-6">
-                      <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center shadow-inner">
+                <Card className="w-full bg-white/5 backdrop-blur-3xl border border-white/20 shadow-[0_60px_120px_-20px_rgba(0,0,0,0.7)] rounded-[3rem] p-12 animate-in zoom-in-95 fade-in slide-in-from-bottom-8 duration-700">
+                   <div className="flex items-center gap-4 text-primary mb-8 border-b border-white/10 pb-6">
+                      <div className="h-12 w-12 bg-white/5 rounded-xl flex items-center justify-center shadow-inner border border-white/10">
                         <BrainCircuit className="h-7 w-7" />
                       </div>
                       <div>
@@ -301,28 +301,28 @@ export default function Home() {
                       </div>
                    </div>
                    <div className="space-y-8">
-                      <div className="bg-primary/5 p-8 rounded-[2.5rem] border border-primary/10 text-xl leading-relaxed italic text-foreground font-medium shadow-inner">
+                      <div className="bg-white/5 p-8 rounded-[2.5rem] border border-white/10 text-xl leading-relaxed italic text-foreground font-medium shadow-inner">
                         "{aiResponse.explanation}"
                       </div>
                       <div className="space-y-4">
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary ml-2">Key Takeaways</p>
                         <div className="grid grid-cols-1 gap-3">
                           {aiResponse.keyPoints.map((pt: string, i: number) => (
-                            <div key={i} className="flex items-center gap-4 text-base font-bold bg-secondary/30 p-5 rounded-2xl border border-primary/5 hover:border-primary/20 transition-all group/item">
+                            <div key={i} className="flex items-center gap-4 text-base font-bold bg-white/5 backdrop-blur-xl p-5 rounded-2xl border border-white/5 hover:border-primary/40 transition-all group/item">
                               <div className="h-3 w-3 rounded-full bg-accent group-hover/item:scale-125 transition-transform" />
                               {pt}
                             </div>
                           ))}
                         </div>
                       </div>
-                      <Button variant="ghost" className="w-full h-14 rounded-2xl text-primary font-black uppercase text-xs tracking-widest hover:bg-primary/10 border border-primary/10 mt-4" onClick={() => setAiResponse(null)}>
+                      <Button variant="ghost" className="w-full h-14 rounded-2xl text-primary font-black uppercase text-xs tracking-widest hover:bg-white/10 border border-white/10 mt-4 backdrop-blur-xl" onClick={() => setAiResponse(null)}>
                         New Topic
                       </Button>
                    </div>
                 </Card>
               ) : (
                 <div className="text-center space-y-12 group/placeholder">
-                   <div className="h-56 w-56 bg-primary/10 rounded-full flex items-center justify-center mx-auto shadow-2xl relative group-hover/lab:scale-105 transition-transform duration-1000 border border-primary/10">
+                   <div className="h-56 w-56 bg-white/5 backdrop-blur-xl rounded-full flex items-center justify-center mx-auto shadow-2xl relative group-hover/lab:scale-105 transition-transform duration-1000 border border-white/10">
                       <div className="absolute inset-0 rounded-full border-4 border-dashed border-primary/20 animate-[spin_30s_linear_infinite]" />
                       <Sparkles className="h-24 w-24 text-primary animate-pulse" />
                    </div>
@@ -339,15 +339,15 @@ export default function Home() {
 
       {/* Community Section */}
       <section className="container mx-auto px-4 pt-32 pb-24">
-        <div className="relative rounded-[4rem] overflow-hidden bg-background border border-primary/10 group/cta shadow-3xl">
+        <div className="relative rounded-[4rem] overflow-hidden bg-white/5 backdrop-blur-2xl border border-white/10 group/cta shadow-3xl">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(22,163,74,0.15),transparent_60%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,rgba(45,185,116,0.1),transparent_60%)]" />
-          <div className="absolute inset-0 opacity-20 bg-[url('https://picsum.photos/seed/texture/1200/800')] bg-cover mix-blend-overlay grayscale" />
+          <div className="absolute inset-0 opacity-10 bg-[url('https://picsum.photos/seed/texture/1200/800')] bg-cover mix-blend-overlay grayscale" />
           
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 p-12 md:p-24 items-center">
             <div className="space-y-10">
               <div className="space-y-6">
-                <Badge className="bg-primary/10 text-primary border-none rounded-full px-5 py-2 font-black tracking-widest text-[10px]">HELP YOUR FRIENDS</Badge>
+                <Badge className="bg-primary/10 text-primary border border-white/10 backdrop-blur-xl rounded-full px-5 py-2 font-black tracking-widest text-[10px]">HELP YOUR FRIENDS</Badge>
                 <h2 className="text-6xl md:text-8xl font-headline font-bold tracking-tighter text-white leading-[0.85]">
                   Share and <br />Help <span className="text-primary italic">Others.</span>
                 </h2>
@@ -357,12 +357,12 @@ export default function Home() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-6">
-                <Button asChild size="lg" className="h-20 rounded-[1.5rem] px-12 font-black text-xl shadow-2xl shadow-primary/20 bg-primary hover:bg-primary/90 transition-all hover:scale-105 group/btn">
+                <Button asChild size="lg" className="h-20 rounded-[1.5rem] px-12 font-black text-xl shadow-2xl bg-primary/90 hover:bg-primary backdrop-blur-xl border border-white/20 transition-all hover:scale-105 group/btn">
                   <Link href="/upload" className="flex items-center gap-3">
                     Start Sharing <Share2 className="h-6 w-6 group-hover/btn:rotate-12 transition-transform" />
                   </Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="h-20 rounded-[1.5rem] px-12 font-black text-xl border-primary/20 hover:bg-primary/5 transition-all group/btn2">
+                <Button asChild size="lg" variant="outline" className="h-20 rounded-[1.5rem] px-12 font-black text-xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-all group/btn2">
                   <Link href="/forum" className="flex items-center gap-3">
                     Join Chat <MessageCircle className="h-6 w-6 group-hover/btn2:-translate-y-1 transition-transform" />
                   </Link>
@@ -370,34 +370,34 @@ export default function Home() {
               </div>
             </div>
 
-            {/* How we help */}
+            {/* How we help cards */}
             <div className="grid grid-cols-2 gap-6 relative">
-              <Card className="bg-card/40 backdrop-blur-2xl border-primary/10 p-8 rounded-[2.5rem] hover:-translate-y-3 transition-transform duration-500 shadow-xl group/card">
-                <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-4 group-hover/card:bg-primary group-hover/card:text-white transition-colors">
+              <Card className="bg-white/5 backdrop-blur-3xl border border-white/10 p-8 rounded-[2.5rem] hover:-translate-y-3 transition-transform duration-500 shadow-xl group/card">
+                <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-4 group-hover/card:bg-primary group-hover/card:text-white transition-colors border border-white/5">
                   <GraduationCap className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-bold mb-1">Study Together</h3>
+                <h3 className="text-lg font-bold mb-1 text-white">Study Together</h3>
                 <p className="text-xs text-muted-foreground font-medium leading-relaxed">Access notes for every single branch.</p>
               </Card>
-              <Card className="bg-card/40 backdrop-blur-2xl border-accent/10 p-8 rounded-[2.5rem] translate-y-10 hover:translate-y-7 transition-transform duration-500 shadow-xl group/card">
-                <div className="h-12 w-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent mb-4 group-hover/card:bg-accent group-hover/card:text-black transition-colors">
+              <Card className="bg-white/5 backdrop-blur-3xl border border-white/10 p-8 rounded-[2.5rem] translate-y-10 hover:translate-y-7 transition-transform duration-500 shadow-xl group/card">
+                <div className="h-12 w-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent mb-4 group-hover/card:bg-accent group-hover/card:text-black transition-colors border border-white/5">
                   <ShieldCheck className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-bold mb-1">Top Quality</h3>
+                <h3 className="text-lg font-bold mb-1 text-white">Top Quality</h3>
                 <p className="text-xs text-muted-foreground font-medium leading-relaxed">Verified notes from senior students.</p>
               </Card>
-              <Card className="bg-card/40 backdrop-blur-2xl border-primary/10 p-8 rounded-[2.5rem] hover:-translate-y-3 transition-transform duration-500 shadow-xl group/card">
-                <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-4 group-hover/card:bg-primary group-hover/card:text-white transition-colors">
+              <Card className="bg-white/5 backdrop-blur-3xl border border-white/10 p-8 rounded-[2.5rem] hover:-translate-y-3 transition-transform duration-500 shadow-xl group/card">
+                <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-4 group-hover/card:bg-primary group-hover/card:text-white transition-colors border border-white/5">
                   <Users className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-bold mb-1">Large Community</h3>
-                <p className="text-xs text-muted-foreground font-medium leading-relaxed">A growing group of {stats[1].value} students.</p>
+                <h3 className="text-lg font-bold mb-1 text-white">Large Community</h3>
+                <p className="text-xs text-muted-foreground font-medium leading-relaxed">A growing group of students.</p>
               </Card>
-              <Card className="bg-card/40 backdrop-blur-2xl border-accent/10 p-8 rounded-[2.5rem] translate-y-10 hover:translate-y-7 transition-transform duration-500 shadow-xl group/card">
-                <div className="h-12 w-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent mb-4 group-hover/card:bg-accent group-hover/card:text-black transition-colors">
+              <Card className="bg-white/5 backdrop-blur-3xl border border-white/10 p-8 rounded-[2.5rem] translate-y-10 hover:translate-y-7 transition-transform duration-500 shadow-xl group/card">
+                <div className="h-12 w-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent mb-4 group-hover/card:bg-accent group-hover/card:text-black transition-colors border border-white/5">
                   <Heart className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-bold mb-1">Student Support</h3>
+                <h3 className="text-lg font-bold mb-1 text-white">Student Support</h3>
                 <p className="text-xs text-muted-foreground font-medium leading-relaxed">Empowering students with senior wisdom.</p>
               </Card>
             </div>
