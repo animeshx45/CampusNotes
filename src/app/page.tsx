@@ -82,8 +82,8 @@ export default function Home() {
     
     return [
       { img: getImg('hero-nitsri-official'), title: 'NIT Srinagar', quote: 'The Ultimate Peer-to-Peer Study Resource Portal.' },
-      { img: getImg('it-dept-official'), title: 'IT Dept.', quote: 'Empowering the Next Generation of Digital Innovators.' },
-      { img: getImg('cse-dept-official'), title: 'CSE Dept.', quote: 'Architecting the Future of Computing and AI.' },
+      { img: getImg('it-dept-official'), title: 'IT Dept.', quote: 'Driving Innovation through Advanced Computation and Artificial Intelligence.' },
+      { img: getImg('cse-dept-official'), title: 'CSE Dept.', quote: 'Architecting the Future of Intelligent Systems and Global Computation.' },
       { img: getImg('ee-dept-official'), title: 'Electrical Dept.', quote: 'Powering the Future through Engineering Excellence.' },
       { img: getImg('ece-dept-official'), title: 'ECE Dept.', quote: 'Connecting Worlds through Signals and Systems.' },
       { img: getImg('mech-dept-official'), title: 'Mechanical Dept.', quote: 'Designing the Foundations of Modern Machinery.' },
