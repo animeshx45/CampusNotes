@@ -23,6 +23,9 @@ export const MATERIAL_TYPES: MaterialType[] = [
   'YouTube Playlist'
 ];
 
+// A reliable sample PDF for testing purposes
+const SAMPLE_PDF_URL = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+
 /**
  * Generates the common 1st year syllabus (Sem 1 & 2) for all branches.
  */
@@ -48,11 +51,11 @@ const generateFirstYearSyllabus = (): StudyMaterial[] => {
       branch: 'Common to All',
       semester: 1,
       type: sub.type as MaterialType,
-      fileUrl: '',
+      fileUrl: sub.type === 'YouTube Playlist' ? 'https://www.youtube.com/playlist?list=PLg49R-X49HjQvBf6_S9i9Z_wYq2fKx6_y' : SAMPLE_PDF_URL,
       author: 'NIT Srinagar Faculty',
       uploaderId: 'system',
-      downloadCount: 0,
-      views: 0,
+      downloadCount: 45,
+      views: 120,
       status: 'approved',
       createdAt: now
     });
@@ -75,11 +78,11 @@ const generateFirstYearSyllabus = (): StudyMaterial[] => {
       branch: 'Common to All',
       semester: 2,
       type: sub.type as MaterialType,
-      fileUrl: '',
+      fileUrl: sub.type === 'YouTube Playlist' ? 'https://www.youtube.com/playlist?list=PLg49R-X49HjQvBf6_S9i9Z_wYq2fKx6_y' : SAMPLE_PDF_URL,
       author: 'NIT Srinagar Faculty',
       uploaderId: 'system',
-      downloadCount: 0,
-      views: 0,
+      downloadCount: 32,
+      views: 89,
       status: 'approved',
       createdAt: now
     });
@@ -112,11 +115,11 @@ const generateChemicalSyllabus = (): StudyMaterial[] => {
       branch,
       semester: sub.sem as Semester,
       type: 'Note',
-      fileUrl: '',
+      fileUrl: SAMPLE_PDF_URL,
       author: 'Dept of Chemical Engineering',
       uploaderId: 'system',
-      downloadCount: 0,
-      views: 0,
+      downloadCount: 15,
+      views: 40,
       status: 'approved',
       createdAt: now
     });
@@ -149,11 +152,11 @@ const generateITCSESyllabus = (): StudyMaterial[] => {
         branch,
         semester: sub.sem as Semester,
         type: 'Note',
-        fileUrl: '',
+        fileUrl: SAMPLE_PDF_URL,
         author: 'NIT Srinagar Faculty',
         uploaderId: 'system',
-        downloadCount: 0,
-        views: 0,
+        downloadCount: 50,
+        views: 110,
         status: 'approved',
         createdAt: now
       });

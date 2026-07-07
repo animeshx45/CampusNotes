@@ -59,7 +59,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
   const mockMaterial = useMemo(() => MOCK_MATERIALS.find(m => m.id === id), [id]);
 
   const materialRef = useMemoFirebase(() => {
-    if (!db || !id || id.startsWith('it-') || id.startsWith('cse-') || id.startsWith('chem-') || id.includes('s3-') || id.includes('s4-') || id.includes('s5-') || id.includes('s6-') || id.includes('s7-') || id.includes('s8-')) return null;
+    if (!db || !id || id.startsWith('it-') || id.startsWith('cse-') || id.startsWith('chem-') || id.includes('s3-') || id.includes('s4-') || id.includes('s5-') || id.includes('s6-') || id.includes('s7-') || id.includes('s8-') || id.startsWith('common-')) return null;
     return doc(db, 'studyMaterials', id);
   }, [db, id]);
 
@@ -298,7 +298,6 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
                         src={previewUrl!}
                         className="w-full h-full border-none bg-white rounded-[1.2rem]"
                         title="Document Preview"
-                        onError={() => toast({ title: "Preview Error", description: "Use the button below to open the file." })}
                       />
                       <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity p-6 text-center z-20 pointer-events-none group-hover:pointer-events-auto">
                         <Monitor className="h-12 w-12 text-primary mb-4" />
