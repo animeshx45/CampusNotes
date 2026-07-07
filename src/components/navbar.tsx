@@ -1,9 +1,10 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Menu, Home as HomeIcon, Users, Info, Mail, Upload, ChevronRight } from 'lucide-react';
+import { Menu, Home as HomeIcon, Users, Info, Mail, ChevronRight } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Logo } from '@/components/logo';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -69,7 +70,7 @@ export function Navbar() {
               </SheetTrigger>
               <SheetContent className="rounded-l-[3rem] border-primary/10 bg-background/95 backdrop-blur-3xl p-10">
                 <SheetHeader>
-                  <SheetTitle className="text-left font-headline font-bold text-3xl pt-4 text-primary tracking-tighter">Gateway.</SheetTitle>
+                  <SheetTitle className="text-left font-headline font-bold text-3xl pt-4 text-primary tracking-tighter">Menu.</SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-4 mt-12">
                   {navLinks.map((link) => (

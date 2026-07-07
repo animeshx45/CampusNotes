@@ -73,8 +73,8 @@ export default function Home() {
 
     return [
       { label: 'Total Notes', value: totalNotes.toLocaleString(), icon: FileText, color: 'text-primary' },
-      { label: 'Active Students', value: (totalStudents + 1200).toLocaleString(), icon: Users, color: 'text-accent' },
-      { label: 'Impact / Downloads', value: totalDownloads.toLocaleString(), icon: Download, color: 'text-primary' },
+      { label: 'Students Helped', value: (totalStudents + 1200).toLocaleString(), icon: Users, color: 'text-accent' },
+      { label: 'Total Downloads', value: totalDownloads.toLocaleString(), icon: Download, color: 'text-primary' },
     ];
   }, [materials, users]);
 
@@ -82,15 +82,15 @@ export default function Home() {
     const getImg = (id: string) => placeholderData.placeholderImages.find(img => img.id === id);
     
     return [
-      { img: getImg('hero-nitsri-official'), title: 'NIT Srinagar', quote: 'Academic Excellence in the Heart of the Valley.' },
-      { img: getImg('it-dept-official'), title: 'Dept. of IT', quote: 'Leading Digital Transformation and Innovation.' },
-      { img: getImg('cse-dept-official'), title: 'Dept. of CSE', quote: 'Engineering the Computational Future.' },
-      { img: getImg('ee-dept-official'), title: 'Dept. of Electrical', quote: 'Powering Progress with Sustainable Energy.' },
-      { img: getImg('ece-dept-official'), title: 'Dept. of ECE', quote: 'Connecting Worlds through Signal & Systems.' },
-      { img: getImg('mech-dept-official'), title: 'Dept. of Mechanical', quote: 'Designing the Mechanics of the Future.' },
-      { img: getImg('civil-dept-official'), title: 'Dept. of Civil', quote: 'Building Sustainable Foundations for Tomorrow.' },
-      { img: getImg('chem-dept-official'), title: 'Dept. of Chemical', quote: 'Optimizing Processes, Sustaining Life.' },
-      { img: getImg('meta-dept-official'), title: 'Dept. of Metallurgy', quote: 'The Science of Materials and Structures.' },
+      { img: getImg('hero-nitsri-official'), title: 'NIT Srinagar', quote: 'Best study notes for NIT Srinagar students.' },
+      { img: getImg('it-dept-official'), title: 'IT Dept.', quote: 'Top resources for Information Technology.' },
+      { img: getImg('cse-dept-official'), title: 'CSE Dept.', quote: 'Coding and Computer Science notes.' },
+      { img: getImg('ee-dept-official'), title: 'Electrical Dept.', quote: 'Electrical Engineering exam prep.' },
+      { img: getImg('ece-dept-official'), title: 'ECE Dept.', quote: 'Signals, Systems, and Electronics.' },
+      { img: getImg('mech-dept-official'), title: 'Mechanical Dept.', quote: 'Mechanics and Design materials.' },
+      { img: getImg('civil-dept-official'), title: 'Civil Dept.', quote: 'Structural and Surveying notes.' },
+      { img: getImg('chem-dept-official'), title: 'Chemical Dept.', quote: 'Process and Chemistry resources.' },
+      { img: getImg('meta-dept-official'), title: 'Metallurgy Dept.', quote: 'Material Science study aids.' },
     ];
   }, []);
 
@@ -110,7 +110,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col pb-20 overflow-x-hidden">
-      {/* Immersive Slideshow Section */}
+      {/* Slideshow Section */}
       <section className="relative h-[85vh] min-h-[850px] overflow-hidden">
         <Carousel 
           className="w-full h-full"
@@ -141,22 +141,23 @@ export default function Home() {
                         {slide.quote}
                       </h1>
                       <p className="text-lg md:text-2xl text-white/90 font-medium max-w-3xl mx-auto leading-relaxed drop-shadow-lg">
-                        The definitive repository for student-shared resources and academic discussions at NIT Srinagar.
+                        The best place to find shared notes and papers for your exams at NIT Srinagar.
                       </p>
                       
-                      <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+                      {/* Cleaner Search Bar */}
+                      <div className="flex flex-col sm:flex-row justify-center gap-2 pt-4">
                         <div className="w-full sm:w-[500px] relative group z-20">
-                          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-white/60 group-focus-within:text-primary transition-colors" />
+                          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-white/60" />
                           <input 
-                            placeholder="Find subjects, topics or PYPs..." 
-                            className="w-full h-18 pl-16 pr-6 rounded-2xl bg-white/10 backdrop-blur-3xl border border-white/20 text-white font-bold placeholder:text-white/60 focus:ring-2 focus:ring-primary/60 focus:bg-white/20 transition-all outline-none text-lg shadow-inner"
+                            placeholder="Search subjects or papers..." 
+                            className="w-full h-16 pl-14 pr-6 rounded-xl bg-white text-black font-bold placeholder:text-gray-400 focus:ring-4 focus:ring-primary/40 transition-all outline-none text-lg shadow-2xl"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && (window.location.href = `/browse?search=${searchQuery}`)}
                           />
                         </div>
-                        <Button asChild size="lg" className="rounded-2xl h-18 px-12 font-black text-xl shadow-2xl shadow-primary/40 hover:scale-[1.02] transition-all bg-primary hover:bg-primary/90">
-                          <Link href={`/browse?search=${searchQuery}`}>Search Notes</Link>
+                        <Button asChild size="lg" className="rounded-xl h-16 px-10 font-black text-xl shadow-2xl hover:scale-[1.02] transition-all bg-primary hover:bg-primary/90">
+                          <Link href={`/browse?search=${searchQuery}`}>Find Notes</Link>
                         </Button>
                       </div>
                     </div>
@@ -171,26 +172,26 @@ export default function Home() {
           </div>
         </Carousel>
         
-        {/* Announcement Ticker */}
+        {/* Ticker */}
         <div className="absolute bottom-0 w-full bg-secondary/95 backdrop-blur-3xl border-t border-primary/10 py-4 z-40">
           <div className="container mx-auto px-4 flex items-center gap-6">
             <div className="flex items-center gap-2 text-primary font-black uppercase text-[11px] tracking-widest shrink-0 border-r border-primary/20 pr-6">
-              <Bell className="h-4 w-4" /> Campus Live:
+              <Bell className="h-4 w-4" /> Latest Updates:
             </div>
             <div className="overflow-hidden relative flex-grow h-6 group">
               <div className="absolute whitespace-nowrap animate-marquee group-hover:pause flex gap-16 text-sm font-bold text-muted-foreground/80">
-                <span>• End Semester PYPs for all branches have been updated for 2024</span>
+                <span>• End Semester papers added for 2024</span>
                 <span>• Mechanical Lab Manuals added for Semester 4</span>
-                <span>• New Discussion Thread: GATE 2025 Preparation Strategy</span>
-                <span>• Contribution Drive: Share your mid-sem notes to earn badges</span>
-                <span>• Chemical Engineering Process Control notes published by Faculty</span>
+                <span>• New Discussion: GATE 2025 Study Plan</span>
+                <span>• Share your mid-sem notes to help others</span>
+                <span>• Chemical Engineering notes published by Faculty</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Modern Stats Overlay */}
+      {/* Stats */}
       <section className="container mx-auto px-4 -mt-20 relative z-50">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {stats.map((stat, i) => (
@@ -210,16 +211,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Department Quick Pick */}
+      {/* Branches */}
       <section className="container mx-auto px-4 space-y-16 py-24">
         <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-8 border-b border-primary/10 pb-12">
           <div className="space-y-4">
-            <Badge className="bg-primary/10 text-primary border-none rounded-full px-5 py-1.5 font-black tracking-[0.2em] text-[10px]">RESOURCES DIRECTORY</Badge>
-            <h2 className="text-4xl md:text-6xl font-headline font-bold tracking-tight text-primary">Academic Vaults.</h2>
-            <p className="text-muted-foreground font-medium text-xl max-w-2xl">Precision-curated study material for the 8 core engineering disciplines at NIT Srinagar.</p>
+            <Badge className="bg-primary/10 text-primary border-none rounded-full px-5 py-1.5 font-black tracking-[0.2em] text-[10px]">NOTES LIBRARY</Badge>
+            <h2 className="text-4xl md:text-6xl font-headline font-bold tracking-tight text-primary">See Notes by Branch.</h2>
+            <p className="text-muted-foreground font-medium text-xl max-w-2xl">Find study material for all 8 engineering branches at NIT Srinagar.</p>
           </div>
           <Button variant="outline" asChild className="rounded-2xl font-black text-xs uppercase tracking-widest border-primary/20 h-14 px-10 hover:bg-primary hover:text-white transition-all">
-            <Link href="/browse">Enter Library <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            <Link href="/browse">See All Notes <ArrowRight className="ml-2 h-4 w-4" /></Link>
           </Button>
         </div>
 
@@ -242,7 +243,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* AI Study Engine */}
+      {/* AI Help */}
       <section className="container mx-auto px-4 space-y-12 py-12">
         <div className="bg-primary/5 rounded-[4rem] p-10 md:p-24 border border-primary/10 relative overflow-hidden group/lab shadow-3xl">
           <div className="absolute -top-12 -right-12 p-12 opacity-5 pointer-events-none group-hover/lab:rotate-45 transition-transform duration-[2000ms]">
@@ -253,13 +254,13 @@ export default function Home() {
             <div className="space-y-10 relative z-10">
               <div className="space-y-4">
                 <Badge className="bg-accent text-accent-foreground px-6 py-2 rounded-full font-black uppercase tracking-widest text-[11px] shadow-lg animate-pulse">
-                  <Sparkles className="h-4 w-4 mr-2 inline" /> Genkit-Powered Intelligence
+                  <Sparkles className="h-4 w-4 mr-2 inline" /> AI Study Assistant
                 </Badge>
                 <h2 className="text-5xl md:text-7xl font-headline font-bold tracking-tighter text-primary leading-tight">
-                  Master Hard <br /><span className="text-foreground italic">Concepts.</span>
+                  Learn Hard <br /><span className="text-foreground italic">Topics Easily.</span>
                 </h2>
                 <p className="text-xl text-muted-foreground font-medium max-w-lg leading-relaxed">
-                  Bridge the gap between lectures and labs. Our AI Study Engine simplifies complex engineering syllabus instantly.
+                  Stuck on a hard topic? Our AI Study Buddy explains hard engineering concepts in simple words.
                 </p>
               </div>
               
@@ -281,7 +282,7 @@ export default function Home() {
                     className="rounded-2xl h-18 px-12 font-black text-xl bg-primary hover:scale-[1.02] transition-all gap-3 shadow-2xl shadow-primary/30"
                    >
                      {isAiLoading ? <Loader2 className="h-7 w-7 animate-spin" /> : <Rocket className="h-7 w-7" />}
-                     Simplify
+                     Explain Simply
                    </Button>
                  </div>
               </div>
@@ -296,7 +297,7 @@ export default function Home() {
                       </div>
                       <div>
                         <h3 className="text-2xl font-bold tracking-tight">AI Insights</h3>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Subject: {aiTopic}</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Topic: {aiTopic}</p>
                       </div>
                    </div>
                    <div className="space-y-8">
@@ -304,7 +305,7 @@ export default function Home() {
                         "{aiResponse.explanation}"
                       </div>
                       <div className="space-y-4">
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary ml-2">Engine Output / Key Takeaways</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary ml-2">Key Takeaways</p>
                         <div className="grid grid-cols-1 gap-3">
                           {aiResponse.keyPoints.map((pt: string, i: number) => (
                             <div key={i} className="flex items-center gap-4 text-base font-bold bg-secondary/30 p-5 rounded-2xl border border-primary/5 hover:border-primary/20 transition-all group/item">
@@ -315,7 +316,7 @@ export default function Home() {
                         </div>
                       </div>
                       <Button variant="ghost" className="w-full h-14 rounded-2xl text-primary font-black uppercase text-xs tracking-widest hover:bg-primary/10 border border-primary/10 mt-4" onClick={() => setAiResponse(null)}>
-                        Analyze New Topic
+                        New Topic
                       </Button>
                    </div>
                 </Card>
@@ -326,8 +327,8 @@ export default function Home() {
                       <Sparkles className="h-24 w-24 text-primary animate-pulse" />
                    </div>
                    <div className="space-y-4 animate-bounce">
-                     <p className="text-4xl font-headline font-bold text-primary/40 tracking-tight">System Ready for Input.</p>
-                     <p className="text-lg text-muted-foreground font-medium max-w-xs mx-auto leading-relaxed">Type any technical concept above to see our simplified academic breakdown.</p>
+                     <p className="text-4xl font-headline font-bold text-primary/40 tracking-tight">I'm Ready to Help.</p>
+                     <p className="text-lg text-muted-foreground font-medium max-w-xs mx-auto leading-relaxed">Type any topic above to get a simple explanation.</p>
                    </div>
                 </div>
               )}
@@ -336,10 +337,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Redefined Community Movement Section */}
+      {/* Community Section */}
       <section className="container mx-auto px-4 pt-32 pb-24">
         <div className="relative rounded-[4rem] overflow-hidden bg-background border border-primary/10 group/cta shadow-3xl">
-          {/* Complex Background Logic */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(22,163,74,0.15),transparent_60%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,rgba(45,185,116,0.1),transparent_60%)]" />
           <div className="absolute inset-0 opacity-20 bg-[url('https://picsum.photos/seed/texture/1200/800')] bg-cover mix-blend-overlay grayscale" />
@@ -347,58 +347,58 @@ export default function Home() {
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 p-12 md:p-24 items-center">
             <div className="space-y-10">
               <div className="space-y-6">
-                <Badge className="bg-primary/10 text-primary border-none rounded-full px-5 py-2 font-black tracking-widest text-[10px]">THE CAMPUS MISSION</Badge>
+                <Badge className="bg-primary/10 text-primary border-none rounded-full px-5 py-2 font-black tracking-widest text-[10px]">HELP YOUR FRIENDS</Badge>
                 <h2 className="text-6xl md:text-8xl font-headline font-bold tracking-tighter text-white leading-[0.85]">
-                  Elevate <br />Your <span className="text-primary italic">Circle.</span>
+                  Share and <br />Help <span className="text-primary italic">Others.</span>
                 </h2>
                 <p className="text-xl md:text-2xl text-muted-foreground font-medium max-w-lg leading-relaxed">
-                  Join a movement of students committed to collective excellence. Every note shared is a bridge for a peer.
+                  Join hundreds of students who share notes to help each other succeed in exams.
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-6">
                 <Button asChild size="lg" className="h-20 rounded-[1.5rem] px-12 font-black text-xl shadow-2xl shadow-primary/20 bg-primary hover:bg-primary/90 transition-all hover:scale-105 group/btn">
                   <Link href="/upload" className="flex items-center gap-3">
-                    Start Contributing <Share2 className="h-6 w-6 group-hover/btn:rotate-12 transition-transform" />
+                    Start Sharing <Share2 className="h-6 w-6 group-hover/btn:rotate-12 transition-transform" />
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="h-20 rounded-[1.5rem] px-12 font-black text-xl border-primary/20 hover:bg-primary/5 transition-all group/btn2">
                   <Link href="/forum" className="flex items-center gap-3">
-                    Join Discourse <MessageCircle className="h-6 w-6 group-hover/btn2:-translate-y-1 transition-transform" />
+                    Join Chat <MessageCircle className="h-6 w-6 group-hover/btn2:-translate-y-1 transition-transform" />
                   </Link>
                 </Button>
               </div>
             </div>
 
-            {/* Impact Visualization Grid */}
+            {/* How we help */}
             <div className="grid grid-cols-2 gap-6 relative">
               <Card className="bg-card/40 backdrop-blur-2xl border-primary/10 p-8 rounded-[2.5rem] hover:-translate-y-3 transition-transform duration-500 shadow-xl group/card">
                 <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-4 group-hover/card:bg-primary group-hover/card:text-white transition-colors">
                   <GraduationCap className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-bold mb-1">Academic Unity</h3>
-                <p className="text-xs text-muted-foreground font-medium leading-relaxed">Closing the resource gap for every branch.</p>
+                <h3 className="text-lg font-bold mb-1">Study Together</h3>
+                <p className="text-xs text-muted-foreground font-medium leading-relaxed">Access notes for every single branch.</p>
               </Card>
               <Card className="bg-card/40 backdrop-blur-2xl border-accent/10 p-8 rounded-[2.5rem] translate-y-10 hover:translate-y-7 transition-transform duration-500 shadow-xl group/card">
                 <div className="h-12 w-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent mb-4 group-hover/card:bg-accent group-hover/card:text-black transition-colors">
                   <ShieldCheck className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-bold mb-1">Trusted Quality</h3>
-                <p className="text-xs text-muted-foreground font-medium leading-relaxed">Verified notes shared by NIT Srinagar toppers.</p>
+                <h3 className="text-lg font-bold mb-1">Top Quality</h3>
+                <p className="text-xs text-muted-foreground font-medium leading-relaxed">Verified notes from senior students.</p>
               </Card>
               <Card className="bg-card/40 backdrop-blur-2xl border-primary/10 p-8 rounded-[2.5rem] hover:-translate-y-3 transition-transform duration-500 shadow-xl group/card">
                 <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-4 group-hover/card:bg-primary group-hover/card:text-white transition-colors">
                   <Users className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-bold mb-1">Active Peerage</h3>
-                <p className="text-xs text-muted-foreground font-medium leading-relaxed">A growing community of {stats[1].value} students.</p>
+                <h3 className="text-lg font-bold mb-1">Large Community</h3>
+                <p className="text-xs text-muted-foreground font-medium leading-relaxed">A growing group of {stats[1].value} students.</p>
               </Card>
               <Card className="bg-card/40 backdrop-blur-2xl border-accent/10 p-8 rounded-[2.5rem] translate-y-10 hover:translate-y-7 transition-transform duration-500 shadow-xl group/card">
                 <div className="h-12 w-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent mb-4 group-hover/card:bg-accent group-hover/card:text-black transition-colors">
                   <Heart className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-bold mb-1">Peer Support</h3>
-                <p className="text-xs text-muted-foreground font-medium leading-relaxed">Empowering juniors with senior-year wisdom.</p>
+                <h3 className="text-lg font-bold mb-1">Student Support</h3>
+                <p className="text-xs text-muted-foreground font-medium leading-relaxed">Empowering students with senior wisdom.</p>
               </Card>
             </div>
           </div>
@@ -407,4 +407,3 @@ export default function Home() {
     </div>
   );
 }
-

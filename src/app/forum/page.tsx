@@ -36,7 +36,7 @@ export default function ForumPage() {
 
   const handleCreatePost = () => {
     if (!newPost.title.trim() || !newPost.content.trim() || !newPost.author.trim()) {
-      toast({ title: "Missing Information", description: "Please provide a name, title, and content.", variant: "destructive" });
+      toast({ title: "Missing Info", description: "Please enter your name, title, and content.", variant: "destructive" });
       return;
     }
 
@@ -51,7 +51,7 @@ export default function ForumPage() {
 
     addDocumentNonBlocking(collection(db, 'forumPosts'), postData);
     
-    toast({ title: "Post Shared", description: "Your discussion thread has been created." });
+    toast({ title: "Post Shared", description: "Your chat topic is now live." });
     setNewPost({ title: '', content: '', author: '', branch: 'Information Technology' });
     setIsDialogOpen(false);
   };
@@ -65,30 +65,30 @@ export default function ForumPage() {
     <div className="container mx-auto px-4 py-12 max-w-6xl animate-in fade-in duration-500">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16 border-b border-primary/10 pb-12">
         <div className="space-y-4">
-          <Badge className="bg-accent text-accent-foreground rounded-full px-4 py-1 font-black tracking-widest uppercase text-[10px]">Public Discourse</Badge>
+          <Badge className="bg-accent text-accent-foreground rounded-full px-4 py-1 font-black tracking-widest uppercase text-[10px]">STUDENT CHAT</Badge>
           <h1 className="text-5xl md:text-7xl font-headline font-bold text-primary tracking-tighter">Campus <br /><span className="text-foreground italic">Feed.</span></h1>
-          <p className="text-muted-foreground text-xl max-w-md">Join the conversation. Ask anything, answer everything.</p>
+          <p className="text-muted-foreground text-xl max-w-md">Talk to other students. Ask questions and help others with their doubts.</p>
         </div>
         
         <div className="flex flex-col w-full md:w-auto gap-4">
           <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input 
-              placeholder="Search discussions..." 
-              className="pl-12 h-14 w-full md:w-80 rounded-2xl bg-secondary/20 border-primary/5 focus-visible:ring-primary shadow-sm"
+              placeholder="Search chat topics..." 
+              className="pl-12 h-14 w-full md:w-80 rounded-2xl bg-secondary/20 border-primary/5 shadow-sm"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="h-14 rounded-2xl font-bold shadow-xl shadow-primary/20 gap-2">
-                <Plus className="h-5 w-5" /> Start Discussion
+              <Button className="h-14 rounded-2xl font-bold shadow-xl gap-2">
+                <Plus className="h-5 w-5" /> Start New Topic
               </Button>
             </DialogTrigger>
             <DialogContent className="rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
               <DialogHeader className="bg-primary text-primary-foreground p-8">
-                <DialogTitle className="text-2xl font-headline font-bold">New Discussion Thread</DialogTitle>
+                <DialogTitle className="text-2xl font-headline font-bold">New Topic</DialogTitle>
               </DialogHeader>
               <div className="p-8 space-y-6">
                 <div className="space-y-2">
@@ -103,7 +103,7 @@ export default function ForumPage() {
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Title</label>
                   <Input 
-                    placeholder="What's your question?" 
+                    placeholder="What do you want to talk about?" 
                     value={newPost.title} 
                     onChange={(e) => setNewPost({...newPost, title: e.target.value})} 
                     className="rounded-xl h-12" 
@@ -120,9 +120,9 @@ export default function ForumPage() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Content</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Details</label>
                   <Textarea 
-                    placeholder="Explain your doubt in detail..." 
+                    placeholder="Explain what you need help with..." 
                     value={newPost.content} 
                     onChange={(e) => setNewPost({...newPost, content: e.target.value})} 
                     className="rounded-2xl min-h-[150px] p-4" 
@@ -130,7 +130,7 @@ export default function ForumPage() {
                 </div>
                 <Button onClick={handleCreatePost} className="w-full h-14 rounded-2xl font-bold text-lg">
                   <Send className="h-5 w-5 mr-2" />
-                  Publish Thread
+                  Post Topic
                 </Button>
               </div>
             </DialogContent>
@@ -143,7 +143,7 @@ export default function ForumPage() {
           {isLoading ? (
              <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-40">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <p className="font-bold uppercase tracking-widest text-xs">Syncing discussions...</p>
+                <p className="font-bold uppercase tracking-widest text-xs">Loading chat...</p>
              </div>
           ) : filteredPosts?.length ? (
             filteredPosts.map((post) => (
@@ -169,12 +169,12 @@ export default function ForumPage() {
                         {post.authorName?.charAt(0) || 'A'}
                       </div>
                       <div>
-                        <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Contributor</p>
+                        <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Shared By</p>
                         <p className="text-sm font-bold">{post.authorName}</p>
                       </div>
                     </div>
                     <Button variant="outline" className="rounded-xl border-primary/10 hover:bg-primary hover:text-white transition-all group/btn">
-                      Join Discussion <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                      Read More <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                     </Button>
                   </CardFooter>
                 </Card>
@@ -186,8 +186,8 @@ export default function ForumPage() {
                   <MessageSquare className="h-10 w-10 text-primary opacity-40" />
                </div>
                <div className="space-y-2">
-                 <h3 className="text-2xl font-bold">No discussions found</h3>
-                 <p className="text-muted-foreground max-w-xs mx-auto">Be the first to start a conversation for this topic.</p>
+                 <h3 className="text-2xl font-bold">No chat topics found</h3>
+                 <p className="text-muted-foreground max-w-xs mx-auto">Be the first to start a talk about this.</p>
                </div>
             </div>
           )}
@@ -200,7 +200,7 @@ export default function ForumPage() {
              </div>
              <CardHeader className="relative z-10 border-b border-white/10 pb-6">
                 <CardTitle className="font-headline font-bold text-xl flex items-center gap-2">
-                  <TrendingUp className="h-6 w-6 text-accent" /> Hot Topics
+                  <TrendingUp className="h-6 w-6 text-accent" /> Popular Topics
                 </CardTitle>
              </CardHeader>
              <CardContent className="p-8 relative z-10 space-y-6">
@@ -224,21 +224,21 @@ export default function ForumPage() {
           <Card className="rounded-[2.5rem] border-primary/5 shadow-xl bg-card overflow-hidden">
              <CardHeader className="bg-primary/5 p-8">
                 <CardTitle className="text-lg font-bold flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-primary" /> Forum Rules
+                  <BookOpen className="h-5 w-5 text-primary" /> Simple Rules
                 </CardTitle>
              </CardHeader>
              <CardContent className="p-8 space-y-6">
                 <div className="space-y-1 text-sm">
-                   <p className="font-bold text-primary italic">1. Academic Only</p>
-                   <p className="text-muted-foreground">Keep discussions related to NIT Srinagar courses.</p>
+                   <p className="font-bold text-primary italic">1. Be Respectful</p>
+                   <p className="text-muted-foreground">Always be kind to your fellow students.</p>
                 </div>
                 <div className="space-y-1 text-sm">
                    <p className="font-bold text-primary italic">2. Use Real Names</p>
-                   <p className="text-muted-foreground">For better academic trust, use your actual name.</p>
+                   <p className="text-muted-foreground">It helps to know who we are talking to.</p>
                 </div>
                 <div className="space-y-1 text-sm">
-                   <p className="font-bold text-primary italic">3. Be Helpful</p>
-                   <p className="text-muted-foreground">Encourage and support juniors and fellow students.</p>
+                   <p className="font-bold text-primary italic">3. Stay Helpful</p>
+                   <p className="text-muted-foreground">Share what you know to help juniors.</p>
                 </div>
              </CardContent>
           </Card>
