@@ -12,7 +12,7 @@ export function Logo({ className }: { className?: string }) {
     <div className={cn("flex items-center gap-3 group", className)}>
       <div className="relative h-12 w-12 bg-white rounded-full p-1 shadow-lg shadow-primary/20 transition-all duration-500 group-hover:scale-110 overflow-hidden">
         <Image 
-          src={logoImg?.imageUrl || "https://tse1.mm.bing.net/th?id=OIP.7xU4w2l7_8Y8yL7G9X6zYQHaHa&pid=Api"}
+          src={logoImg?.imageUrl || "https://cdn.corenexis.com/f/4nTpHkq9UhK.png"}
           alt="NIT Srinagar Logo"
           fill
           className="object-contain p-1"
