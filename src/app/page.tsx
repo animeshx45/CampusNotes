@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useMemo } from 'react';
@@ -9,8 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { BRANCHES } from '@/lib/mock-data';
 import { 
   Search, BookOpen, Users, ArrowRight, GraduationCap, 
-  FileText, Download, Code, Cpu, Hammer, Droplets, Zap, Beaker, Building2, Microscope, Heart,
-  Sparkles, BrainCircuit, Rocket, Loader2
+  FileText, Download, Code, Cpu, Zap, Hammer, Beaker, Building2, Droplets, Microscope, Heart,
+  Sparkles, BrainCircuit, Rocket, Loader2, Globe
 } from 'lucide-react';
 import Image from 'next/image';
 import {
@@ -37,6 +36,7 @@ const BRANCH_ICONS: Record<string, any> = {
   'Civil Engineering': Building2,
   'Electronics & Communication Engineering': Droplets,
   'Metallurgical & Materials Engineering': Microscope,
+  'Common to All': Globe,
 };
 
 export default function Home() {
@@ -195,14 +195,14 @@ export default function Home() {
         <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 border-b border-primary/10 pb-8">
           <div className="space-y-2">
             <h2 className="text-3xl font-headline font-bold tracking-tight text-primary">Academic Vaults</h2>
-            <p className="text-muted-foreground font-medium text-lg">Quickly navigate to your department's specialized resources.</p>
+            <p className="text-muted-foreground font-medium text-lg">Quickly navigate to specialized resources for each department.</p>
           </div>
           <Button variant="ghost" asChild className="rounded-xl font-bold text-primary hover:bg-primary/10 h-12 px-6">
             <Link href="/browse">Explore All <ArrowRight className="ml-2 h-4 w-4" /></Link>
           </Button>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
           {BRANCHES.map((branch) => {
             const Icon = BRANCH_ICONS[branch] || BookOpen;
             return (

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useRef } from 'react';
@@ -11,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { 
   Search, Download, FileText, ArrowRight,
-  Filter, X, GraduationCap, Video
+  Filter, X, GraduationCap, Video, Globe
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -44,13 +43,17 @@ export default function BrowsePage() {
     return query(collection(db, 'studyMaterials'));
   }, [db]);
 
-  const { data: dbMaterials, isLoading } = useCollection<StudyMaterial>(materialQuery);
+  const { data: dbMaterials } = useCollection<StudyMaterial>(materialQuery);
 
   const filteredMaterials = useMemo(() => {
     const combined = [...MOCK_MATERIALS, ...(dbMaterials || [])];
     
     return combined.filter(m => {
-      const branchMatch = selectedBranch === 'all' || m.branch === selectedBranch;
+      // If a specific branch is selected, show its materials AND "Common to All" materials
+      const branchMatch = selectedBranch === 'all' || 
+                          m.branch === selectedBranch || 
+                          m.branch === 'Common to All';
+      
       const semMatch = selectedSemester === 'all' || m.semester.toString() === selectedSemester;
       const searchMatch = m.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           m.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -99,6 +102,10 @@ export default function BrowsePage() {
         getImg('meta-dept-official'),
         { imageUrl: 'https://picsum.photos/seed/met1/1200/600', title: 'Material Testing', imageHint: 'microscope testing' },
       ],
+      'Common to All': [
+        getImg('hero-nitsri-official'),
+        { imageUrl: 'https://picsum.photos/seed/common/1200/600', title: 'Central Repository', imageHint: 'library books' },
+      ]
     };
 
     return branchSlides[selectedBranch] || commonSlides;
@@ -237,10 +244,13 @@ export default function BrowsePage() {
                     <CardHeader className="p-8 pb-4">
                       <div className="flex justify-between items-start">
                         <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-lg">
-                          {material.type === 'YouTube Playlist' ? <Video className="h-7 w-7" /> : <FileText className="h-7 w-7" />}
+                          {material.type === 'YouTube Playlist' ? <Video className="h-7 w-7" /> : material.branch === 'Common to All' ? <Globe className="h-7 w-7" /> : <FileText className="h-7 w-7" />}
                         </div>
-                        <div className="text-right">
+                        <div className="text-right flex flex-col gap-1 items-end">
                           <Badge variant="outline" className="rounded-full px-4 py-1 border-primary/20 font-bold text-[10px]">Sem {material.semester}</Badge>
+                          {material.branch === 'Common to All' && (
+                            <Badge className="bg-accent text-accent-foreground rounded-full px-3 py-0.5 font-black text-[9px] uppercase tracking-widest">Universal</Badge>
+                          )}
                         </div>
                       </div>
                       <CardTitle className="text-2xl font-headline font-bold group-hover:text-primary transition-colors mt-6 leading-tight line-clamp-2">{material.title}</CardTitle>
