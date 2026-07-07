@@ -3,23 +3,20 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Search, Menu, BookOpen, Upload, LayoutDashboard, MessageSquare } from 'lucide-react';
+import { Menu, Home as HomeIcon, Users, Info, Mail, Upload } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Logo } from '@/components/logo';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const router = useRouter();
 
   const navLinks = [
-    { name: 'See Notes', href: '/browse', icon: Search },
-    { name: 'Community Forum', href: '/forum', icon: MessageSquare },
-    { name: 'Upload', href: '/upload', icon: Upload },
-    { name: 'Activity Hub', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'About', href: '/about', icon: BookOpen },
+    { name: 'Home', href: '/', icon: HomeIcon },
+    { name: 'Community', href: '/forum', icon: Users },
+    { name: 'About', href: '/about', icon: Info },
+    { name: 'Contact Us', href: '/contact', icon: Mail },
   ];
 
   return (
@@ -76,7 +73,7 @@ export function Navbar() {
                   ))}
                   <div className="border-t border-primary/5 pt-6 flex flex-col gap-3">
                     <Button asChild className="w-full rounded-2xl h-14 font-black text-lg" onClick={() => setIsMobileMenuOpen(false)}>
-                      <Link href="/upload">Upload Now</Link>
+                      <Link href="/upload">Share Material</Link>
                     </Button>
                   </div>
                 </div>
