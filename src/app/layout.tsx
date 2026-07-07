@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="font-body antialiased flex flex-col min-h-screen">
+      <body className="font-body antialiased flex flex-col min-h-screen overflow-x-hidden">
         <FirebaseClientProvider>
           <ThemeProvider
             attribute="class"
@@ -28,7 +28,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <Navbar />
-            <main className="flex-grow">
+            <main className="flex-grow w-full overflow-x-hidden">
               {children}
             </main>
             <Footer />
