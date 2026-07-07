@@ -109,13 +109,13 @@ export default function Home() {
   return (
     <div className="flex flex-col pb-20">
       {/* Immersive Slideshow Section */}
-      <section className="relative h-[90vh] min-h-[750px] overflow-hidden">
+      <section className="relative h-[95vh] min-h-[800px] overflow-hidden">
         <Carousel 
           className="w-full h-full"
           plugins={[autoplayPlugin.current]}
           opts={{ loop: true }}
         >
-          <CarouselContent className="h-[90vh] -ml-0">
+          <CarouselContent className="h-[95vh] -ml-0">
             {heroSlides.map((slide, index) => (
               <CarouselItem key={index} className="pl-0 relative h-full w-full">
                 <div className="relative h-full w-full">
@@ -123,31 +123,31 @@ export default function Home() {
                     src={slide.img?.imageUrl || 'https://picsum.photos/seed/nitsri/1200/800'} 
                     alt={slide.title}
                     fill
-                    className="object-cover brightness-[0.7] contrast-125 transition-transform duration-[10000ms] hover:scale-105"
+                    className="object-cover brightness-[0.6] contrast-110 transition-transform duration-[10000ms] hover:scale-105"
                     priority={index === 0}
                     data-ai-hint="university campus"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/20" />
                   
-                  {/* Hero Content - Increased pb-48 for better separation */}
-                  <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-center items-center text-center pb-48">
-                    <div className="max-w-4xl space-y-8 animate-in fade-in zoom-in duration-1000">
-                      <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-primary/20 backdrop-blur-3xl text-white text-[11px] font-black uppercase tracking-[0.3em] border border-white/20 shadow-2xl">
+                  {/* Hero Content - Adjusted for clear visibility of all elements */}
+                  <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-end items-center text-center pb-56 pt-20">
+                    <div className="max-w-4xl space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                      <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-primary/30 backdrop-blur-3xl text-white text-[12px] font-black uppercase tracking-[0.3em] border border-white/20 shadow-2xl">
                         <GraduationCap className="h-5 w-5 text-accent" /> {slide.title}
                       </div>
                       <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline font-bold tracking-tighter text-white leading-tight drop-shadow-2xl">
                         {slide.quote}
                       </h1>
-                      <p className="text-lg md:text-2xl text-white/80 font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
+                      <p className="text-lg md:text-2xl text-white/90 font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
                         The definitive repository for student-shared resources and academic discussions at NIT Srinagar.
                       </p>
                       
-                      <div className="flex flex-col sm:flex-row justify-center gap-4 pt-10">
+                      <div className="flex flex-col sm:flex-row justify-center gap-4 pt-8">
                         <div className="w-full sm:w-[450px] relative group">
-                          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-white/40 group-focus-within:text-primary transition-colors" />
+                          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-white/60 group-focus-within:text-primary transition-colors" />
                           <input 
                             placeholder="Find subjects, topics or PYPs..." 
-                            className="w-full h-16 pl-16 pr-6 rounded-2xl bg-white/10 backdrop-blur-3xl border border-white/20 text-white font-bold placeholder:text-white/40 focus:ring-2 focus:ring-primary/40 focus:bg-white/20 transition-all outline-none"
+                            className="w-full h-16 pl-16 pr-6 rounded-2xl bg-white/10 backdrop-blur-3xl border border-white/20 text-white font-bold placeholder:text-white/60 focus:ring-2 focus:ring-primary/60 focus:bg-white/20 transition-all outline-none"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && (window.location.href = `/browse?search=${searchQuery}`)}
@@ -163,14 +163,14 @@ export default function Home() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <div className="absolute bottom-32 right-8 md:right-16 flex gap-4 z-20">
+          <div className="absolute bottom-40 right-8 md:right-16 flex gap-4 z-20">
             <CarouselPrevious className="relative left-0 translate-y-0 h-14 w-14 bg-white/5 backdrop-blur-3xl hover:bg-primary hover:text-white border-white/10 rounded-2xl transition-all shadow-2xl" />
             <CarouselNext className="relative right-0 translate-y-0 h-14 w-14 bg-white/5 backdrop-blur-3xl hover:bg-primary hover:text-white border-white/10 rounded-2xl transition-all shadow-2xl" />
           </div>
         </Carousel>
         
         {/* Announcement Ticker */}
-        <div className="absolute bottom-0 w-full bg-secondary/80 backdrop-blur-3xl border-t border-primary/10 py-3 z-30">
+        <div className="absolute bottom-0 w-full bg-secondary/90 backdrop-blur-3xl border-t border-primary/10 py-3 z-30">
           <div className="container mx-auto px-4 flex items-center gap-6">
             <div className="flex items-center gap-2 text-primary font-black uppercase text-[10px] tracking-widest shrink-0">
               <Bell className="h-4 w-4" /> Campus Live:
@@ -188,10 +188,10 @@ export default function Home() {
       </section>
 
       {/* Modern Stats Overlay */}
-      <section className="container mx-auto px-4 -mt-20 relative z-40">
+      <section className="container mx-auto px-4 -mt-24 relative z-40">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {stats.map((stat, i) => (
-            <div key={i} className="bg-card/60 backdrop-blur-3xl p-10 rounded-[2.5rem] flex flex-col gap-4 border border-primary/10 shadow-3xl hover:border-primary/40 transition-all group overflow-hidden relative">
+            <div key={i} className="bg-card/70 backdrop-blur-3xl p-10 rounded-[2.5rem] flex flex-col gap-4 border border-primary/15 shadow-3xl hover:border-primary/40 transition-all group overflow-hidden relative">
               <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-125 transition-transform duration-700">
                 <stat.icon className="h-32 w-32" />
               </div>
