@@ -23,8 +23,9 @@ export default function RootLayout({
         <FirebaseClientProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
-            enableSystem
+            defaultTheme="dark"
+            forcedTheme="dark"
+            enableSystem={false}
             disableTransitionOnChange
           >
             <Navbar />

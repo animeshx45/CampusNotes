@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Menu, Home as HomeIcon, Users, Info, Mail, ChevronRight, X } from 'lucide-react';
-import { ThemeToggle } from '@/components/theme-toggle';
 import { Logo } from '@/components/logo';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -53,8 +52,6 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2 md:gap-4">
-          <ThemeToggle />
-
           <div className="hidden sm:flex items-center gap-3">
             <Button asChild className="rounded-2xl font-black text-[10px] uppercase tracking-widest h-10 md:h-12 px-6 md:px-8 shadow-xl backdrop-blur-xl bg-primary/90 hover:bg-primary border border-white/10 hover:scale-105 transition-all">
               <Link href="/upload" className="flex items-center gap-2">Share <ChevronRight className="h-3 w-3" /></Link>
