@@ -132,11 +132,11 @@ export default function Home() {
                   
                   {/* Hero Content */}
                   <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-center items-center text-center pt-32 pb-48">
-                    <div className="max-w-4xl space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                    <div className="max-w-5xl space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                       <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-white/5 backdrop-blur-3xl text-white text-[12px] font-black uppercase tracking-[0.3em] border border-white/10 shadow-2xl">
                         <GraduationCap className="h-5 w-5 text-accent" /> {slide.title}
                       </div>
-                      <h1 className="text-4xl md:text-5xl lg:text-6xl font-headline font-bold tracking-tight text-white leading-[1.2] drop-shadow-2xl px-4">
+                      <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline font-bold tracking-tighter text-white leading-[1.1] drop-shadow-2xl px-4">
                         {slide.quote}
                       </h1>
                       <p className="text-base md:text-xl text-white/90 font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-lg opacity-80">
