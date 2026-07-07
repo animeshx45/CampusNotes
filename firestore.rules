@@ -6,26 +6,31 @@ service cloud.firestore {
     
     match /users/{userId} {
       allow read: if true;
-      allow write: if false; // Auth removed, writing users is no longer supported
+      allow write: if false; 
     }
 
     match /studyMaterials/{id} {
       allow read: if true;
-      allow create: if true; // Public uploads enabled
+      allow create: if true; 
       allow update: if true;
-      allow delete: if false; // Prevent public deletion
+      allow delete: if false; 
     }
     
     match /forumPosts/{id} {
       allow read: if true;
-      allow create: if true; // Public discussions enabled
+      allow create: if true; 
       allow delete: if false;
 
       match /replies/{replyId} {
         allow read: if true;
-        allow create: if true; // Public replies enabled
+        allow create: if true; 
         allow delete: if false;
       }
+    }
+
+    match /contactMessages/{id} {
+      allow read: if false; // Only admin should read via console
+      allow create: if true; // Public can send messages
     }
     
     match /notifications/{id} {

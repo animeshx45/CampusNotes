@@ -68,6 +68,19 @@
       },
       "required": ["id", "postId", "content", "authorId"]
     },
+    "ContactMessage": {
+      "title": "ContactMessage",
+      "type": "object",
+      "description": "A message sent via the contact form.",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "message"]
+    },
     "Notification": {
       "title": "Notification",
       "type": "object",
@@ -100,6 +113,10 @@
     "/forumPosts/{postId}/replies/{replyId}": {
       "schema": "#/backend/entities/ForumReply",
       "description": "Replies within a discussion thread."
+    },
+    "/contactMessages/{messageId}": {
+      "schema": "#/backend/entities/ContactMessage",
+      "description": "User messages from the contact form."
     },
     "/notifications/{notifId}": {
       "schema": "#/backend/entities/Notification",
