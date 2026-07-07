@@ -81,15 +81,15 @@ export default function Home() {
     const getImg = (id: string) => placeholderData.placeholderImages.find(img => img.id === id);
     
     return [
-      { img: getImg('hero-nitsri-official'), title: 'NIT Srinagar', quote: 'Best study notes for NIT Srinagar students.' },
-      { img: getImg('it-dept-official'), title: 'IT Dept.', quote: 'Top resources for Information Technology.' },
-      { img: getImg('cse-dept-official'), title: 'CSE Dept.', quote: 'Coding and Computer Science notes.' },
-      { img: getImg('ee-dept-official'), title: 'Electrical Dept.', quote: 'Electrical Engineering exam prep.' },
-      { img: getImg('ece-dept-official'), title: 'ECE Dept.', quote: 'Signals, Systems, and Electronics.' },
-      { img: getImg('mech-dept-official'), title: 'Mechanical Dept.', quote: 'Mechanical engineering study materials.' },
-      { img: getImg('civil-dept-official'), title: 'Civil Dept.', quote: 'Civil engineering notes and papers.' },
-      { img: getImg('chem-dept-official'), title: 'Chemical Dept.', quote: 'Chemical engineering notes and papers.' },
-      { img: getImg('meta-dept-official'), title: 'Metallurgy Dept.', quote: 'Material science study aids.' },
+      { img: getImg('hero-nitsri-official'), title: 'NIT Srinagar', quote: 'The Ultimate Peer-to-Peer Study Resource Portal.' },
+      { img: getImg('it-dept-official'), title: 'IT Dept.', quote: 'Empowering the Next Generation of Digital Innovators.' },
+      { img: getImg('cse-dept-official'), title: 'CSE Dept.', quote: 'Architecting the Future of Computing and AI.' },
+      { img: getImg('ee-dept-official'), title: 'Electrical Dept.', quote: 'Powering the Future through Engineering Excellence.' },
+      { img: getImg('ece-dept-official'), title: 'ECE Dept.', quote: 'Connecting Worlds through Signals and Systems.' },
+      { img: getImg('mech-dept-official'), title: 'Mechanical Dept.', quote: 'Designing the Foundations of Modern Machinery.' },
+      { img: getImg('civil-dept-official'), title: 'Civil Dept.', quote: 'Constructing a Sustainable World for Tomorrow.' },
+      { img: getImg('chem-dept-official'), title: 'Chemical Dept.', quote: 'Transforming Matter for Global Advancement.' },
+      { img: getImg('meta-dept-official'), title: 'Metallurgy Dept.', quote: 'Mastering the Science of Materials and Metals.' },
     ];
   }, []);
 
@@ -140,7 +140,7 @@ export default function Home() {
                         {slide.quote}
                       </h1>
                       <p className="text-lg md:text-2xl text-white/90 font-medium max-w-3xl mx-auto leading-relaxed drop-shadow-lg">
-                        The best place to find shared notes and papers for your exams at NIT Srinagar.
+                        The easiest way to find notes, papers, and help for your exams at NIT Srinagar.
                       </p>
                       
                       {/* Search Bar - Liquid Glass Style */}
@@ -242,7 +242,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* AI Help - Refined Search Bar and Button */}
+      {/* AI Help */}
       <section className="container mx-auto px-4 space-y-12 py-12">
         <div className="bg-white/5 backdrop-blur-2xl rounded-[4rem] p-10 md:p-24 border border-white/10 relative overflow-hidden group/lab shadow-3xl">
           <div className="absolute -top-12 -right-12 p-12 opacity-5 pointer-events-none group-hover/lab:rotate-45 transition-transform duration-[2000ms]">
@@ -278,7 +278,7 @@ export default function Home() {
                     onClick={handleAiSimplify}
                     disabled={isAiLoading || !aiTopic.trim()}
                     size="lg" 
-                    className="rounded-2xl h-18 px-12 font-black text-xl bg-primary/90 hover:bg-primary backdrop-blur-xl border border-white/20 hover:scale-[1.05] transition-all gap-3 shadow-2xl shadow-primary/30"
+                    className="rounded-2xl h-18 px-12 font-black text-xl bg-primary/90 hover:bg-primary backdrop-blur-xl border border-white/10 hover:scale-[1.05] transition-all gap-3 shadow-2xl shadow-primary/30"
                    >
                      {isAiLoading ? <Loader2 className="h-7 w-7 animate-spin" /> : <Rocket className="h-7 w-7" />}
                      Simplify
