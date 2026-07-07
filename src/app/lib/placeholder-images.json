@@ -54,6 +54,12 @@
       "description": "Metallurgical and Materials Engineering department",
       "imageUrl": "https://nitsri.ac.in/upload/department/met.jpg",
       "imageHint": "metallurgy department"
+    },
+    {
+      "id": "nitsri-logo-official",
+      "description": "Official Logo/Seal of NIT Srinagar",
+      "imageUrl": "https://nitsri.ac.in/images/Logo-Srinagar.png",
+      "imageHint": "university logo"
     }
   ]
 }
