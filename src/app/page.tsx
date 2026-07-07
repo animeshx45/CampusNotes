@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useMemo } from 'react';
@@ -9,7 +10,7 @@ import { BRANCHES } from '@/lib/mock-data';
 import { 
   Search, BookOpen, Users, ArrowRight, GraduationCap, 
   FileText, Download, Code, Cpu, Zap, Hammer, Beaker, Building2, Droplets, Microscope, Heart,
-  Sparkles, BrainCircuit, Rocket, Loader2, Globe, Bell
+  Sparkles, BrainCircuit, Rocket, Loader2, Globe, Bell, Share2, MessageCircle, ShieldCheck
 } from 'lucide-react';
 import Image from 'next/image';
 import {
@@ -26,6 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { StudyMaterial, User } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 const BRANCH_ICONS: Record<string, any> = {
   'Information Technology': Code,
@@ -129,7 +131,7 @@ export default function Home() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/20" />
                   
-                  {/* Hero Content - Robust positioning to avoid header blocking and stats overlap */}
+                  {/* Hero Content */}
                   <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-center items-center text-center pt-32 pb-48">
                     <div className="max-w-5xl space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                       <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-primary/20 backdrop-blur-3xl text-white text-[12px] font-black uppercase tracking-[0.3em] border border-white/10 shadow-2xl">
@@ -169,7 +171,7 @@ export default function Home() {
           </div>
         </Carousel>
         
-        {/* Announcement Ticker - Pinned to bottom of slideshow */}
+        {/* Announcement Ticker */}
         <div className="absolute bottom-0 w-full bg-secondary/95 backdrop-blur-3xl border-t border-primary/10 py-4 z-40">
           <div className="container mx-auto px-4 flex items-center gap-6">
             <div className="flex items-center gap-2 text-primary font-black uppercase text-[11px] tracking-widest shrink-0 border-r border-primary/20 pr-6">
@@ -188,7 +190,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Modern Stats Overlay - Controlled negative margin */}
+      {/* Modern Stats Overlay */}
       <section className="container mx-auto px-4 -mt-20 relative z-50">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {stats.map((stat, i) => (
@@ -334,28 +336,70 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Global Community Drive */}
-      <section className="container mx-auto px-4 pt-24 pb-12">
-        <div className="bg-primary rounded-[5rem] p-16 md:p-32 text-center space-y-12 relative overflow-hidden shadow-[0_80px_160px_-40px_rgba(22,163,74,0.5)] border-4 border-white/5">
-          <div className="absolute -top-20 -left-20 opacity-10 rotate-12 scale-150">
-            <Heart className="h-96 w-96 text-white" />
-          </div>
-          <div className="absolute -bottom-20 -right-20 opacity-10 -rotate-12 scale-150">
-            <GraduationCap className="h-96 w-96 text-white" />
-          </div>
+      {/* Redefined Community Movement Section */}
+      <section className="container mx-auto px-4 pt-32 pb-24">
+        <div className="relative rounded-[4rem] overflow-hidden bg-background border border-primary/10 group/cta shadow-3xl">
+          {/* Complex Background Logic */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(22,163,74,0.15),transparent_60%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,rgba(45,185,116,0.1),transparent_60%)]" />
+          <div className="absolute inset-0 opacity-20 bg-[url('https://picsum.photos/seed/texture/1200/800')] bg-cover mix-blend-overlay grayscale" />
           
-          <div className="max-w-4xl mx-auto space-y-12 relative z-10 animate-in slide-in-from-bottom-12 duration-1000">
-            <h2 className="text-5xl md:text-8xl font-headline font-bold text-white tracking-tighter leading-[0.9]">Elevate Your <br />Academic Circle.</h2>
-            <p className="text-xl md:text-3xl text-white/95 font-medium max-w-2xl mx-auto leading-relaxed">
-              Knowledge shared is knowledge multiplied. Contribute to the largest study bank in the valley and help a fellow student succeed.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-8 pt-10">
-              <Button asChild size="lg" variant="secondary" className="rounded-[2.5rem] px-16 h-22 font-black text-2xl bg-white text-primary hover:scale-[1.05] transition-all shadow-3xl border-none">
-                <Link href="/upload">Upload Materials</Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-[2.5rem] px-16 h-22 font-black text-2xl text-white border-white/30 hover:bg-white/10 transition-all backdrop-blur-3xl shadow-2xl">
-                <Link href="/forum">Join The Discussion</Link>
-              </Button>
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 p-12 md:p-24 items-center">
+            <div className="space-y-10">
+              <div className="space-y-6">
+                <Badge className="bg-primary/10 text-primary border-none rounded-full px-5 py-2 font-black tracking-widest text-[10px]">THE CAMPUS MISSION</Badge>
+                <h2 className="text-6xl md:text-8xl font-headline font-bold tracking-tighter text-white leading-[0.85]">
+                  Elevate <br />Your <span className="text-primary italic">Circle.</span>
+                </h2>
+                <p className="text-xl md:text-2xl text-muted-foreground font-medium max-w-lg leading-relaxed">
+                  Join a movement of students committed to collective excellence. Every note shared is a bridge for a peer.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-6">
+                <Button asChild size="lg" className="h-20 rounded-[1.5rem] px-12 font-black text-xl shadow-2xl shadow-primary/20 bg-primary hover:bg-primary/90 transition-all hover:scale-105 group/btn">
+                  <Link href="/upload" className="flex items-center gap-3">
+                    Start Contributing <Share2 className="h-6 w-6 group-hover/btn:rotate-12 transition-transform" />
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="h-20 rounded-[1.5rem] px-12 font-black text-xl border-primary/20 hover:bg-primary/5 transition-all group/btn2">
+                  <Link href="/forum" className="flex items-center gap-3">
+                    Join Discourse <MessageCircle className="h-6 w-6 group-hover/btn2:-translate-y-1 transition-transform" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Impact Visualization Grid */}
+            <div className="grid grid-cols-2 gap-6 relative">
+              <Card className="bg-card/40 backdrop-blur-2xl border-primary/10 p-8 rounded-[2.5rem] hover:-translate-y-3 transition-transform duration-500 shadow-xl group/card">
+                <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-4 group-hover/card:bg-primary group-hover/card:text-white transition-colors">
+                  <GraduationCap className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-bold mb-1">Academic Unity</h3>
+                <p className="text-xs text-muted-foreground font-medium leading-relaxed">Closing the resource gap for every branch.</p>
+              </Card>
+              <Card className="bg-card/40 backdrop-blur-2xl border-accent/10 p-8 rounded-[2.5rem] translate-y-10 hover:translate-y-7 transition-transform duration-500 shadow-xl group/card">
+                <div className="h-12 w-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent mb-4 group-hover/card:bg-accent group-hover/card:text-black transition-colors">
+                  <ShieldCheck className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-bold mb-1">Trusted Quality</h3>
+                <p className="text-xs text-muted-foreground font-medium leading-relaxed">Verified notes shared by NIT Srinagar toppers.</p>
+              </Card>
+              <Card className="bg-card/40 backdrop-blur-2xl border-primary/10 p-8 rounded-[2.5rem] hover:-translate-y-3 transition-transform duration-500 shadow-xl group/card">
+                <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-4 group-hover/card:bg-primary group-hover/card:text-white transition-colors">
+                  <Users className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-bold mb-1">Active Peerage</h3>
+                <p className="text-xs text-muted-foreground font-medium leading-relaxed">A growing community of {stats[1].value} students.</p>
+              </Card>
+              <Card className="bg-card/40 backdrop-blur-2xl border-accent/10 p-8 rounded-[2.5rem] translate-y-10 hover:translate-y-7 transition-transform duration-500 shadow-xl group/card">
+                <div className="h-12 w-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent mb-4 group-hover/card:bg-accent group-hover/card:text-black transition-colors">
+                  <Heart className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-bold mb-1">Peer Support</h3>
+                <p className="text-xs text-muted-foreground font-medium leading-relaxed">Empowering juniors with senior-year wisdom.</p>
+              </Card>
             </div>
           </div>
         </div>
@@ -363,3 +407,4 @@ export default function Home() {
     </div>
   );
 }
+
