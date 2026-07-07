@@ -107,15 +107,15 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col pb-20">
+    <div className="flex flex-col pb-20 overflow-x-hidden">
       {/* Immersive Slideshow Section */}
-      <section className="relative h-[95vh] min-h-[800px] overflow-hidden">
+      <section className="relative h-[85vh] min-h-[850px] overflow-hidden">
         <Carousel 
           className="w-full h-full"
           plugins={[autoplayPlugin.current]}
           opts={{ loop: true }}
         >
-          <CarouselContent className="h-[95vh] -ml-0">
+          <CarouselContent className="h-[85vh] min-h-[850px] -ml-0">
             {heroSlides.map((slide, index) => (
               <CarouselItem key={index} className="pl-0 relative h-full w-full">
                 <div className="relative h-full w-full">
@@ -123,37 +123,37 @@ export default function Home() {
                     src={slide.img?.imageUrl || 'https://picsum.photos/seed/nitsri/1200/800'} 
                     alt={slide.title}
                     fill
-                    className="object-cover brightness-[0.6] contrast-110 transition-transform duration-[10000ms] hover:scale-105"
+                    className="object-cover brightness-[0.55] contrast-110"
                     priority={index === 0}
                     data-ai-hint="university campus"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/20" />
                   
-                  {/* Hero Content - Adjusted for clear visibility of all elements */}
-                  <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-end items-center text-center pb-56 pt-20">
-                    <div className="max-w-4xl space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                      <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-primary/30 backdrop-blur-3xl text-white text-[12px] font-black uppercase tracking-[0.3em] border border-white/20 shadow-2xl">
+                  {/* Hero Content - Robust positioning to avoid header blocking and stats overlap */}
+                  <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-center items-center text-center pt-32 pb-48">
+                    <div className="max-w-5xl space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                      <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-primary/20 backdrop-blur-3xl text-white text-[12px] font-black uppercase tracking-[0.3em] border border-white/10 shadow-2xl">
                         <GraduationCap className="h-5 w-5 text-accent" /> {slide.title}
                       </div>
-                      <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline font-bold tracking-tighter text-white leading-tight drop-shadow-2xl">
+                      <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline font-bold tracking-tighter text-white leading-[1.1] drop-shadow-2xl">
                         {slide.quote}
                       </h1>
-                      <p className="text-lg md:text-2xl text-white/90 font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
+                      <p className="text-lg md:text-2xl text-white/90 font-medium max-w-3xl mx-auto leading-relaxed drop-shadow-lg">
                         The definitive repository for student-shared resources and academic discussions at NIT Srinagar.
                       </p>
                       
-                      <div className="flex flex-col sm:flex-row justify-center gap-4 pt-8">
-                        <div className="w-full sm:w-[450px] relative group">
+                      <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+                        <div className="w-full sm:w-[500px] relative group z-20">
                           <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-white/60 group-focus-within:text-primary transition-colors" />
                           <input 
                             placeholder="Find subjects, topics or PYPs..." 
-                            className="w-full h-16 pl-16 pr-6 rounded-2xl bg-white/10 backdrop-blur-3xl border border-white/20 text-white font-bold placeholder:text-white/60 focus:ring-2 focus:ring-primary/60 focus:bg-white/20 transition-all outline-none"
+                            className="w-full h-18 pl-16 pr-6 rounded-2xl bg-white/10 backdrop-blur-3xl border border-white/20 text-white font-bold placeholder:text-white/60 focus:ring-2 focus:ring-primary/60 focus:bg-white/20 transition-all outline-none text-lg shadow-inner"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && (window.location.href = `/browse?search=${searchQuery}`)}
                           />
                         </div>
-                        <Button asChild size="lg" className="rounded-2xl h-16 px-10 font-black text-xl shadow-2xl shadow-primary/40 hover:scale-105 transition-transform bg-primary hover:bg-primary/90">
+                        <Button asChild size="lg" className="rounded-2xl h-18 px-12 font-black text-xl shadow-2xl shadow-primary/40 hover:scale-[1.02] transition-all bg-primary hover:bg-primary/90">
                           <Link href={`/browse?search=${searchQuery}`}>Search Notes</Link>
                         </Button>
                       </div>
@@ -163,35 +163,36 @@ export default function Home() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <div className="absolute bottom-40 right-8 md:right-16 flex gap-4 z-20">
+          <div className="absolute bottom-40 right-8 md:right-16 flex gap-4 z-30">
             <CarouselPrevious className="relative left-0 translate-y-0 h-14 w-14 bg-white/5 backdrop-blur-3xl hover:bg-primary hover:text-white border-white/10 rounded-2xl transition-all shadow-2xl" />
             <CarouselNext className="relative right-0 translate-y-0 h-14 w-14 bg-white/5 backdrop-blur-3xl hover:bg-primary hover:text-white border-white/10 rounded-2xl transition-all shadow-2xl" />
           </div>
         </Carousel>
         
-        {/* Announcement Ticker */}
-        <div className="absolute bottom-0 w-full bg-secondary/90 backdrop-blur-3xl border-t border-primary/10 py-3 z-30">
+        {/* Announcement Ticker - Pinned to bottom of slideshow */}
+        <div className="absolute bottom-0 w-full bg-secondary/95 backdrop-blur-3xl border-t border-primary/10 py-4 z-40">
           <div className="container mx-auto px-4 flex items-center gap-6">
-            <div className="flex items-center gap-2 text-primary font-black uppercase text-[10px] tracking-widest shrink-0">
+            <div className="flex items-center gap-2 text-primary font-black uppercase text-[11px] tracking-widest shrink-0 border-r border-primary/20 pr-6">
               <Bell className="h-4 w-4" /> Campus Live:
             </div>
-            <div className="overflow-hidden relative flex-grow h-5 group">
-              <div className="absolute whitespace-nowrap animate-marquee group-hover:pause flex gap-12 text-xs font-bold text-muted-foreground">
+            <div className="overflow-hidden relative flex-grow h-6 group">
+              <div className="absolute whitespace-nowrap animate-marquee group-hover:pause flex gap-16 text-sm font-bold text-muted-foreground/80">
                 <span>• End Semester PYPs for all branches have been updated for 2024</span>
                 <span>• Mechanical Lab Manuals added for Semester 4</span>
                 <span>• New Discussion Thread: GATE 2025 Preparation Strategy</span>
                 <span>• Contribution Drive: Share your mid-sem notes to earn badges</span>
+                <span>• Chemical Engineering Process Control notes published by Faculty</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Modern Stats Overlay */}
-      <section className="container mx-auto px-4 -mt-24 relative z-40">
+      {/* Modern Stats Overlay - Controlled negative margin */}
+      <section className="container mx-auto px-4 -mt-20 relative z-50">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {stats.map((stat, i) => (
-            <div key={i} className="bg-card/70 backdrop-blur-3xl p-10 rounded-[2.5rem] flex flex-col gap-4 border border-primary/15 shadow-3xl hover:border-primary/40 transition-all group overflow-hidden relative">
+            <div key={i} className="bg-card/80 backdrop-blur-3xl p-10 rounded-[2.5rem] flex flex-col gap-4 border border-primary/20 shadow-3xl hover:border-primary/50 transition-all group overflow-hidden relative">
               <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-125 transition-transform duration-700">
                 <stat.icon className="h-32 w-32" />
               </div>
@@ -199,8 +200,8 @@ export default function Home() {
                 <stat.icon className="h-7 w-7" />
               </div>
               <div>
-                <p className={`text-4xl font-black tracking-tighter ${stat.color}`}>{stat.value}</p>
-                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.3em] mt-1">{stat.label}</p>
+                <p className={`text-5xl font-black tracking-tighter ${stat.color}`}>{stat.value}</p>
+                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.4em] mt-2">{stat.label}</p>
               </div>
             </div>
           ))}
@@ -208,7 +209,7 @@ export default function Home() {
       </section>
 
       {/* Department Quick Pick */}
-      <section className="container mx-auto px-4 space-y-12 py-24">
+      <section className="container mx-auto px-4 space-y-16 py-24">
         <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-8 border-b border-primary/10 pb-12">
           <div className="space-y-4">
             <Badge className="bg-primary/10 text-primary border-none rounded-full px-5 py-1.5 font-black tracking-[0.2em] text-[10px]">RESOURCES DIRECTORY</Badge>
@@ -225,12 +226,12 @@ export default function Home() {
             const Icon = BRANCH_ICONS[branch] || BookOpen;
             return (
               <Link key={branch} href={`/browse?branch=${encodeURIComponent(branch)}`}>
-                <Card className="group hover:bg-primary transition-all duration-700 cursor-pointer rounded-[2.5rem] overflow-hidden border-primary/5 bg-secondary/20 hover:-translate-y-3 shadow-sm hover:shadow-[0_40px_80px_-15px_rgba(22,163,74,0.3)]">
-                  <CardContent className="flex flex-col items-center justify-center p-10 gap-6 text-center h-full">
-                    <div className="p-5 rounded-2xl bg-primary/10 group-hover:bg-white/20 transition-all duration-500 shadow-inner group-hover:rotate-12">
+                <Card className="group hover:bg-primary transition-all duration-700 cursor-pointer rounded-[3rem] overflow-hidden border-primary/10 bg-secondary/30 hover:-translate-y-4 shadow-sm hover:shadow-[0_50px_100px_-20px_rgba(22,163,74,0.4)]">
+                  <CardContent className="flex flex-col items-center justify-center p-12 gap-6 text-center h-full">
+                    <div className="p-6 rounded-2xl bg-primary/10 group-hover:bg-white/20 transition-all duration-500 shadow-inner group-hover:rotate-12">
                       <Icon className="h-10 w-10 text-primary group-hover:text-white" />
                     </div>
-                    <span className="font-bold text-sm tracking-tight leading-tight group-hover:text-white transition-colors">{branch}</span>
+                    <span className="font-bold text-base tracking-tight leading-tight group-hover:text-white transition-colors">{branch}</span>
                   </CardContent>
                 </Card>
               </Link>
@@ -275,7 +276,7 @@ export default function Home() {
                     onClick={handleAiSimplify}
                     disabled={isAiLoading || !aiTopic.trim()}
                     size="lg" 
-                    className="rounded-2xl h-18 px-12 font-black text-xl bg-primary hover:scale-105 transition-all gap-3 shadow-2xl shadow-primary/30"
+                    className="rounded-2xl h-18 px-12 font-black text-xl bg-primary hover:scale-[1.02] transition-all gap-3 shadow-2xl shadow-primary/30"
                    >
                      {isAiLoading ? <Loader2 className="h-7 w-7 animate-spin" /> : <Rocket className="h-7 w-7" />}
                      Simplify
@@ -284,9 +285,9 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative min-h-[400px] flex items-center justify-center">
+            <div className="relative min-h-[450px] flex items-center justify-center">
               {aiResponse ? (
-                <Card className="w-full bg-card/60 backdrop-blur-3xl border-primary/10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.6)] rounded-[3rem] p-12 animate-in zoom-in-95 fade-in slide-in-from-bottom-8 duration-700">
+                <Card className="w-full bg-card/70 backdrop-blur-3xl border-primary/20 shadow-[0_60px_120px_-20px_rgba(0,0,0,0.7)] rounded-[3rem] p-12 animate-in zoom-in-95 fade-in slide-in-from-bottom-8 duration-700">
                    <div className="flex items-center gap-4 text-primary mb-8 border-b border-primary/10 pb-6">
                       <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center shadow-inner">
                         <BrainCircuit className="h-7 w-7" />
@@ -297,7 +298,7 @@ export default function Home() {
                       </div>
                    </div>
                    <div className="space-y-8">
-                      <div className="bg-primary/5 p-8 rounded-[2rem] border border-primary/10 text-xl leading-relaxed italic text-foreground font-medium shadow-inner">
+                      <div className="bg-primary/5 p-8 rounded-[2.5rem] border border-primary/10 text-xl leading-relaxed italic text-foreground font-medium shadow-inner">
                         "{aiResponse.explanation}"
                       </div>
                       <div className="space-y-4">
@@ -311,20 +312,20 @@ export default function Home() {
                           ))}
                         </div>
                       </div>
-                      <Button variant="ghost" className="w-full h-14 rounded-2xl text-primary font-black uppercase text-xs tracking-widest hover:bg-primary/10 border border-primary/5" onClick={() => setAiResponse(null)}>
+                      <Button variant="ghost" className="w-full h-14 rounded-2xl text-primary font-black uppercase text-xs tracking-widest hover:bg-primary/10 border border-primary/10 mt-4" onClick={() => setAiResponse(null)}>
                         Analyze New Topic
                       </Button>
                    </div>
                 </Card>
               ) : (
-                <div className="text-center space-y-10 group/placeholder">
-                   <div className="h-48 w-48 bg-primary/10 rounded-full flex items-center justify-center mx-auto shadow-2xl relative group-hover/lab:scale-110 transition-transform duration-700 border border-primary/5">
-                      <div className="absolute inset-0 rounded-full border-4 border-dashed border-primary/20 animate-[spin_20s_linear_infinite]" />
-                      <Sparkles className="h-20 w-20 text-primary animate-pulse" />
+                <div className="text-center space-y-12 group/placeholder">
+                   <div className="h-56 w-56 bg-primary/10 rounded-full flex items-center justify-center mx-auto shadow-2xl relative group-hover/lab:scale-105 transition-transform duration-1000 border border-primary/10">
+                      <div className="absolute inset-0 rounded-full border-4 border-dashed border-primary/20 animate-[spin_30s_linear_infinite]" />
+                      <Sparkles className="h-24 w-24 text-primary animate-pulse" />
                    </div>
                    <div className="space-y-4 animate-bounce">
-                     <p className="text-3xl font-headline font-bold text-primary/40 tracking-tight">System Ready for Input.</p>
-                     <p className="text-base text-muted-foreground font-medium max-w-xs mx-auto leading-relaxed">Type any technical concept above to see our simplified academic breakdown.</p>
+                     <p className="text-4xl font-headline font-bold text-primary/40 tracking-tight">System Ready for Input.</p>
+                     <p className="text-lg text-muted-foreground font-medium max-w-xs mx-auto leading-relaxed">Type any technical concept above to see our simplified academic breakdown.</p>
                    </div>
                 </div>
               )}
@@ -334,8 +335,8 @@ export default function Home() {
       </section>
 
       {/* Global Community Drive */}
-      <section className="container mx-auto px-4 pt-24">
-        <div className="bg-primary rounded-[4rem] p-16 md:p-32 text-center space-y-12 relative overflow-hidden shadow-[0_60px_120px_-20px_rgba(22,163,74,0.4)] border-4 border-white/5">
+      <section className="container mx-auto px-4 pt-24 pb-12">
+        <div className="bg-primary rounded-[5rem] p-16 md:p-32 text-center space-y-12 relative overflow-hidden shadow-[0_80px_160px_-40px_rgba(22,163,74,0.5)] border-4 border-white/5">
           <div className="absolute -top-20 -left-20 opacity-10 rotate-12 scale-150">
             <Heart className="h-96 w-96 text-white" />
           </div>
@@ -343,16 +344,16 @@ export default function Home() {
             <GraduationCap className="h-96 w-96 text-white" />
           </div>
           
-          <div className="max-w-4xl mx-auto space-y-10 relative z-10 animate-in slide-in-from-bottom-12 duration-1000">
+          <div className="max-w-4xl mx-auto space-y-12 relative z-10 animate-in slide-in-from-bottom-12 duration-1000">
             <h2 className="text-5xl md:text-8xl font-headline font-bold text-white tracking-tighter leading-[0.9]">Elevate Your <br />Academic Circle.</h2>
-            <p className="text-xl md:text-3xl text-white/90 font-medium max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-3xl text-white/95 font-medium max-w-2xl mx-auto leading-relaxed">
               Knowledge shared is knowledge multiplied. Contribute to the largest study bank in the valley and help a fellow student succeed.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-6 pt-10">
-              <Button asChild size="lg" variant="secondary" className="rounded-[2rem] px-14 h-20 font-black text-2xl bg-white text-primary hover:scale-105 transition-all shadow-3xl border-none">
+            <div className="flex flex-col sm:flex-row justify-center gap-8 pt-10">
+              <Button asChild size="lg" variant="secondary" className="rounded-[2.5rem] px-16 h-22 font-black text-2xl bg-white text-primary hover:scale-[1.05] transition-all shadow-3xl border-none">
                 <Link href="/upload">Upload Materials</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-[2rem] px-14 h-20 font-black text-2xl text-white border-white/40 hover:bg-white/10 transition-all backdrop-blur-3xl shadow-2xl">
+              <Button asChild size="lg" variant="outline" className="rounded-[2.5rem] px-16 h-22 font-black text-2xl text-white border-white/30 hover:bg-white/10 transition-all backdrop-blur-3xl shadow-2xl">
                 <Link href="/forum">Join The Discussion</Link>
               </Button>
             </div>
