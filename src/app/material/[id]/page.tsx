@@ -11,7 +11,7 @@ import {
   BrainCircuit, Download, FileText, Share2, MessageSquare, 
   Info, Sparkles, AlertCircle, Loader2, Zap, ArrowLeft, 
   ExternalLink, Youtube, Monitor, Eye, ShieldCheck, Trash2, Edit,
-  Terminal, Lightbulb, CheckCircle2
+  Terminal, Lightbulb, CheckCircle2, Rocket
 } from 'lucide-react';
 import { generateStudyMaterialSummary } from '@/ai/flows/generate-study-material-summary';
 import { generateExamQuestions } from '@/ai/flows/generate-exam-questions-flow';
