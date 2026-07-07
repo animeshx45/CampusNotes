@@ -81,9 +81,14 @@ export default function Home() {
     
     return [
       { img: getImg('hero-nitsri-official'), title: 'NIT Srinagar', quote: 'Academic Excellence in the Heart of the Valley.' },
-      { img: getImg('it-dept-official'), title: 'Department of IT', quote: 'Leading Digital Transformation and Innovation.' },
-      { img: getImg('cse-dept-official'), title: 'Dept of Computer Science', quote: 'Engineering the Computational Future.' },
-      { img: getImg('civil-dept-official'), title: 'Civil Engineering', quote: 'Building Sustainable Foundations for Tomorrow.' },
+      { img: getImg('it-dept-official'), title: 'Dept. of IT', quote: 'Leading Digital Transformation and Innovation.' },
+      { img: getImg('cse-dept-official'), title: 'Dept. of CSE', quote: 'Engineering the Computational Future.' },
+      { img: getImg('ee-dept-official'), title: 'Dept. of Electrical', quote: 'Powering Progress with Sustainable Energy.' },
+      { img: getImg('ece-dept-official'), title: 'Dept. of ECE', quote: 'Connecting Worlds through Signal & Systems.' },
+      { img: getImg('mech-dept-official'), title: 'Dept. of Mechanical', quote: 'Designing the Mechanics of the Future.' },
+      { img: getImg('civil-dept-official'), title: 'Dept. of Civil', quote: 'Building Sustainable Foundations for Tomorrow.' },
+      { img: getImg('chem-dept-official'), title: 'Dept. of Chemical', quote: 'Optimizing Processes, Sustaining Life.' },
+      { img: getImg('meta-dept-official'), title: 'Dept. of Metallurgy', quote: 'The Science of Materials and Structures.' },
     ];
   }, []);
 
@@ -104,13 +109,13 @@ export default function Home() {
   return (
     <div className="flex flex-col pb-20">
       {/* Immersive Slideshow Section */}
-      <section className="relative h-[85vh] min-h-[700px] overflow-hidden">
+      <section className="relative h-[90vh] min-h-[750px] overflow-hidden">
         <Carousel 
           className="w-full h-full"
           plugins={[autoplayPlugin.current]}
           opts={{ loop: true }}
         >
-          <CarouselContent className="h-[85vh] -ml-0">
+          <CarouselContent className="h-[90vh] -ml-0">
             {heroSlides.map((slide, index) => (
               <CarouselItem key={index} className="pl-0 relative h-full w-full">
                 <div className="relative h-full w-full">
@@ -124,8 +129,8 @@ export default function Home() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
                   
-                  {/* Hero Content - Adjusted pb-32 to push content up away from overlapping stats */}
-                  <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-center items-center text-center pb-32">
+                  {/* Hero Content - Increased pb-48 for better separation */}
+                  <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-center items-center text-center pb-48">
                     <div className="max-w-4xl space-y-8 animate-in fade-in zoom-in duration-1000">
                       <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-primary/20 backdrop-blur-3xl text-white text-[11px] font-black uppercase tracking-[0.3em] border border-white/20 shadow-2xl">
                         <GraduationCap className="h-5 w-5 text-accent" /> {slide.title}
@@ -158,7 +163,7 @@ export default function Home() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <div className="absolute bottom-24 right-8 md:right-16 flex gap-4 z-20">
+          <div className="absolute bottom-32 right-8 md:right-16 flex gap-4 z-20">
             <CarouselPrevious className="relative left-0 translate-y-0 h-14 w-14 bg-white/5 backdrop-blur-3xl hover:bg-primary hover:text-white border-white/10 rounded-2xl transition-all shadow-2xl" />
             <CarouselNext className="relative right-0 translate-y-0 h-14 w-14 bg-white/5 backdrop-blur-3xl hover:bg-primary hover:text-white border-white/10 rounded-2xl transition-all shadow-2xl" />
           </div>
@@ -182,8 +187,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Modern Stats Overlay - Clearly separated from hero content */}
-      <section className="container mx-auto px-4 -mt-16 relative z-40">
+      {/* Modern Stats Overlay */}
+      <section className="container mx-auto px-4 -mt-20 relative z-40">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {stats.map((stat, i) => (
             <div key={i} className="bg-card/60 backdrop-blur-3xl p-10 rounded-[2.5rem] flex flex-col gap-4 border border-primary/10 shadow-3xl hover:border-primary/40 transition-all group overflow-hidden relative">
@@ -234,7 +239,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Redefined AI Study Engine Section */}
+      {/* AI Study Engine */}
       <section className="container mx-auto px-4 space-y-12 py-12">
         <div className="bg-primary/5 rounded-[4rem] p-10 md:p-24 border border-primary/10 relative overflow-hidden group/lab shadow-3xl">
           <div className="absolute -top-12 -right-12 p-12 opacity-5 pointer-events-none group-hover/lab:rotate-45 transition-transform duration-[2000ms]">
@@ -328,7 +333,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Global Community Drive Section */}
+      {/* Global Community Drive */}
       <section className="container mx-auto px-4 pt-24">
         <div className="bg-primary rounded-[4rem] p-16 md:p-32 text-center space-y-12 relative overflow-hidden shadow-[0_60px_120px_-20px_rgba(22,163,74,0.4)] border-4 border-white/5">
           <div className="absolute -top-20 -left-20 opacity-10 rotate-12 scale-150">
