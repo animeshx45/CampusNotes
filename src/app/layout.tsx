@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Chatbot } from '@/components/chatbot';
+import { AuthProvider } from '@/context/AuthContext';
 
 export const metadata: Metadata = {
   title: 'CampusNotes | NIT Srinagar Peer Study Portal',
@@ -21,21 +22,23 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="font-body antialiased flex flex-col min-h-screen overflow-x-hidden">
         <FirebaseClientProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            forcedTheme="dark"
-            enableSystem={false}
-            disableTransitionOnChange
-          >
-            <Navbar />
-            <main className="flex-grow w-full overflow-x-hidden">
-              {children}
-            </main>
-            <Footer />
-            <Chatbot />
-            <Toaster />
-          </ThemeProvider>
+          <AuthProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="dark"
+              forcedTheme="dark"
+              enableSystem={false}
+              disableTransitionOnChange
+            >
+              <Navbar />
+              <main className="flex-grow w-full overflow-x-hidden">
+                {children}
+              </main>
+              <Footer />
+              <Chatbot />
+              <Toaster />
+            </ThemeProvider>
+          </AuthProvider>
         </FirebaseClientProvider>
       </body>
     </html>

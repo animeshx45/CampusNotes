@@ -1,7 +1,6 @@
 
 "use client";
 
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,33 +10,48 @@ import {
   ArrowRight, Users, Clock, TrendingUp, Sparkles 
 } from 'lucide-react';
 import Link from 'next/link';
-import { collection, query, limit, orderBy } from 'firebase/firestore';
 import { StudyMaterial, ForumPost } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useState, useEffect } from 'react';
 
 export default function DashboardPage() {
-  const db = useFirestore();
+  const [uploads, setUploads] = useState<StudyMaterial[]>([]);
+  const [posts, setPosts] = useState<ForumPost[]>([]);
+  
+  const [isUploadsLoading, setIsUploadsLoading] = useState(true);
+  const [isForumLoading, setIsForumLoading] = useState(true);
 
-  const recentUploadsQuery = useMemoFirebase(() => {
-    if (!db) return null;
-    return query(
-      collection(db, 'studyMaterials'), 
-      orderBy('createdAt', 'desc'),
-      limit(10)
-    );
-  }, [db]);
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setIsUploadsLoading(true);
+        const resMat = await fetch('/api/materials');
+        if (resMat.ok) {
+          const json = await resMat.json();
+          setUploads((json.data || []).slice(0, 10));
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsUploadsLoading(false);
+      }
 
-  const recentForumQuery = useMemoFirebase(() => {
-    if (!db) return null;
-    return query(
-      collection(db, 'forumPosts'), 
-      orderBy('createdAt', 'desc'),
-      limit(10)
-    );
-  }, [db]);
+      try {
+        setIsForumLoading(true);
+        const resForum = await fetch('/api/forum');
+        if (resForum.ok) {
+          const json = await resForum.json();
+          setPosts((json.data || []).slice(0, 10));
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsForumLoading(false);
+      }
+    };
 
-  const { data: uploads, isLoading: isUploadsLoading } = useCollection<StudyMaterial>(recentUploadsQuery);
-  const { data: posts, isLoading: isForumLoading } = useCollection<ForumPost>(recentForumQuery);
+    fetchDashboardData();
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-7xl animate-in fade-in duration-500">

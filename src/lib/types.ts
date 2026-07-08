@@ -30,6 +30,7 @@ export interface User {
 export interface StudyMaterial {
   id: string;
   title: string;
+  subject?: string;
   description: string;
   branch: Branch;
   semester: Semester;
@@ -51,6 +52,7 @@ export interface ForumPost {
   authorName: string;
   branch: Branch;
   createdAt: any;
+  replies?: ForumReply[];
 }
 
 export interface ForumReply {
@@ -67,4 +69,14 @@ export interface Notification {
   message: string;
   targetRole?: UserRole | 'all';
   createdAt: any;
+}
+
+export interface DepartmentRepresentative {
+  branch: Branch;
+  name: string;
+  year: string;
+  email: string;
+  linkedin?: string;
+  imageUrl?: string;
+  message?: string;
 }

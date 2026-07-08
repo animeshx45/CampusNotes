@@ -1,12 +1,17 @@
 "use client";
 
 import { useState, use, useEffect, useMemo } from 'react';
-import { StudyMaterial, User } from '@/lib/types';
-import { MOCK_MATERIALS } from '@/lib/mock-data';
+import { StudyMaterial, User, Branch, MaterialType, Semester } from '@/lib/types';
+import { MOCK_MATERIALS, BRANCHES, SEMESTERS, MATERIAL_TYPES } from '@/lib/mock-data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   BrainCircuit, Download, FileText, Share2, MessageSquare, 
   Info, Sparkles, AlertCircle, Loader2, Zap, ArrowLeft, 
@@ -20,10 +25,10 @@ import { useToast } from '@/hooks/use-toast';
 import { materialService } from '@/services/material-service';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useDoc, useFirestore, useMemoFirebase, useUser, useCollection } from '@/firebase';
-import { doc, Timestamp, query, collection, where, limit } from 'firebase/firestore';
+import { useUser } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import PDFViewer from '@/components/pdf-viewer';
 
 const ModernLoader = ({ message }: { message: string }) => (
   <div className="container mx-auto px-4 py-40 flex flex-col items-center justify-center gap-6 animate-in fade-in duration-500">
@@ -40,32 +45,684 @@ const ModernLoader = ({ message }: { message: string }) => (
   </div>
 );
 
+const getSubjectsForFilter = (branch: Branch, semester: number): string[] => {
+  if (semester === 1) {
+    return [
+      'Elements of Mechanical Engineering',
+      'Engineering Physics',
+      'Basic English and Communication Skills',
+      'Engineering Mechanics',
+      'Mathematics I',
+      'Basic Electrical Engineering',
+      'English Language Lab',
+      'Engineering & Applied Physics Laboratory',
+      'Workshop Practice'
+    ];
+  }
+  if (semester === 2) {
+    return [
+      'Engineering Chemistry',
+      'Chemistry Laboratory',
+      'Environmental Studies',
+      'Engineering Drawing',
+      'Computer Programming',
+      'Computer Programming Laboratory',
+      'Fundamental Knowledge of Accreditation',
+      'Advanced English Communication Skills',
+      'Mathematics II'
+    ];
+  }
+  if (semester === 3 && branch === 'Mechanical Engineering') {
+    return [
+      'Mechanics of Materials-I',
+      'Fundamentals of Dynamics',
+      'Manufacturing Processes-I',
+      'Engineering Thermodynamics',
+      'Fluid Mechanics-I',
+      'Society and Sensitivity',
+      'Manufacturing Processes-I Lab',
+      'Fluid Mechanics Lab',
+      'Machine Drawing & Solid Modeling Lab'
+    ];
+  }
+  if (semester === 4 && branch === 'Mechanical Engineering') {
+    return [
+      'Mechanics of Materials-II',
+      'Theory of Machines-I',
+      'Manufacturing Processes-II',
+      'Heat Transfer',
+      'Applied Thermodynamics-I',
+      'Mathematics-III',
+      'Mechanics of Materials Lab',
+      'Theory of Machines-I Lab',
+      'Manufacturing Processes-II Lab',
+      'Heat Transfer Lab'
+    ];
+  }
+  if (semester === 5 && branch === 'Mechanical Engineering') {
+    return [
+      'Machine Design-I',
+      'Theory of Machines-II',
+      'Material Science and Engineering',
+      'Applied Thermodynamics-II',
+      'Industrial Engineering-I',
+      'Introduction to Mechatronics',
+      'Introduction to Electric Vehicle',
+      'Theory of Machines-II Lab',
+      'Thermal Engineering Lab',
+      'Research Lab'
+    ];
+  }
+  if (semester === 6 && branch === 'Mechanical Engineering') {
+    return [
+      'Machine Design-II',
+      'Fluid Mechanics-II',
+      'Industrial Engineering-II',
+      'Mathematics-IV',
+      'Elective-I',
+      'Basic Robot Mechanics',
+      'Sustainable Engineering',
+      'Industrial Engineering Lab',
+      'Industrial Training',
+      'Seminar'
+    ];
+  }
+  if (semester === 7 && branch === 'Mechanical Engineering') {
+    return [
+      'Measurement and Instrumentation',
+      'Engineering Economics',
+      'Elective-II',
+      'Elective-III',
+      'Elective-IV',
+      'Simulation Lab',
+      'Pre Project'
+    ];
+  }
+
+  // Chemical Engineering
+  if (branch === 'Chemical Engineering') {
+    if (semester === 3) {
+      return [
+        'Chemical Process Calculations',
+        'Process Fluid Mechanics',
+        'Mechanical Operations',
+        'Process Instrumentation',
+        'Chemical Engineering Thermodynamics-I',
+        'Engineering Ethics',
+        'Numerical Methods',
+        'Mechanical Operations Laboratory'
+      ];
+    }
+    if (semester === 4) {
+      return [
+        'Chemical Reaction Engineering-I',
+        'Chemical Engineering Thermodynamics-II',
+        'Heat Transfer',
+        'Chemical Process Technology',
+        'Chemical Engineering Mathematics',
+        'Engineering Economics and Management',
+        'Energy Technology Laboratory',
+        'Fluid Mechanics Laboratory'
+      ];
+    }
+    if (semester === 5) {
+      return [
+        'Process Equipment Design-I',
+        'Chemical Reaction Engineering-II',
+        'Mass Transfer-I',
+        'Biochemical Engineering',
+        'Elective-I',
+        'Institute Open Elective-I',
+        'Heat Transfer Laboratory',
+        'Computer Simulation Laboratory',
+        'Applied Mathematics for Chemical Engineers'
+      ];
+    }
+    if (semester === 6) {
+      return [
+        'Process Equipment Design-II',
+        'Chemical Process Safety',
+        'Process Dynamics and Control',
+        'Mass Transfer-II',
+        'Elective-II',
+        'Institute Open Elective-II',
+        'Chemical Reaction Engineering Laboratory',
+        'Mass Transfer Laboratory',
+        'Industrial/Research Training and Presentation',
+        'Seminar',
+        'Membrane Science and Engineering'
+      ];
+    }
+    if (semester === 7) {
+      return [
+        'Pre-project work',
+        'Transport Phenomena',
+        'Process Economics and Plant Design',
+        'Elective-III',
+        'Elective-IV',
+        'Elective-V',
+        'Process Dynamics and Control Laboratory'
+      ];
+    }
+  }
+
+  // Electronics & Communication Engineering
+  if (branch === 'Electronics & Communication Engineering') {
+    if (semester === 3) {
+      return [
+        'Electronics-I',
+        'Network Analysis',
+        'Signals and Systems',
+        'Electronic Engineering Materials',
+        'Philosophy for Engineers: Society, Culture and Ethics',
+        'Mathematics III',
+        'Electronics-I Lab',
+        'Circuit Analysis Lab',
+        'Signals & Systems Lab'
+      ];
+    }
+    if (semester === 4) {
+      return [
+        'Electronics-II',
+        'Digital Elect. & Logic Design',
+        'Communication-I',
+        'Applied EMF & Waves',
+        'Control Systems',
+        'Mathematics IV',
+        'Electronics-II Lab',
+        'DELD Lab',
+        'Communication-I Lab'
+      ];
+    }
+    if (semester === 5) {
+      return [
+        'Microprocessor',
+        'Electronic Devices',
+        'Communication-II',
+        'Antenna and Wave Propagation',
+        'Mathematics-V',
+        'Institute Elective I',
+        'Microprocessor Lab',
+        'Communication-II Lab'
+      ];
+    }
+    if (semester === 6) {
+      return [
+        'Digital Signal Processing',
+        'VLSI Design',
+        'Computer Organization & Architecture',
+        'Data Communication',
+        'Elective II',
+        'Institute Elective-II',
+        'Seminar',
+        'VLSI Design Lab',
+        'Digital Signal Processing Lab',
+        'Industrial Training'
+      ];
+    }
+    if (semester === 7) {
+      return [
+        'Microwave Engineering',
+        'Wireless Communication',
+        'Electronic M&I',
+        'Industrial Organization & Management',
+        'Project pre-work',
+        'Elective IV',
+        'Microwave Engineering Lab',
+        'EDA Tools I'
+      ];
+    }
+  }
+
+  // Metallurgical & Materials Engineering
+  if (branch === 'Metallurgical & Materials Engineering') {
+    if (semester === 3) {
+      return [
+        'Electronic, Magnetic and Di-electric Materials',
+        'Thermodynamics of Materials',
+        'Physical Metallurgy',
+        'Mineral Dressing & Principles of Extractive Metallurgy',
+        'Probability and Statistics',
+        'Entrepreneurship Development',
+        'Laboratory Practice in Physical Metallurgy',
+        'Laboratory Practice in Mineral Dressing & Principles of Extractive Metallurgy'
+      ];
+    }
+    if (semester === 4) {
+      return [
+        'Phase Transformation and Heat Treatment of Metals',
+        'Kinetics of Metallurgical Processes',
+        'Non-Ferrous Metal Extraction',
+        'Joining of Materials',
+        'Numerical Methods',
+        'Engineering Economics and Management',
+        'Laboratory Practice in Heat Treatment',
+        'Laboratory Practice in Joining of Materials'
+      ];
+    }
+    if (semester === 5) {
+      return [
+        'Corrosion Engineering',
+        'Iron Making',
+        'Mechanical Behaviour of Materials',
+        'Materials Characterisation',
+        'Professional Elective - I',
+        'Institute Open Elective - I',
+        'Laboratory Practice in Corrosion Engineering',
+        'Laboratory Practice in Mechanical Behaviour of Materials',
+        'Laboratory Practice in Materials Characterisation',
+        'Honours Elective - I'
+      ];
+    }
+    if (semester === 6) {
+      return [
+        'Ceramic Technology',
+        'Steel Making',
+        'Powder Metallurgy',
+        'Mechanical Working of Materials',
+        'Professional Elective - II',
+        'Institute Open Elective - II',
+        'Laboratory Practice in Ceramic Technology',
+        'Laboratory Practice in Mechanical Working of Materials',
+        'Industrial Training/Internship',
+        'Seminar',
+        'Honours Elective - II'
+      ];
+    }
+    if (semester === 7) {
+      return [
+        'Metal Casting',
+        'Polymer Technology',
+        'Professional Elective - III',
+        'Professional Elective - IV',
+        'Professional Elective - V',
+        'Laboratory Practice in Metal Casting',
+        'Laboratory Practice in Polymer Technology',
+        'Project Preliminary Work',
+        'Honours Elective - III',
+        'Honours Elective - IV'
+      ];
+    }
+  }
+
+  // Computer Science & Engineering
+  if (branch === 'Computer Science & Engineering') {
+    if (semester === 3) {
+      return [
+        'Object Oriented Programming',
+        'Database Management Systems',
+        'Software Engineering',
+        'Electronic Devices and Circuits',
+        'Discrete Mathematics',
+        'Entrepreneurship Development',
+        'Object Oriented Programming-Lab',
+        'Database Management System Lab'
+      ];
+    }
+    if (semester === 4) {
+      return [
+        'Data Structures',
+        'Internet & Web Technologies',
+        'Theory of Computation',
+        'Digital Electronics & Logic Design',
+        'Probability & Statistics',
+        'Project Management',
+        'Data Structures-Lab',
+        'Digital Electronics & Logic Design Lab'
+      ];
+    }
+    if (semester === 5) {
+      return [
+        'Design & Analysis of Algorithms',
+        'Microprocessor',
+        'Operating Systems',
+        'Python Programming',
+        'Open Elective-I',
+        'Communication Systems',
+        'Microprocessor-Lab',
+        'Python Programming-Lab'
+      ];
+    }
+    if (semester === 6) {
+      return [
+        'Artificial Intelligence',
+        'Computer Networks',
+        'Computer Organization & Architecture',
+        'Java Programming',
+        'Open Elective-II',
+        'Elective-I',
+        'Artificial Intelligence-Lab',
+        'Computer Networks-Lab'
+      ];
+    }
+    if (semester === 7) {
+      return [
+        'Network Security',
+        'Compiler Design',
+        'Elective-II',
+        'Elective-III',
+        'Elective-IV',
+        'Network Security-Lab',
+        'Pre-Project',
+        'Seminar'
+      ];
+    }
+  }
+
+  // Information Technology
+  if (branch === 'Information Technology') {
+    if (semester === 3) {
+      return [
+        'Data Structures',
+        'Control System',
+        'Logic and Graphic Theory',
+        'Object Oriented Programming',
+        'Electronic Devices and Circuits',
+        'Discrete Mathematics',
+        'Data Structures Lab',
+        'Object-Oriented Programming Lab',
+        'Electronics Devices and Circuits Lab',
+        'Web Programming'
+      ];
+    }
+    if (semester === 4) {
+      return [
+        'Operating Systems',
+        'Software Engineering',
+        'Digital Electronics and Logic Design',
+        'Database Management System',
+        'Introduction to Probability and Statistics',
+        'Signal and Systems',
+        'Digital Electronics and Logic Design Lab',
+        'Operating System Lab',
+        'Database Management System Lab'
+      ];
+    }
+    if (semester === 5) {
+      return [
+        'Design and Analysis of Algorithms',
+        'Artificial Intelligence',
+        'Computer Organization & Architecture',
+        'Theory of Computation',
+        'Elective I',
+        'Institute Open Elective I',
+        'Design & Analysis of Algorithms Lab',
+        'Artificial Intelligence Lab'
+      ];
+    }
+    if (semester === 6) {
+      return [
+        'Computer Networks',
+        'Machine Learning',
+        'Big Data',
+        'Elective II',
+        'Institute Open Elective II',
+        'Computer Networks Lab',
+        'Machine Learning Lab',
+        'Seminar',
+        'Industrial Training and Internship',
+        'Elective III'
+      ];
+    }
+    if (semester === 7) {
+      return [
+        'Image Processing',
+        'Entrepreneurship Development',
+        'Elective IV',
+        'Elective V',
+        'Elective VI',
+        'Image Processing Lab',
+        'Elective VII',
+        'Pre-Project'
+      ];
+    }
+  }
+
+  // Civil Engineering
+  if (branch === 'Civil Engineering') {
+    if (semester === 3) {
+      return [
+        'Structural Analysis-I',
+        'Structural Analysis Lab',
+        'Fluid Mechanics',
+        'Fluid Mechanics Lab-I',
+        'Surveying-I',
+        'Surveying Lab-I',
+        'Mathematics-III',
+        'Building Materials and Construction',
+        'Basics of Industrial Economics and Management'
+      ];
+    }
+    if (semester === 4) {
+      return [
+        'Structural Analysis-II',
+        'Fluid Flow in Pipes and Channels',
+        'Fluid Mechanics Lab-II',
+        'Surveying-II',
+        'Surveying Lab-II',
+        'Engineering Geology',
+        'Geology Lab',
+        'Civil Engineering Drawing',
+        'Survey Camp',
+        'Mathematics-IV'
+      ];
+    }
+    if (semester === 5) {
+      return [
+        'Design of Reinforced Concrete Structures-I',
+        'Concrete Lab',
+        'Highway Engineering',
+        'Highway Engineering Lab',
+        'Geotechnical Engineering-I',
+        'Geotechnical Lab-I',
+        'Water Resources Engineering',
+        'Quantity Surveying and Cost Evaluation',
+        'Philosophy for Engineers: Society, Culture and Ethics',
+        'Honors Elective-I',
+        'Quantity Surveying and Cost Evaluation (Institute Elective-I)',
+        'Building Materials and Construction (Institute Elective-II)'
+      ];
+    }
+    if (semester === 6) {
+      return [
+        'Design of Steel Structures',
+        'Traffic Engineering',
+        'Traffic Engineering Lab.',
+        'Geotechnical Engineering-II',
+        'Geotechnical Lab-II',
+        'Environmental Engineering-I',
+        'Water Quality Lab',
+        'Industrial Training and Presentation',
+        'Elective-I',
+        'Elective-II',
+        'Honors Elective-II',
+        'Environmental Engineering (Institute Elective-I)',
+        'Civil Engineering Drawing (Institute Elective-II)'
+      ];
+    }
+    if (semester === 7) {
+      return [
+        'Elective-III',
+        'Elective-IV',
+        'Elective-V',
+        'Elective-VI',
+        'Seminar',
+        'Pre-Project work',
+        'Honours Elective-III',
+        'Honours Elective-IV',
+        'Honours Elective-V'
+      ];
+    }
+  }
+
+  // Electrical Engineering
+  if (branch === 'Electrical Engineering') {
+    if (semester === 3) {
+      return [
+        'Mathematics III',
+        'Electric Circuit Analysis',
+        'Electric Machines I',
+        'Signals & Systems',
+        'Electronic Devices and Circuits',
+        'Electromagnetic Field & Waves',
+        'Electric Circuit Analysis Lab',
+        'Electronic Devices and Circuits Lab',
+        'Python Programming Lab'
+      ];
+    }
+    if (semester === 4) {
+      return [
+        'Electrical Measurements and Instrumentation',
+        'Electric Machines II',
+        'Power Systems I',
+        'Control Systems I',
+        'Digital Electronics & Logic Design',
+        'Basic Management Principles',
+        'Electric Machines Lab I',
+        'Control Systems LAB',
+        'Electrical Measurements and Instrumentation Lab'
+      ];
+    }
+    if (semester === 5) {
+      return [
+        'Mathematics IV',
+        'Control Systems II',
+        'Power Systems II',
+        'Power Electronics',
+        'Electric Machines III',
+        'Program Elective I',
+        'Institute Elective I',
+        'Power Systems Lab I',
+        'Power Electronics Lab',
+        'Electric Machines Lab II'
+      ];
+    }
+    if (semester === 6) {
+      return [
+        'Power Systems III',
+        'Electric Drives',
+        'Design of Electric Machines',
+        'Microprocessors',
+        'Program Elective II',
+        'Program Elective III',
+        'Institute Elective II',
+        'Power Systems Lab II',
+        'Microprocessors Lab',
+        'Seminar',
+        'Industrial Training & Viva'
+      ];
+    }
+    if (semester === 7) {
+      return [
+        'Power System Protection',
+        'Program Elective IV',
+        'Program Elective V',
+        'Program Elective VI',
+        'Program Elective VII',
+        'Program Elective VIII',
+        'Personal Financial Planning',
+        'Power System Protection Lab',
+        'Pre-Project',
+        'Program Elective Lab I'
+      ];
+    }
+  }
+
+  return [];
+};
+
 export default function MaterialDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { toast } = useToast();
   const { user } = useUser();
-  const db = useFirestore();
   const router = useRouter();
 
-  const userProfileQuery = useMemoFirebase(() => {
-    if (!db || !user) return null;
-    return query(collection(db, 'users'), where('id', '==', user.uid), limit(1));
-  }, [db, user]);
-
-  const { data: profiles } = useCollection<User>(userProfileQuery);
-  const profile = profiles?.[0];
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = user?.role === 'admin';
 
   const mockMaterial = useMemo(() => MOCK_MATERIALS.find(m => m.id === id), [id]);
 
-  const materialRef = useMemoFirebase(() => {
-    if (!db || !id || id.startsWith('it-') || id.startsWith('cse-') || id.startsWith('chem-') || id.includes('s3-') || id.includes('s4-') || id.includes('s5-') || id.includes('s6-') || id.includes('s7-') || id.includes('s8-') || id.startsWith('common-')) return null;
-    return doc(db, 'studyMaterials', id);
-  }, [db, id]);
+  const [dbMaterial, setDbMaterial] = useState<StudyMaterial | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { data: dbMaterial, isLoading } = useDoc<StudyMaterial>(materialRef);
+  const isOwner = !!(user && (
+    (dbMaterial && (user.id === dbMaterial.uploaderId || user.uid === dbMaterial.uploaderId || user.fullName === dbMaterial.author)) ||
+    (mockMaterial && user.fullName === mockMaterial.author)
+  ));
+  const canEditOrDelete = isAdmin || isOwner;
+
+  useEffect(() => {
+    if (id.startsWith('it-') || id.startsWith('cse-') || id.startsWith('chem-') || id.includes('s3-') || id.includes('s4-') || id.includes('s5-') || id.includes('s6-') || id.includes('s7-') || id.includes('s8-') || id.startsWith('common-')) {
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchMaterial = async () => {
+      try {
+        setIsLoading(true);
+        const data = await materialService.getMaterial(id);
+        setDbMaterial(data);
+      } catch (e) {
+        console.error("Failed to load material details", e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMaterial();
+  }, [id]);
 
   const material = mockMaterial || dbMaterial;
+
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    title: '',
+    subject: '',
+    description: '',
+    branch: '' as Branch,
+    semester: 1 as Semester,
+    type: 'Note' as MaterialType,
+    author: '',
+    fileUrl: '',
+  });
+
+  const editAvailableSubjects = getSubjectsForFilter(editFormData.branch, editFormData.semester as number);
+
+  useEffect(() => {
+    const list = getSubjectsForFilter(editFormData.branch, editFormData.semester as number);
+    if (list.length > 0 && !list.includes(editFormData.subject)) {
+      setEditFormData(prev => ({ ...prev, subject: list[0] }));
+    }
+  }, [editFormData.semester, editFormData.branch]);
+
+  const handleOpenEdit = () => {
+    if (!material) return;
+    setEditFormData({
+      title: material.title,
+      subject: material.subject || '',
+      description: material.description,
+      branch: material.branch,
+      semester: material.semester,
+      type: material.type,
+      author: material.author,
+      fileUrl: material.fileUrl || '',
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingEdit(true);
+    try {
+      const updated = await materialService.updateMaterial(id, editFormData);
+      setDbMaterial(updated);
+      toast({ title: "Changes Saved", description: "The study material has been updated successfully." });
+      setIsEditDialogOpen(false);
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to save changes.", variant: "destructive" });
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
 
   const [summary, setSummary] = useState<string | null>(null);
   const [questions, setQuestions] = useState<string[] | null>(null);
@@ -74,6 +731,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
   const [isLoadingSimplified, setIsLoadingSimplified] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     if (material) {
@@ -100,20 +758,65 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     );
   }
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!material.fileUrl) {
-        toast({ title: "No Link", description: "This resource doesn't have a download link yet." });
-        return;
+      toast({ title: "No Link", description: "This resource doesn't have a download link yet." });
+      return;
     }
+    
     materialService.incrementDownloadCount(id);
-    window.open(material.fileUrl, '_blank');
+
+    if (isYoutube) {
+      window.open(material.fileUrl, '_blank');
+      return;
+    }
+
+    try {
+      setIsDownloading(true);
+      toast({ title: "Downloading", description: "Fetching document content..." });
+      
+      const isRelative = !material.fileUrl.startsWith('http://') && !material.fileUrl.startsWith('https://');
+      const fetchUrl = isRelative ? material.fileUrl : `/api/pdf-proxy?url=${encodeURIComponent(material.fileUrl)}`;
+      const response = await fetch(fetchUrl);
+      if (!response.ok) throw new Error('File download proxy failed.');
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      const formattedTitle = material.title ? material.title.replace(/[^a-z0-9]/gi, '_') : 'study_material';
+      link.download = `${formattedTitle}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+
+      toast({
+        title: "Download complete!",
+        description: "File successfully saved to your device.",
+      });
+    } catch (err) {
+      console.error('Download failed', err);
+      toast({
+        title: "Direct download failed",
+        description: "Opening in a new tab.",
+        variant: "destructive",
+      });
+      window.open(material.fileUrl, '_blank');
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
-  const handleAdminDelete = () => {
+  const handleAdminDelete = async () => {
     if (confirm("Management Decision: Delete this resource permanently?")) {
-      materialService.deleteMaterial(id);
-      toast({ title: "Material Removed", description: "This resource has been deleted by an administrator." });
-      router.push('/admin');
+      try {
+        await materialService.deleteMaterial(id);
+        toast({ title: "Material Removed", description: "This resource has been deleted successfully." });
+        router.push('/browse');
+      } catch (err) {
+        toast({ title: "Error", description: "Failed to delete this resource.", variant: "destructive" });
+      }
     }
   };
 
@@ -162,7 +865,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
   const formatDate = (date: any) => {
     if (!date) return 'Recently';
-    if (date instanceof Timestamp) return date.toDate().toLocaleDateString();
+    if (typeof date?.toDate === 'function') return date.toDate().toLocaleDateString();
     if (typeof date === 'string') return new Date(date).toLocaleDateString();
     if (date?.seconds) return new Date(date.seconds * 1000).toLocaleDateString();
     return new Date().toLocaleDateString();
@@ -172,20 +875,30 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
   const hasFile = !!material.fileUrl;
   const isImage = hasFile && (material.fileUrl?.match(/\.(jpeg|jpg|gif|png|webp)$/i) || material.fileUrl?.includes('picsum.photos') || material.fileUrl?.includes('placehold.co'));
   
-  const previewUrl = hasFile ? (material.fileUrl.includes('docs.google.com') 
-    ? material.fileUrl 
-    : `https://docs.google.com/viewer?url=${encodeURIComponent(material.fileUrl)}&embedded=true`) : null;
+  const getEmbedUrl = (url: string) => {
+    if (!url) return '';
+    if (url.includes('drive.google.com') && url.includes('/view')) {
+      return url.replace('/view', '/preview');
+    }
+    if (url.includes('drive.google.com') && url.includes('/preview')) {
+      return url;
+    }
+    // Fallback: wrap direct PDF/documents in Google Docs Viewer
+    return `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+  };
+  
+  const previewUrl = hasFile ? getEmbedUrl(material.fileUrl) : null;
 
   return (
-    <div className="container mx-auto px-4 py-12 flex flex-col gap-8 max-w-6xl animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {isAdmin && (
+    <div className="container mx-auto px-4 py-12 flex flex-col gap-8 max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {canEditOrDelete && (
         <div className="bg-primary/5 border border-primary/10 rounded-2xl p-4 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3 text-primary font-bold text-sm">
-            <ShieldCheck className="h-5 w-5" /> Manager Actions Enabled
+            <ShieldCheck className="h-5 w-5" /> Manager / Author Actions Enabled
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="rounded-xl border-primary/20 h-9" asChild>
-              <Link href="/admin"><Edit className="h-4 w-4 mr-2" /> Modify</Link>
+            <Button variant="outline" size="sm" className="rounded-xl border-primary/20 h-9" onClick={handleOpenEdit}>
+              <Edit className="h-4 w-4 mr-2" /> Modify
             </Button>
             <Button variant="destructive" size="sm" className="rounded-xl h-9" onClick={handleAdminDelete}>
               <Trash2 className="h-4 w-4 mr-2" /> Delete Permanently
@@ -219,15 +932,78 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
             navigator.clipboard.writeText(window.location.href);
             toast({ title: "Link Copied!", description: "Share it with your friends." });
           }}><Share2 className="h-5 w-5" /></Button>
-          <Button size="lg" className="rounded-full px-8 h-12 shadow-lg shadow-primary/20 flex-1 md:flex-none font-bold text-base" onClick={handleDownload} disabled={!hasFile}>
-            {isYoutube ? <ExternalLink className="mr-2 h-5 w-5" /> : <Download className="mr-2 h-5 w-5" />}
-            {isYoutube ? 'Open Link' : 'Download Now'}
+          <Button 
+            size="lg" 
+            className="rounded-full px-8 h-12 shadow-lg shadow-primary/20 flex-1 md:flex-none font-bold text-base" 
+            onClick={handleDownload} 
+            disabled={!hasFile || isDownloading}
+          >
+            {isDownloading ? (
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            ) : isYoutube ? (
+              <ExternalLink className="mr-2 h-5 w-5" />
+            ) : (
+              <Download className="mr-2 h-5 w-5" />
+            )}
+            {isDownloading ? 'Downloading...' : isYoutube ? 'Open Link' : 'Download Now'}
           </Button>
         </div>
       </div>
 
+      {/* 1. Full-width Study Materials / PDF Viewer Section at the Top */}
+      {!hasFile ? (
+        <Card className="border-none shadow-xl bg-card rounded-[2rem] overflow-hidden w-full">
+          <CardContent className="p-8">
+            <div className="aspect-video bg-secondary/20 rounded-[1.5rem] flex flex-col items-center justify-center border-2 border-dashed border-primary/20 p-10 text-center gap-4">
+              <Monitor className="h-12 w-12 text-primary/40" />
+              <div className="space-y-2">
+                <h3 className="text-xl font-bold">No Preview Available</h3>
+                <p className="text-sm text-muted-foreground max-w-xs">We haven't added a link for this subject yet. Check back soon!</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : isYoutube ? (
+        <Card className="border-none shadow-xl bg-card rounded-[2rem] overflow-hidden w-full">
+          <CardContent className="p-8">
+            <div className="aspect-video bg-black rounded-[1.5rem] flex items-center justify-center overflow-hidden border border-primary/20 shadow-2xl relative group">
+               <div className="absolute inset-0 bg-gradient-to-br from-red-600/20 to-transparent opacity-50" />
+               <div className="text-center space-y-4 z-10">
+                  <div className="h-20 w-20 bg-red-600 rounded-full flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 transition-transform">
+                    <Youtube className="h-10 w-10 text-white" />
+                  </div>
+                  <p className="text-white font-headline font-bold text-xl">YouTube Study Hub</p>
+                  <Button variant="secondary" className="rounded-full font-bold" asChild>
+                    <a href={material.fileUrl} target="_blank" rel="noopener noreferrer">Open Course Material <ExternalLink className="ml-2 h-4 w-4" /></a>
+                  </Button>
+               </div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : isImage ? (
+        <Card className="border-none shadow-xl bg-card rounded-[2rem] overflow-hidden w-full">
+          <CardContent className="p-4 sm:p-6 md:p-8">
+            <div className="aspect-[16/10] min-h-[550px] bg-muted/5 rounded-[1.5rem] flex flex-col items-center justify-center border border-primary/10 transition-all overflow-hidden relative w-full h-full p-2">
+              <Image 
+                src={material.fileUrl} 
+                alt="Study Material Preview" 
+                fill 
+                className="object-contain"
+                unoptimized
+              />
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        /* Render PDFViewer directly as a first-class borderless cinematic view */
+        <div className="w-full">
+          <PDFViewer url={material.fileUrl} title={material.title} />
+        </div>
+      )}
+
+      {/* 2. Bottom Split Layout: About Notes and AI Assistant */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2">
           <Card className="border-none shadow-xl bg-card rounded-[2rem] overflow-hidden">
             <CardHeader className="bg-primary/5 border-b border-primary/10">
               <CardTitle className="font-headline font-bold text-primary flex items-center gap-2">
@@ -235,82 +1011,15 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
               </CardTitle>
             </CardHeader>
             <CardContent className="p-8">
-              <p className="text-muted-foreground leading-relaxed text-lg">
+              <p className="text-muted-foreground leading-relaxed text-lg mb-6">
                 {material.description}
               </p>
-              <div className="mt-8 bg-secondary/50 p-6 rounded-2xl flex items-center gap-4 text-sm border border-primary/10">
+              <div className="bg-secondary/50 p-6 rounded-2xl flex items-center gap-4 text-sm border border-primary/10 mt-6">
                 <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                    <AlertCircle className="text-primary h-6 w-6" />
                 </div>
                 <p className="font-medium">Please verify these materials with the official syllabus at nitsri.ac.in before exams.</p>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-xl bg-card rounded-[2rem] overflow-hidden">
-            <CardHeader className="bg-primary/5 border-b border-primary/10 flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="font-headline font-bold text-primary">
-                  {isYoutube ? 'Study Link' : 'Study Materials'}
-                </CardTitle>
-                <CardDescription>
-                  {isYoutube ? 'Click below to watch the playlist.' : 'Read and study directly from the browser.'}
-                </CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent className="p-8">
-              {!hasFile ? (
-                <div className="aspect-video bg-secondary/20 rounded-[1.5rem] flex flex-col items-center justify-center border-2 border-dashed border-primary/20 p-10 text-center gap-4">
-                  <Monitor className="h-12 w-12 text-primary/40" />
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-bold">No Preview Available</h3>
-                    <p className="text-sm text-muted-foreground max-w-xs">We haven't added a link for this subject yet. Check back soon!</p>
-                  </div>
-                </div>
-              ) : isYoutube ? (
-                <div className="aspect-video bg-black rounded-[1.5rem] flex items-center justify-center overflow-hidden border border-primary/20 shadow-2xl relative group">
-                   <div className="absolute inset-0 bg-gradient-to-br from-red-600/20 to-transparent opacity-50" />
-                   <div className="text-center space-y-4 z-10">
-                      <div className="h-20 w-20 bg-red-600 rounded-full flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 transition-transform">
-                        <Youtube className="h-10 w-10 text-white" />
-                      </div>
-                      <p className="text-white font-headline font-bold text-xl">YouTube Study Hub</p>
-                      <Button variant="secondary" className="rounded-full font-bold" asChild>
-                        <a href={material.fileUrl} target="_blank" rel="noopener noreferrer">Open Course Material <ExternalLink className="ml-2 h-4 w-4" /></a>
-                      </Button>
-                   </div>
-                </div>
-              ) : (
-                <div className="aspect-[16/10] bg-muted/10 rounded-[1.5rem] flex flex-col items-center justify-center border-2 border-primary/10 transition-all overflow-hidden relative group">
-                  {isImage ? (
-                    <div className="w-full h-full relative p-2">
-                      <Image 
-                        src={material.fileUrl} 
-                        alt="Study Material Preview" 
-                        fill 
-                        className="object-contain"
-                        unoptimized
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-full h-full relative">
-                      <iframe 
-                        src={previewUrl!}
-                        className="w-full h-full border-none bg-white rounded-[1.2rem]"
-                        title="Document Preview"
-                      />
-                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity p-6 text-center z-20 pointer-events-none group-hover:pointer-events-auto">
-                        <Monitor className="h-12 w-12 text-primary mb-4" />
-                        <h3 className="text-xl font-bold mb-2">Can't see the document?</h3>
-                        <p className="text-sm text-muted-foreground mb-6 max-w-xs">Some security settings might block previews. You can open it in a new window instead.</p>
-                        <Button className="rounded-xl font-bold px-8 h-12" onClick={handleDownload}>
-                          Open in Full Tab <ExternalLink className="ml-2 h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
             </CardContent>
           </Card>
         </div>
@@ -359,7 +1068,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
                        <Button variant="ghost" size="sm" className="w-full text-[10px] font-black uppercase" onClick={() => setSimplified(null)}>Reset Assistant</Button>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-12 gap-6 text-center">
+                    <div className="flex flex-col items-center justify-center py-6 gap-6 text-center">
                       <div className="bg-white/10 p-5 rounded-full">
                         <Zap className="h-10 w-10 text-accent animate-pulse" />
                       </div>
@@ -391,7 +1100,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
                       {summary}
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-12 gap-6 text-center">
+                    <div className="flex flex-col items-center justify-center py-6 gap-6 text-center">
                       <div className="bg-white/10 p-5 rounded-full">
                         <BrainCircuit className="h-10 w-10 opacity-40" />
                       </div>
@@ -429,7 +1138,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
                       <Button variant="ghost" size="sm" className="w-full text-[10px] font-black uppercase" onClick={() => setQuestions(null)}>New Practice Set</Button>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-12 gap-6 text-center">
+                    <div className="flex flex-col items-center justify-center py-6 gap-6 text-center">
                       <div className="bg-white/10 p-5 rounded-full">
                         <MessageSquare className="h-10 w-10 opacity-40" />
                       </div>
@@ -455,6 +1164,171 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
           </Card>
         </div>
       </div>
+
+      {/* Edit Study Material Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl bg-zinc-950 text-white border-white/10 rounded-[2rem] p-6 max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="pb-4 border-b border-white/5">
+            <DialogTitle className="font-headline font-bold text-2xl text-primary flex items-center gap-2">
+              <Edit className="h-6 w-6 text-primary" /> Modify Resource Details
+            </DialogTitle>
+            <DialogDescription className="text-zinc-400">
+              Update the metadata and file link for "{material.title}".
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleEditSubmit} className="space-y-6 pt-6">
+            <div className="space-y-2">
+              <Label htmlFor="title" className="text-xs font-bold uppercase tracking-wider text-zinc-400">Document Title</Label>
+              <Input 
+                id="title"
+                value={editFormData.title}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, title: e.target.value }))}
+                className="bg-zinc-900 border-white/10 text-white rounded-xl h-12 focus-visible:ring-primary focus-visible:ring-1"
+                placeholder="Enter notes title"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="subject" className="text-xs font-bold uppercase tracking-wider text-zinc-400">Subject Name</Label>
+              <Select 
+                value={editFormData.subject} 
+                onValueChange={(val) => setEditFormData(prev => ({ ...prev, subject: val }))}
+              >
+                <SelectTrigger id="subject" className="bg-zinc-900 border-white/10 text-white rounded-xl h-12">
+                  <SelectValue placeholder="Select Subject" />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-xl">
+                  {editAvailableSubjects.map(sub => (
+                    <SelectItem key={sub} value={sub} className="hover:bg-white/10 focus:bg-white/10 focus:text-white text-zinc-200">
+                      {sub}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="branch" className="text-xs font-bold uppercase tracking-wider text-zinc-400">Academic Branch</Label>
+                <Select 
+                  value={editFormData.branch} 
+                  onValueChange={(val: Branch) => setEditFormData(prev => ({ ...prev, branch: val }))}
+                >
+                  <SelectTrigger className="bg-zinc-900 border-white/10 text-white rounded-xl h-12">
+                    <SelectValue placeholder="Select Branch" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-xl">
+                    {BRANCHES.map(br => (
+                      <SelectItem key={br} value={br} className="hover:bg-white/10 focus:bg-white/10 focus:text-white text-zinc-200">
+                        {br}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="semester" className="text-xs font-bold uppercase tracking-wider text-zinc-400">Semester</Label>
+                <Select 
+                  value={String(editFormData.semester)} 
+                  onValueChange={(val) => setEditFormData(prev => ({ ...prev, semester: Number(val) as Semester }))}
+                >
+                  <SelectTrigger className="bg-zinc-900 border-white/10 text-white rounded-xl h-12">
+                    <SelectValue placeholder="Select Semester" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-xl">
+                    {SEMESTERS.map(sem => (
+                      <SelectItem key={sem} value={String(sem)} className="hover:bg-white/10 focus:bg-white/10 focus:text-white text-zinc-200">
+                        Semester {sem}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="type" className="text-xs font-bold uppercase tracking-wider text-zinc-400">Resource Type</Label>
+                <Select 
+                  value={editFormData.type} 
+                  onValueChange={(val: MaterialType) => setEditFormData(prev => ({ ...prev, type: val }))}
+                >
+                  <SelectTrigger className="bg-zinc-900 border-white/10 text-white rounded-xl h-12">
+                    <SelectValue placeholder="Select Type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-xl">
+                    {MATERIAL_TYPES.map(t => (
+                      <SelectItem key={t} value={t} className="hover:bg-white/10 focus:bg-white/10 focus:text-white text-zinc-200">
+                        {t}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="author" className="text-xs font-bold uppercase tracking-wider text-zinc-400">Shared By (Author)</Label>
+                <Input 
+                  id="author"
+                  value={editFormData.author}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, author: e.target.value }))}
+                  className="bg-zinc-900 border-white/10 text-white rounded-xl h-12 focus-visible:ring-primary focus-visible:ring-1"
+                  placeholder="Author name"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="fileUrl" className="text-xs font-bold uppercase tracking-wider text-zinc-400">Resource File URL / Link</Label>
+              <Input 
+                id="fileUrl"
+                value={editFormData.fileUrl}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, fileUrl: e.target.value }))}
+                className="bg-zinc-900 border-white/10 text-white rounded-xl h-12 focus-visible:ring-primary focus-visible:ring-1"
+                placeholder="https://..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description" className="text-xs font-bold uppercase tracking-wider text-zinc-400">Description</Label>
+              <Textarea 
+                id="description"
+                value={editFormData.description}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, description: e.target.value }))}
+                className="bg-zinc-900 border-white/10 text-white rounded-xl min-h-[100px] focus-visible:ring-primary focus-visible:ring-1"
+                placeholder="Explain what this material is..."
+                required
+              />
+            </div>
+
+            <div className="flex gap-3 justify-end pt-4 border-t border-white/5">
+              <Button 
+                type="button" 
+                variant="ghost" 
+                onClick={() => setIsEditDialogOpen(false)} 
+                className="rounded-full px-6 hover:bg-white/10 hover:text-white"
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isSavingEdit} 
+                className="rounded-full px-8 bg-white text-black hover:bg-zinc-200 font-bold"
+              >
+                {isSavingEdit ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+                  </>
+                ) : 'Save Changes'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

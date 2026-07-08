@@ -1,8 +1,6 @@
-
 "use client";
 
-import { useState } from 'react';
-import { useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +10,6 @@ import {
   MessageSquare, Search, Send, Plus, Filter, User, 
   Clock, TrendingUp, Hash, ArrowRight, Loader2, BookOpen
 } from 'lucide-react';
-import { collection, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { ForumPost } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -20,40 +17,62 @@ import { BRANCHES } from '@/lib/mock-data';
 import Link from 'next/link';
 
 export default function ForumPage() {
-  const db = useFirestore();
   const { toast } = useToast();
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', content: '', author: '', branch: 'Information Technology' as any });
   const [searchQuery, setSearchQuery] = useState('');
 
-  const forumQuery = useMemoFirebase(() => {
-    if (!db) return null;
-    return query(collection(db, 'forumPosts'), orderBy('createdAt', 'desc'));
-  }, [db]);
+  const [posts, setPosts] = useState<ForumPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { data: posts, isLoading } = useCollection<ForumPost>(forumQuery);
+  const fetchPosts = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch('/api/forum');
+      if (res.ok) {
+        const json = await res.json();
+        setPosts(json.data || []);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const handleCreatePost = () => {
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const handleCreatePost = async () => {
     if (!newPost.title.trim() || !newPost.content.trim() || !newPost.author.trim()) {
       toast({ title: "Missing Info", description: "Please enter your name, title, and content.", variant: "destructive" });
       return;
     }
 
-    const postData = {
-      title: newPost.title,
-      content: newPost.content,
-      branch: newPost.branch,
-      authorId: 'public-user',
-      authorName: newPost.author,
-      createdAt: serverTimestamp(),
-    };
+    try {
+      const res = await fetch('/api/forum', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: newPost.title,
+          content: newPost.content,
+          branch: newPost.branch,
+          authorId: 'public-user',
+          authorName: newPost.author,
+        }),
+      });
 
-    addDocumentNonBlocking(collection(db, 'forumPosts'), postData);
-    
-    toast({ title: "Post Shared", description: "Your chat topic is now live." });
-    setNewPost({ title: '', content: '', author: '', branch: 'Information Technology' });
-    setIsDialogOpen(false);
+      if (!res.ok) throw new Error("Failed to create post");
+
+      toast({ title: "Post Shared", description: "Your chat topic is now live." });
+      setNewPost({ title: '', content: '', author: '', branch: 'Information Technology' });
+      setIsDialogOpen(false);
+      fetchPosts();
+    } catch (error) {
+      toast({ title: "Error", description: "Could not publish post.", variant: "destructive" });
+    }
   };
 
   const filteredPosts = posts?.filter(p => 

@@ -7,8 +7,10 @@ import { Menu, Home as HomeIcon, Users, Info, Mail, ChevronRight, X } from 'luci
 import { Logo } from '@/components/logo';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
 
 export function Navbar() {
+  const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -58,6 +60,34 @@ export function Navbar() {
             </Button>
           </div>
 
+          {/* Desktop Account Options */}
+          <div className="hidden md:flex items-center gap-2">
+            {user ? (
+              <>
+                <Button variant="ghost" asChild className="rounded-2xl font-black text-[10px] uppercase tracking-widest h-10 px-4 hover:bg-primary/5">
+                  <Link href="/dashboard">Dashboard</Link>
+                </Button>
+                {user.role === 'admin' && (
+                  <Button variant="ghost" asChild className="rounded-2xl font-black text-[10px] uppercase tracking-widest h-10 px-4 text-primary hover:bg-primary/5">
+                    <Link href="/admin">Admin</Link>
+                  </Button>
+                )}
+                <Button variant="outline" onClick={logout} className="rounded-2xl font-black text-[10px] uppercase tracking-widest h-10 px-4 border-primary/20 hover:bg-primary/5">
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" asChild className="rounded-2xl font-black text-[10px] uppercase tracking-widest h-10 px-4 hover:bg-primary/5">
+                  <Link href="/login">Login</Link>
+                </Button>
+                <Button asChild className="rounded-2xl font-black text-[10px] uppercase tracking-widest h-10 px-5 shadow-lg bg-zinc-950 text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200">
+                  <Link href="/signup">Sign Up</Link>
+                </Button>
+              </>
+            )}
+          </div>
+
           <div className="md:hidden">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
@@ -84,6 +114,56 @@ export function Navbar() {
                       <ChevronRight className="h-5 w-5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
                     </Link>
                   ))}
+                  
+                  {/* Mobile Account Options */}
+                  <div className="border-t border-white/5 my-4 pt-4 space-y-2">
+                    {user ? (
+                      <>
+                        <Link 
+                          href="/dashboard"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="text-base font-semibold p-4 hover:bg-white/5 rounded-xl flex items-center gap-4 text-zinc-300 hover:text-white transition-all"
+                        >
+                          Dashboard
+                        </Link>
+                        {user.role === 'admin' && (
+                          <Link 
+                            href="/admin"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="text-base font-semibold p-4 hover:bg-white/5 rounded-xl flex items-center gap-4 text-primary transition-all"
+                          >
+                            Admin Dashboard
+                          </Link>
+                        )}
+                        <button 
+                          onClick={() => {
+                            setIsMobileMenuOpen(false);
+                            logout();
+                          }}
+                          className="w-full text-left text-base font-semibold p-4 hover:bg-white/5 text-destructive rounded-xl flex items-center gap-4 transition-all"
+                        >
+                          Log Out
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Link 
+                          href="/login"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="text-base font-semibold p-4 hover:bg-white/5 rounded-xl flex items-center gap-4 text-zinc-300 hover:text-white transition-all"
+                        >
+                          Login
+                        </Link>
+                        <Link 
+                          href="/signup"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="text-base font-semibold p-4 bg-primary text-primary-foreground rounded-xl flex items-center justify-center h-12 transition-all font-bold"
+                        >
+                          Sign Up
+                        </Link>
+                      </>
+                    )}
+                  </div>
                 </div>
                 <div className="border-t border-white/10 pt-6 mt-auto">
                   <Button asChild className="w-full rounded-2xl h-16 font-black text-lg bg-primary/90 shadow-2xl backdrop-blur-xl border border-white/10" onClick={() => setIsMobileMenuOpen(false)}>

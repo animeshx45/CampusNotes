@@ -23,10 +23,9 @@ import Autoplay from "embla-carousel-autoplay";
 import placeholderData from "@/app/lib/placeholder-images.json";
 import { simplifyConcept } from '@/ai/flows/simplify-concept-flow';
 import { useToast } from '@/hooks/use-toast';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, limit } from 'firebase/firestore';
 import { StudyMaterial, User } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { useEffect } from 'react';
 
 const BRANCH_ICONS: Record<string, any> = {
   'Information Technology': Code,
@@ -46,24 +45,33 @@ export default function Home() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiResponse, setAiResponse] = useState<any>(null);
   const { toast } = useToast();
-  const db = useFirestore();
 
   const autoplayPlugin = useRef(
     Autoplay({ delay: 6000, stopOnInteraction: true })
   );
 
-  const materialsQuery = useMemoFirebase(() => {
-    if (!db) return null;
-    return query(collection(db, 'studyMaterials'), limit(100));
-  }, [db]);
+  const [materials, setMaterials] = useState<StudyMaterial[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
 
-  const usersQuery = useMemoFirebase(() => {
-    if (!db) return null;
-    return query(collection(db, 'users'), limit(50));
-  }, [db]);
-
-  const { data: materials } = useCollection<StudyMaterial>(materialsQuery);
-  const { data: users } = useCollection<User>(usersQuery);
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const resMat = await fetch('/api/materials');
+        if (resMat.ok) {
+          const json = await resMat.json();
+          setMaterials(json.data || []);
+        }
+        const resUsers = await fetch('/api/users');
+        if (resUsers.ok) {
+          const json = await resUsers.json();
+          setUsers(json.data || []);
+        }
+      } catch (e) {
+        console.error("Failed to load homepage stats", e);
+      }
+    };
+    fetchStats();
+  }, []);
 
   const stats = useMemo(() => {
     const totalNotes = materials?.length || 0;
