@@ -1573,6 +1573,28 @@ export default function UploadPage() {
                   )}
                 </div>
 
+                {isUploading && (
+                  <div className="space-y-3 bg-secondary/15 p-6 rounded-2xl border border-primary/10 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-zinc-300">
+                      <span className="flex items-center gap-1.5 text-primary">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Uploading Materials
+                      </span>
+                      <span className="font-mono text-primary font-black text-sm">{uploadProgress ?? 0}%</span>
+                    </div>
+                    {/* Progress Bar Track */}
+                    <div className="h-3 w-full bg-zinc-950 rounded-full overflow-hidden border border-white/5 relative">
+                      <div 
+                        className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-300 rounded-full shadow-[0_0_12px_rgba(234,179,8,0.5)]" 
+                        style={{ width: `${uploadProgress ?? 0}%` }}
+                      />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground text-center">
+                      Please keep this window open while we upload and store your notes securely.
+                    </p>
+                  </div>
+                )}
+
                 <Button type="submit" className="w-full h-16 rounded-xl text-lg font-black bg-primary shadow-xl hover:scale-[1.02] transition-transform" disabled={isUploading}>
                   {isUploading ? (
                     <>
