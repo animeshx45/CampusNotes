@@ -82,4 +82,7 @@ And here is the browser verification session recording:
   * Each document/file card in the folder displays its name, document type (PDF or Image) with custom colors and icons, and has dedicated action buttons to either preview the file ("View") or download it directly ("Get").
   * Added `isPreviewDialogOpen` state to trigger a full-screen shadcn dialog modal when a user clicks the "View" button on a file tile. The modal embeds either the `PDFViewer` component or an image element for a seamless inside-app preview.
   * Extracted file fetching and download blob preparation into a reusable `downloadFileUrl` helper function. This function uses the local proxy `/api/pdf-proxy` to download remote assets as blobs to prevent CORS blocking issues when saving files.
+* **Folder note creation and persistence fix (API POST):**
+  * Solved the bug where `folderFiles` (an array of documents uploaded inside a folder) was not destructured from the request body or saved during creation in [src/app/api/materials/route.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/api/materials/route.ts#L430). This caused the folder's files to be completely missing in MongoDB, which forced the detail page to fall back to trying to load a single file from the main `fileUrl` field, resulting in a corruption/404 rendering error. The POST handler now successfully destructures `folderFiles` and writes it to MongoDB when saving the study material.
+
 

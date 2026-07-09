@@ -430,7 +430,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, subject, description, branch, semester, type, fileUrl, author, uploaderId } = body;
+    const { title, subject, description, branch, semester, type, fileUrl, author, uploaderId, folderFiles } = body;
 
     if (!title || !description || !branch || !semester || !type || !fileUrl || !author) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -850,7 +850,8 @@ export async function POST(request: Request) {
       uploaderId: uploaderId || 'public-user',
       downloadCount: 0,
       views: 0,
-      status: 'approved'
+      status: 'approved',
+      folderFiles: folderFiles || []
     });
 
     return NextResponse.json({ data: newMaterial });
