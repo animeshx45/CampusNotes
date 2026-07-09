@@ -17,9 +17,11 @@ import { useState, useEffect } from 'react';
 export default function DashboardPage() {
   const [uploads, setUploads] = useState<StudyMaterial[]>([]);
   const [posts, setPosts] = useState<ForumPost[]>([]);
+  const [contributors, setContributors] = useState<any[]>([]);
   
   const [isUploadsLoading, setIsUploadsLoading] = useState(true);
   const [isForumLoading, setIsForumLoading] = useState(true);
+  const [isContributorsLoading, setIsContributorsLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -47,6 +49,19 @@ export default function DashboardPage() {
         console.error(e);
       } finally {
         setIsForumLoading(false);
+      }
+
+      try {
+        setIsContributorsLoading(true);
+        const resContr = await fetch('/api/contributors');
+        if (resContr.ok) {
+          const json = await resContr.json();
+          setContributors(json.data || []);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsContributorsLoading(false);
       }
     };
 
@@ -227,14 +242,43 @@ export default function DashboardPage() {
               <p className="text-sm opacity-80">Students making a difference.</p>
             </div>
             <div className="space-y-3 relative z-10">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="flex items-center gap-3 bg-white/10 p-3 rounded-xl backdrop-blur-sm">
-                  <div className="text-xs font-black opacity-40">#{i}</div>
-                  <div className="h-8 w-8 rounded-full bg-white/20" />
-                  <div className="flex-grow font-bold text-sm">NITian_{i}01</div>
-                  <div className="text-xs font-black text-accent">{1000 - (i*100)} XP</div>
-                </div>
-              ))}
+              {isContributorsLoading ? (
+                [1, 2, 3].map(i => (
+                  <div key={i} className="flex items-center gap-3 bg-white/5 p-3 rounded-xl animate-pulse">
+                    <div className="h-4 w-4 bg-white/20 rounded" />
+                    <div className="h-8 w-8 bg-white/20 rounded-full" />
+                    <div className="h-4 bg-white/20 rounded flex-grow" />
+                    <div className="h-4 w-12 bg-white/20 rounded" />
+                  </div>
+                ))
+              ) : contributors.length > 0 ? (
+                contributors.slice(0, 5).map((contr, idx) => {
+                  const initials = (contr.fullName || contr.username || '')
+                    .split(' ')
+                    .map((n: string) => n[0])
+                    .join('')
+                    .toUpperCase()
+                    .slice(0, 2);
+
+                  return (
+                    <div key={contr.id || idx} className="flex items-center gap-3 bg-white/10 p-3 rounded-xl backdrop-blur-sm hover:scale-[1.02] transition-transform duration-300">
+                      <div className="text-xs font-black opacity-60">#{idx + 1}</div>
+                      <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                        {initials || '?'}
+                      </div>
+                      <div className="flex flex-col flex-grow min-w-0">
+                        <div className="font-bold text-sm truncate">{contr.fullName || contr.username}</div>
+                        <div className="text-[9px] opacity-75 uppercase tracking-wider truncate">
+                          {contr.branch ? contr.branch : (contr.role || 'Contributor')}
+                        </div>
+                      </div>
+                      <div className="text-xs font-black text-accent shrink-0">{contr.xp} XP</div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="text-center py-6 text-sm opacity-60">No contributors yet.</div>
+              )}
             </div>
           </Card>
         </div>
