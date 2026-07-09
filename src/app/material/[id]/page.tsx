@@ -1294,25 +1294,52 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
             </div>
           </CardContent>
         </Card>
-      ) : isImage ? (
-        <Card className="border-none shadow-xl bg-card rounded-[2.5rem] overflow-hidden w-full border border-white/5">
-          <CardContent className="p-4 sm:p-6 md:p-8">
-            <div className="aspect-[16/10] min-h-[550px] bg-muted/5 rounded-[1.5rem] flex flex-col items-center justify-center border border-primary/10 transition-all overflow-hidden relative w-full h-full p-2">
-              <Image 
-                src={material.fileUrl} 
-                alt="Study Material Preview" 
-                fill 
-                className="object-contain"
-                unoptimized
-              />
+      ) : (
+        <Card className="border-none shadow-xl bg-card rounded-[2.5rem] overflow-hidden w-full border border-white/5 bg-zinc-900/30 backdrop-blur-md">
+          <CardContent className="p-8 md:p-12 flex flex-col items-center text-center gap-6">
+            <div className="h-20 w-20 bg-primary/10 rounded-3xl flex items-center justify-center border border-primary/20 text-primary">
+              <FileText className="h-10 w-10" />
             </div>
+            
+            <div className="space-y-2 max-w-lg">
+              <h2 className="text-2xl font-bold font-headline text-zinc-100">Document Ready for Download</h2>
+              <p className="text-sm text-zinc-400">
+                You can download the full PDF document directly to your device. No account sign-in or verification limits.
+              </p>
+            </div>
+
+            {/* Document stats */}
+            <div className="flex items-center gap-6 text-xs text-zinc-400 bg-white/5 px-6 py-3 rounded-full border border-white/5">
+              <div className="flex items-center gap-1.5">
+                <span className="font-semibold text-zinc-300">Format:</span> PDF Document
+              </div>
+              <div className="h-4 w-px bg-white/10" />
+              <div className="flex items-center gap-1.5">
+                <span className="font-semibold text-zinc-300">Size:</span> {getSimulatedFileSize(material.title || 'notes.pdf')}
+              </div>
+            </div>
+
+            {/* Huge primary download button */}
+            <Button 
+              size="lg" 
+              className="rounded-full px-12 h-14 shadow-xl shadow-primary/20 font-headline font-black uppercase tracking-wider text-sm transition-all hover:scale-[1.03] active:scale-[0.98] w-full max-w-sm"
+              onClick={handleDownload}
+              disabled={isDownloading}
+            >
+              {isDownloading ? (
+                <>
+                  <Loader2 className="mr-2.5 h-5 w-5 animate-spin" />
+                  Downloading...
+                </>
+              ) : (
+                <>
+                  <Download className="mr-2.5 h-5 w-5" />
+                  Get Study Material
+                </>
+              )}
+            </Button>
           </CardContent>
         </Card>
-      ) : (
-        /* Render PDFViewer directly as a first-class borderless cinematic view */
-        <div className="w-full">
-          <PDFViewer url={material.fileUrl} title={material.title} />
-        </div>
       )}
 
       {/* 2. Bottom Split Layout: About Notes and AI Assistant */}

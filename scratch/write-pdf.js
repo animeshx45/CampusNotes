@@ -1,0 +1,9 @@
+const fs = require('fs');
+const path = require('path');
+
+const base64Pdf = 'JVBERi0xLjUKMSAwIG9iago8PAogIC9UeXBlIC9DYXRhbG9nCiAgL1BhZ2VzIDIgMCBSCj4+CmVuZG9iawoKMiAwIG9iago8PAogIC9UeXBlIC9QYWdlcwogIC9LaWRzIFszIDAgUl0KICAvQ29udHQgMAogIC9Db3VudCAxCj4+CmVuZG9iawoKMyAwIG9iago8PAogIC9UeXBlIC9QYWdlCiAgL1BhcmVudCAyIDAgUgogIC9SZXNvdXJjZXMgPDwKICAgIC9Gb250IDw8CiAgICAgIC9GMSA0IDAgUgogICAgPj4KICA+PgogIC9NZWRpYUJveCBbMCAwIDYxMiA3OTJdCiAgL0NvbnRlbnRzIDUgMCBSCj4+CmVuZG9iawoKNCAwIG9iago8PAogIC9VHlwZSAvRm9udAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvSGVsdmV0aWNhCj4+CmVuZG9iawoKNSAwIG9iago8PAogIC9MZW5ndGggNDQKPj4Kc3RyZWFtCkJUCiAgL0YxIDI0IFRmCiAgNzAgNzAwIFRkCiAgKEJhc2ljIEVsZWN0cmljYWwgRW5naW5lZXJpbmcpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKCnRyYWlsZXIKPDwKICAvU2l6ZSA2CiAgL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjQyNQolJUVPRgo=';
+
+const buffer = Buffer.from(base64Pdf, 'base64');
+const targetPath = path.join(__dirname, '..', 'public', 'dummy.pdf');
+fs.writeFileSync(targetPath, buffer);
+console.log('PDF written successfully to', targetPath);
