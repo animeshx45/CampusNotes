@@ -734,22 +734,44 @@ export default function UploadPage() {
     const isLocal = typeof window !== 'undefined' && 
       (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
-    // Helper: Local upload to GridFS (practically instant on localhost, no payload limits in node dev server)
+    // Helper: Local upload to GridFS (with real-time progress monitoring via XHR)
     const uploadLocally = async () => {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
+      return new Promise<string>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        const formData = new FormData();
+        formData.append('file', file);
+
+        xhr.upload.addEventListener('progress', (event) => {
+          if (event.lengthComputable) {
+            const progress = Math.round((event.loaded / event.total) * 100);
+            onProgress(progress);
+          }
+        });
+
+        xhr.addEventListener('load', () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const result = JSON.parse(xhr.responseText);
+              if (result?.url) {
+                resolve(result.url);
+              } else {
+                reject(new Error("No URL returned from server"));
+              }
+            } catch (err) {
+              reject(err);
+            }
+          } else {
+            reject(new Error(`Server returned status ${xhr.status}`));
+          }
+        });
+
+        xhr.addEventListener('error', () => {
+          reject(new Error("Network error occurred during upload"));
+        });
+
+        xhr.open('POST', '/api/upload');
+        xhr.send(formData);
       });
-      if (res.ok) {
-        const result = await res.json();
-        const uploadUrl = result?.url;
-        if (uploadUrl) {
-          return uploadUrl;
-        }
-      }
-      throw new Error("Local server returned " + res.status);
     };
 
     // Helper: Firebase Storage upload
@@ -781,11 +803,8 @@ export default function UploadPage() {
     // 1. If running locally, prioritize local GridFS upload (instant copy, no size limits)
     if (isLocal) {
       try {
-        console.log("Local development environment detected. Prioritizing instant local GridFS upload.");
-        onProgress(50); // mock progress for instant copy
-        const url = await uploadLocally();
-        onProgress(100);
-        return url;
+        console.log("Local development environment detected. Prioritizing local GridFS upload with real progress tracking.");
+        return await uploadLocally();
       } catch (localError) {
         console.warn("Local upload failed, falling back to Firebase Storage...", localError);
       }

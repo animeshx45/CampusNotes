@@ -39,7 +39,8 @@ export async function POST(request: NextRequest) {
     }
     
     const bucket = new mongoose.mongo.GridFSBucket(conn.db, {
-      bucketName: 'study_materials'
+      bucketName: 'study_materials',
+      chunkSizeBytes: 2 * 1024 * 1024 // 2MB chunks to reduce network latency roundtrips
     });
 
     // Create upload stream to GridFS
@@ -92,7 +93,8 @@ export async function GET(request: NextRequest) {
     }
 
     const bucket = new mongoose.mongo.GridFSBucket(conn.db, {
-      bucketName: 'study_materials'
+      bucketName: 'study_materials',
+      chunkSizeBytes: 2 * 1024 * 1024
     });
 
     const objectId = new mongoose.Types.ObjectId(fileId);
