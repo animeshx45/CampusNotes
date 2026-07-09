@@ -18,6 +18,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import placeholderData from "@/app/lib/placeholder-images.json";
@@ -41,10 +42,30 @@ const BRANCH_ICONS: Record<string, any> = {
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [aiTopic, setAiTopic] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiResponse, setAiResponse] = useState<any>(null);
   const { toast } = useToast();
+
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    if (!api) return;
+
+    setCurrent(api.selectedScrollSnap());
+
+    const onSelect = () => {
+      setCurrent(api.selectedScrollSnap());
+    };
+
+    api.on("select", onSelect);
+
+    return () => {
+      api.off("select", onSelect);
+    };
+  }, [api]);
 
   const autoplayPlugin = useRef(
     Autoplay({ delay: 6000, stopOnInteraction: true })
@@ -72,6 +93,51 @@ export default function Home() {
     };
     fetchStats();
   }, []);
+
+  const suggestions = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+
+    const query = searchQuery.toLowerCase();
+    
+    // Core popular subjects at NIT Srinagar
+    const popularSubjects = [
+      'Mathematics I', 'Mathematics II', 'Mathematics III',
+      'Engineering Physics', 'Engineering Chemistry', 'Environmental Studies',
+      'Computer Programming', 'Data Structures', 'Database Management Systems',
+      'Design & Analysis of Algorithms', 'Operating Systems', 'Computer Networks',
+      'Artificial Intelligence', 'Machine Learning', 'Big Data',
+      'Object Oriented Programming', 'Internet & Web Technologies',
+      'Fluid Mechanics', 'Engineering Mechanics', 'Mechanics of Materials',
+      'Thermodynamics', 'Heat Transfer', 'Theory of Machines',
+      'Basic Electrical Engineering', 'Control Systems', 'Power Electronics',
+      'Electronics-I', 'Signals and Systems', 'VLSI Design',
+      'Physical Metallurgy', 'Corrosion Engineering', 'Metal Casting'
+    ];
+
+    const uniqueSuggestions = new Set<string>();
+
+    // 1. Match against popular subjects
+    popularSubjects.forEach(subject => {
+      if (subject.toLowerCase().includes(query)) {
+        uniqueSuggestions.add(subject);
+      }
+    });
+
+    // 2. Match against dynamic database materials subjects and titles
+    materials.forEach(m => {
+      if (m.subject && m.subject.toLowerCase().includes(query)) {
+        uniqueSuggestions.add(m.subject);
+      }
+      if (m.title && m.title.toLowerCase().includes(query)) {
+        const cleanTitle = m.title.split('(')[0].trim();
+        if (cleanTitle.toLowerCase().includes(query)) {
+          uniqueSuggestions.add(cleanTitle);
+        }
+      }
+    });
+
+    return Array.from(uniqueSuggestions).slice(0, 6);
+  }, [searchQuery, materials]);
 
   const stats = useMemo(() => {
     const totalNotes = materials?.length || 0;
@@ -120,9 +186,10 @@ export default function Home() {
       {/* Slideshow Section */}
       <section className="relative min-h-[600px] h-[70vh] md:h-[85vh] md:min-h-[850px] w-full overflow-hidden">
         <Carousel 
-          className="w-full h-full"
+          className="w-full h-full [&>div.overflow-hidden]:h-full"
           plugins={[autoplayPlugin.current]}
           opts={{ loop: true, dragFree: true }}
+          setApi={setApi}
         >
           <CarouselContent className="h-full -ml-0">
             {heroSlides.map((slide, index) => (
@@ -137,38 +204,6 @@ export default function Home() {
                     data-ai-hint="university campus"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/10" />
-                  
-                  {/* Hero Content */}
-                  <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-center items-center text-center py-20">
-                    <div className="max-w-5xl space-y-6 md:space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                      <div className="inline-flex items-center gap-3 px-4 py-1.5 md:px-6 md:py-2.5 rounded-full bg-white/5 backdrop-blur-3xl text-white text-[10px] md:text-[12px] font-black uppercase tracking-[0.3em] border border-white/10 shadow-2xl">
-                        <GraduationCap className="h-4 w-4 md:h-5 md:w-5 text-accent" /> {slide.title}
-                      </div>
-                      <h1 className="text-4xl md:text-7xl lg:text-8xl font-headline font-bold tracking-tighter text-white leading-[1.05] drop-shadow-2xl px-2">
-                        {slide.quote}
-                      </h1>
-                      <p className="text-sm md:text-xl text-white/80 font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-lg opacity-80 px-4">
-                        The easiest way to find notes, papers, and help for your exams at NIT Srinagar.
-                      </p>
-                      
-                      {/* Search Bar - Optimized for Mobile */}
-                      <div className="flex flex-col sm:flex-row justify-center gap-3 pt-6 px-4">
-                        <div className="w-full sm:w-[400px] lg:w-[500px] relative group z-20">
-                          <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
-                          <input 
-                            placeholder="Search subjects or papers..." 
-                            className="w-full h-14 md:h-16 pl-12 pr-6 rounded-2xl bg-white/10 backdrop-blur-2xl border border-white/20 text-white font-bold placeholder:text-white/30 focus:ring-4 focus:ring-primary/40 transition-all outline-none text-base md:text-lg shadow-2xl shadow-black/50"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && (window.location.href = `/browse?search=${searchQuery}`)}
-                          />
-                        </div>
-                        <Button asChild size="lg" className="rounded-2xl h-14 md:h-16 px-10 font-black text-lg md:text-xl shadow-2xl backdrop-blur-xl bg-primary/95 hover:bg-primary border border-white/10 hover:scale-[1.03] transition-transform active:scale-95">
-                          <Link href={`/browse?search=${searchQuery}`}>Find Notes</Link>
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </CarouselItem>
             ))}
@@ -178,6 +213,73 @@ export default function Home() {
             <CarouselNext className="relative right-0 translate-y-0 h-12 w-12 md:h-14 md:w-14 bg-white/5 backdrop-blur-3xl hover:bg-primary/60 hover:text-white border border-white/10 rounded-2xl transition-all shadow-2xl" />
           </div>
         </Carousel>
+
+        {/* Hero Content (Static on top) */}
+        <div className={`absolute inset-0 ${showSuggestions && suggestions.length > 0 ? 'z-[60]' : 'z-10'} flex flex-col justify-center items-center text-center pointer-events-none`}>
+          <div className="container mx-auto px-4 py-20 max-w-5xl space-y-6 md:space-y-10 pointer-events-auto">
+            {/* Slide-specific elements re-render nicely on change with current key */}
+            <div key={current} className="space-y-6 md:space-y-10 animate-in fade-in duration-500">
+              <div className="inline-flex items-center gap-3 px-4 py-1.5 md:px-6 md:py-2.5 rounded-full bg-white/5 backdrop-blur-3xl text-white text-[10px] md:text-[12px] font-black uppercase tracking-[0.3em] border border-white/10 shadow-2xl">
+                <GraduationCap className="h-4 w-4 md:h-5 md:w-5 text-accent" /> {heroSlides[current]?.title || 'NIT Srinagar'}
+              </div>
+              <h1 className="text-4xl md:text-7xl lg:text-8xl font-headline font-bold tracking-tighter text-white leading-[1.05] drop-shadow-2xl px-2">
+                {heroSlides[current]?.quote || 'The Ultimate Peer-to-Peer Study Resource Portal.'}
+              </h1>
+            </div>
+            
+            {/* Static content that never changes or re-renders */}
+            <p className="text-sm md:text-xl text-white/80 font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-lg opacity-80 px-4">
+              The easiest way to find notes, papers, and help for your exams at NIT Srinagar.
+            </p>
+            
+            {/* Search Bar - Completely static, interactive, and preserved */}
+            <div className="flex flex-col sm:flex-row justify-center gap-3 pt-6 px-4">
+              <div className="w-full sm:w-[400px] lg:w-[500px] relative group z-20">
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
+                <input 
+                  placeholder="Search subjects or papers..." 
+                  className="w-full h-14 md:h-16 pl-12 pr-6 rounded-2xl bg-white/10 backdrop-blur-2xl border border-white/20 text-white font-bold placeholder:text-white/30 focus:ring-4 focus:ring-primary/40 transition-all outline-none text-base md:text-lg shadow-2xl shadow-black/50"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      setShowSuggestions(false);
+                      window.location.href = `/browse?search=${encodeURIComponent(searchQuery)}`;
+                    }
+                  }}
+                />
+
+                {/* Autocomplete / Recommendations Dropdown */}
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-3 bg-black/90 backdrop-blur-3xl border border-white/10 rounded-2xl p-2 shadow-2xl z-50 text-left overflow-hidden divide-y divide-white/5 animate-in fade-in slide-in-from-top-2 duration-200">
+                    {suggestions.map((suggestion, idx) => (
+                      <button
+                        key={idx}
+                        onMouseDown={() => {
+                          setSearchQuery(suggestion);
+                          setShowSuggestions(false);
+                          window.location.href = `/browse?search=${encodeURIComponent(suggestion)}`;
+                        }}
+                        className="w-full text-left px-5 py-3.5 text-sm md:text-base font-semibold text-white/80 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-3"
+                      >
+                        <Search className="h-4 w-4 text-primary shrink-0" />
+                        <span className="truncate">{suggestion}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <Button asChild size="lg" className="rounded-2xl h-14 md:h-16 px-10 font-black text-lg md:text-xl shadow-2xl backdrop-blur-xl bg-primary/95 hover:bg-primary border border-white/10 hover:scale-[1.03] transition-transform active:scale-95">
+                <Link href={`/browse?search=${encodeURIComponent(searchQuery)}`}>Find Notes</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
         
         {/* Ticker Bar */}
         <div className="absolute bottom-0 w-full bg-secondary/90 backdrop-blur-3xl border-t border-white/5 py-4 z-40">

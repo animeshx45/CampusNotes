@@ -641,6 +641,16 @@ export default function BrowsePage() {
     fetchMaterials();
   }, []);
 
+  // Sync state with url searchParams on change
+  useEffect(() => {
+    const search = searchParams.get('search');
+    setSearchQuery(search || '');
+    const branch = searchParams.get('branch');
+    setSelectedBranch(branch || 'all');
+    const semester = searchParams.get('semester');
+    setSelectedSemester(semester || 'all');
+  }, [searchParams]);
+
   useEffect(() => {
     setSelectedSubject('All Subjects');
     setActiveFolder(null);
@@ -656,8 +666,12 @@ export default function BrowsePage() {
                           m.branch === 'Common to All';
       
       const semMatch = selectedSemester === 'all' || m.semester.toString() === selectedSemester;
-      const searchMatch = m.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          m.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const searchMatch = 
+        m.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        m.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (m.subject && m.subject.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        m.branch.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.type.toLowerCase().includes(searchQuery.toLowerCase());
       return branchMatch && semMatch && searchMatch;
     });
   }, [selectedBranch, selectedSemester, searchQuery, dbMaterials]);
@@ -738,9 +752,15 @@ export default function BrowsePage() {
   }, [filteredMaterials, selectedBranch, selectedSemester]);
 
   const foldersToShow = useMemo(() => {
-    if (selectedSubject === 'All Subjects') return subjectFolders;
-    return subjectFolders.filter(f => f.name.toLowerCase() === selectedSubject.toLowerCase());
-  }, [subjectFolders, selectedSubject]);
+    let result = subjectFolders;
+    if (selectedSubject !== 'All Subjects') {
+      result = result.filter(f => f.name.toLowerCase() === selectedSubject.toLowerCase());
+    }
+    if (searchQuery.trim() !== '') {
+      result = result.filter(f => f.files.length > 0 || f.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+    return result;
+  }, [subjectFolders, selectedSubject, searchQuery]);
 
   const activeSlides = useMemo(() => {
     const getImg = (id: string) => placeholderData.placeholderImages.find(img => img.id === id);
@@ -918,24 +938,7 @@ export default function BrowsePage() {
 
           {/* Results Grid */}
           <div className="flex-1 space-y-8">
-            {subjects.length > 2 && (
-              <div className="space-y-3 pb-6 border-b border-primary/5">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Subject Categories</label>
-                <div className="flex flex-wrap gap-2">
-                  {subjects.map(sub => (
-                    <Button
-                      key={sub}
-                      variant={selectedSubject === sub ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setSelectedSubject(sub)}
-                      className="rounded-full font-bold transition-all px-4 h-9 shadow-sm"
-                    >
-                      {sub}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
+
 
             {!activeFolder ? (
               foldersToShow.length > 0 ? (

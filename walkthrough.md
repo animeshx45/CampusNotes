@@ -17,3 +17,22 @@ We have added full self-service edit and delete functionalities for students who
 * **Inline Comment Editing**: Authors can edit comments inline. Clicking the edit icon opens a text area in-place. Clicking "Save" updates the reply database subdocuments.
 * **API Put replies Handler**: Created `PUT /api/forum/[id]/replies` to update nested replies content in MongoDB.
 * **Self-Deletion**: Comments can be deleted by their owners and admins via the trash icon.
+
+## Slideshow & Search Bar Layout Optimization
+
+* **Static Search Bar**: Moved the search bar input and the "Find Notes" button completely outside the slideshow carousel loop so that they stay permanently centered and static, preserving input focus and typed queries during background slides.
+* **Static Description**: The universal subtitle description remains stationary.
+* **Dynamic Content Sync**: Integrated the Carousel API (`setApi`) to track the current slide index. The active department title and custom quote fade in-place when a background image transitions, avoiding abrupt slides for the text content.
+* **Underlying Carousel**: The carousel now hosts only the background images, which continue to slide seamlessly in the background.
+
+### Visual Preview
+
+````carousel
+![Initial Slide (NIT Srinagar)](C:\Users\rajur\.gemini\antigravity-ide\brain\a35e0cf1-138e-415f-a95f-5b59741dc2b4\homepage_top_refreshed_1783565415859.png)
+<!-- slide -->
+![Civil Department Slide](C:\Users\rajur\.gemini\antigravity-ide\brain\a35e0cf1-138e-415f-a95f-5b59741dc2b4\civil_dept_slide_1783565530527.png)
+<!-- slide -->
+![Chemical Department Slide](C:\Users\rajur\.gemini\antigravity-ide\brain\a35e0cf1-138e-415f-a95f-5b59741dc2b4\slideshow_department_slide_1783565560973.png)
+````
+
+
