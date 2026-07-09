@@ -20,7 +20,8 @@ export const MATERIAL_TYPES: MaterialType[] = [
   'Previous Year Paper',
   'Textbook',
   'Lab Manual',
-  'YouTube Playlist'
+  'YouTube Playlist',
+  'Folder'
 ];
 
 // A reliable sample PDF for testing purposes

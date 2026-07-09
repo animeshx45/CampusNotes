@@ -14,13 +14,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Upload, CheckCircle2, Loader2, Zap, GraduationCap, 
+  Upload, CheckCircle2, Loader2, Zap, GraduationCap, FolderOpen, 
   ListPlus, FileSpreadsheet, PlayCircle, Trash2, AlertTriangle, 
   Check, Info, Link2, ExternalLink, ShieldAlert
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { materialService } from '@/services/material-service';
-import { Branch, MaterialType, Semester } from '@/lib/types';
+import { Branch, MaterialType, Semester, FolderFile } from '@/lib/types';
 import { initializeFirebase } from '@/firebase';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '@/context/AuthContext';
@@ -633,6 +633,7 @@ export default function UploadPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFolderFiles, setSelectedFolderFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   if (isUserLoading) {
@@ -727,6 +728,42 @@ export default function UploadPage() {
         return;
       }
       setSelectedFile(file);
+    }
+  };
+
+  const handleFolderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      const allowedFiles = filesArray.filter(file => {
+        const name = file.name.toLowerCase();
+        return name.endsWith('.pdf') || name.endsWith('.jpg') || name.endsWith('.jpeg') || name.endsWith('.png');
+      });
+
+      if (allowedFiles.length === 0) {
+        toast({
+          title: "No valid files found!",
+          description: "Folders must contain at least one PDF or Image.",
+          variant: "destructive"
+        });
+        e.target.value = '';
+        setSelectedFolderFiles([]);
+        return;
+      }
+
+      const maxLimit = 50 * 1024 * 1024; // 50MB limit per file
+      const oversized = allowedFiles.filter(f => f.size > maxLimit);
+      if (oversized.length > 0) {
+        toast({
+          title: "Some files are too large!",
+          description: "All files inside the folder must be under 50MB.",
+          variant: "destructive"
+        });
+        e.target.value = '';
+        setSelectedFolderFiles([]);
+        return;
+      }
+
+      setSelectedFolderFiles(allowedFiles);
     }
   };
 
@@ -865,7 +902,12 @@ export default function UploadPage() {
       return;
     }
 
-    if (formData.type !== 'YouTube Playlist' && !selectedFile) {
+    if (formData.type === 'Folder' && selectedFolderFiles.length === 0) {
+      toast({ title: "No folder files!", description: "Please pick a folder containing PDFs or Images.", variant: "destructive" });
+      return;
+    }
+
+    if (formData.type !== 'YouTube Playlist' && formData.type !== 'Folder' && !selectedFile) {
       toast({ title: "No file!", description: "Please pick a file to upload.", variant: "destructive" });
       return;
     }
@@ -875,7 +917,25 @@ export default function UploadPage() {
     
     try {
       let finalFileUrl = formData.fileUrl;
-      if (formData.type !== 'YouTube Playlist' && selectedFile) {
+      let folderFiles: FolderFile[] = [];
+
+      if (formData.type === 'Folder') {
+        const totalFiles = selectedFolderFiles.length;
+        for (let i = 0; i < totalFiles; i++) {
+          const file = selectedFolderFiles[i];
+          const fileUrl = await uploadFileHelper(file, (progress) => {
+            const overall = Math.round((i / totalFiles) * 100 + (progress / totalFiles));
+            setUploadProgress(overall);
+          });
+          
+          folderFiles.push({
+            name: file.name,
+            fileUrl,
+            type: file.name.toLowerCase().endsWith('.pdf') ? 'pdf' : 'image'
+          });
+        }
+        finalFileUrl = folderFiles[0]?.fileUrl || 'folder';
+      } else if (formData.type !== 'YouTube Playlist' && selectedFile) {
         try {
           finalFileUrl = await uploadFileHelper(selectedFile, (progress) => {
             setUploadProgress(progress);
@@ -902,6 +962,7 @@ export default function UploadPage() {
         author: formData.author,
         uploaderId: user.id || user.uid || 'public-user',
         fileUrl: finalFileUrl,
+        folderFiles: formData.type === 'Folder' ? folderFiles : undefined,
         status: 'approved',
         createdAt: new Date().toISOString()
       });
@@ -910,14 +971,14 @@ export default function UploadPage() {
       setUploadProgress(null);
       toast({
         title: "Done!",
-        description: "Your notes have been shared with everyone.",
+        description: "Your folder notes have been shared with everyone.",
       });
       
       setTimeout(() => router.push('/browse'), 2000);
     } catch (error: any) {
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: error.message || "Something went wrong. Please try again.",
         variant: "destructive"
       });
       setIsUploading(false);
@@ -1428,7 +1489,11 @@ export default function UploadPage() {
 
                 <div className="space-y-4">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                    {formData.type === 'YouTube Playlist' ? 'Link to Video' : 'Pick Your File'}
+                    {formData.type === 'YouTube Playlist' 
+                      ? 'Link to Video' 
+                      : formData.type === 'Folder' 
+                        ? 'Select Study Folder' 
+                        : 'Pick Your File'}
                   </Label>
                   {formData.type === 'YouTube Playlist' ? (
                     <Input 
@@ -1438,6 +1503,28 @@ export default function UploadPage() {
                       className="rounded-xl h-12 bg-secondary/20 border-none shadow-inner"
                       required
                     />
+                  ) : formData.type === 'Folder' ? (
+                    <div className="relative border-2 border-dashed rounded-2xl p-10 text-center hover:border-primary transition-colors group cursor-pointer bg-secondary/5">
+                      <input 
+                        type="file" 
+                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                        onChange={handleFolderChange}
+                        {...{
+                          webkitdirectory: "true",
+                          directory: "true",
+                          multiple: true
+                        } as any}
+                      />
+                      <div className="flex flex-col items-center gap-2">
+                        <FolderOpen className="h-10 w-10 text-primary mb-2 animate-bounce" />
+                        <p className="font-bold">
+                          {selectedFolderFiles.length > 0 
+                            ? `Selected Folder containing ${selectedFolderFiles.length} files` 
+                            : 'Click to Pick a Folder'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">Select an entire directory of PDFs and Images</p>
+                      </div>
+                    </div>
                   ) : (
                     <div className="relative border-2 border-dashed rounded-2xl p-10 text-center hover:border-primary transition-colors group cursor-pointer bg-secondary/5">
                       <input 

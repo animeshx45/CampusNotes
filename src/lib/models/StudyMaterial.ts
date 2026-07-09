@@ -13,6 +13,14 @@ const StudyMaterialSchema = new Schema({
   downloadCount: { type: Number, default: 0 },
   views: { type: Number, default: 0 },
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'approved' },
+  folderFiles: {
+    type: [{
+      name: { type: String, required: true },
+      fileUrl: { type: String, required: true },
+      type: { type: String, required: true }
+    }],
+    default: undefined
+  }
 }, {
   timestamps: true,
   toJSON: {

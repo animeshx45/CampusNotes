@@ -16,7 +16,7 @@ import {
   BrainCircuit, Download, FileText, Share2, MessageSquare, 
   Info, Sparkles, AlertCircle, Loader2, Zap, ArrowLeft, 
   ExternalLink, Youtube, Monitor, Eye, ShieldCheck, Trash2, Edit,
-  Terminal, Lightbulb, CheckCircle2, Rocket
+  Terminal, Lightbulb, CheckCircle2, Rocket, FolderOpen
 } from 'lucide-react';
 import { generateStudyMaterialSummary } from '@/ai/flows/generate-study-material-summary';
 import { generateExamQuestions } from '@/ai/flows/generate-exam-questions-flow';
@@ -733,20 +733,26 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
   // Local state to dynamically hold the parsed/verified file type (handles query params & dynamic /api/upload urls)
   const [detectedType, setDetectedType] = useState<'pdf' | 'image' | 'youtube' | 'other' | null>(null);
+  const [selectedFolderFileIndex, setSelectedFolderFileIndex] = useState<number>(0);
 
   const isYoutube = !!(material && material.type === 'YouTube Playlist');
+  const isFolder = !!(material && (material.type === 'Folder' || (material.folderFiles && material.folderFiles.length > 0)));
+  const activeFolderFile = isFolder && material.folderFiles ? material.folderFiles[selectedFolderFileIndex] : null;
+
+  const currentFileUrl = isFolder && activeFolderFile ? activeFolderFile.fileUrl : material?.fileUrl;
+  const currentFileName = isFolder && activeFolderFile ? activeFolderFile.name : material?.title;
 
   useEffect(() => {
     if (isYoutube) {
       setDetectedType('youtube');
       return;
     }
-    if (!material?.fileUrl) {
+    if (!currentFileUrl) {
       setDetectedType(null);
       return;
     }
     
-    const lowerUrl = material.fileUrl.toLowerCase();
+    const lowerUrl = currentFileUrl.toLowerCase();
     // 1. Static pattern check (handles standard file extensions, picsum placeholder, and Firebase storage with query tokens)
     if (lowerUrl.match(/\.(jpeg|jpg|gif|png|webp)(\?|$)/i) || lowerUrl.includes('picsum.photos') || lowerUrl.includes('placehold.co')) {
       setDetectedType('image');
@@ -761,8 +767,8 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     let isMounted = true;
     const checkType = async () => {
       try {
-        const isRelative = !material.fileUrl.startsWith('http://') && !material.fileUrl.startsWith('https://');
-        const checkUrl = isRelative ? material.fileUrl : `/api/pdf-proxy?url=${encodeURIComponent(material.fileUrl)}`;
+        const isRelative = !currentFileUrl.startsWith('http://') && !currentFileUrl.startsWith('https://');
+        const checkUrl = isRelative ? currentFileUrl : `/api/pdf-proxy?url=${encodeURIComponent(currentFileUrl)}`;
         
         // We use HEAD method to only fetch headers (extremely light and fast)
         const res = await fetch(checkUrl, { method: 'HEAD' });
@@ -786,7 +792,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     };
     checkType();
     return () => { isMounted = false; };
-  }, [material?.fileUrl, isYoutube]);
+  }, [currentFileUrl, isYoutube]);
 
   useEffect(() => {
     if (id.startsWith('it-') || id.startsWith('cse-') || id.startsWith('chem-') || id.includes('s3-') || id.includes('s4-') || id.includes('s5-') || id.includes('s6-') || id.includes('s7-') || id.includes('s8-') || id.startsWith('common-')) {
@@ -895,7 +901,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
   }
 
   const handleDownload = async () => {
-    if (!material.fileUrl) {
+    if (!currentFileUrl) {
       toast({ title: "No Link", description: "This resource doesn't have a download link yet." });
       return;
     }
@@ -903,7 +909,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     materialService.incrementDownloadCount(id);
 
     if (isYoutube) {
-      window.open(material.fileUrl, '_blank');
+      window.open(currentFileUrl, '_blank');
       return;
     }
 
@@ -911,8 +917,8 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
       setIsDownloading(true);
       toast({ title: "Downloading", description: "Fetching document content..." });
       
-      const isRelative = !material.fileUrl.startsWith('http://') && !material.fileUrl.startsWith('https://');
-      const fetchUrl = isRelative ? material.fileUrl : `/api/pdf-proxy?url=${encodeURIComponent(material.fileUrl)}`;
+      const isRelative = !currentFileUrl.startsWith('http://') && !currentFileUrl.startsWith('https://');
+      const fetchUrl = isRelative ? currentFileUrl : `/api/pdf-proxy?url=${encodeURIComponent(currentFileUrl)}`;
       const response = await fetch(fetchUrl);
       if (!response.ok) throw new Error('File download proxy failed.');
       
@@ -934,8 +940,9 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
       
       const link = document.createElement('a');
       link.href = blobUrl;
-      const formattedTitle = material.title ? material.title.replace(/[^a-z0-9]/gi, '_') : 'study_material';
-      link.download = `${formattedTitle}.${extension}`;
+      const cleanFileName = currentFileName || 'study_material';
+      const hasExtension = cleanFileName.match(/\.[a-zA-Z0-9]+$/);
+      link.download = hasExtension ? cleanFileName : `${cleanFileName.replace(/[^a-z0-9]/gi, '_')}.${extension}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -1107,8 +1114,88 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
       </div>
 
       {/* 1. Full-width Study Materials / PDF Viewer Section at the Top */}
-      {!hasFile ? (
-        <Card className="border-none shadow-xl bg-card rounded-[2rem] overflow-hidden w-full">
+      {isFolder && material.folderFiles ? (
+        <Card className="border-none shadow-xl bg-card rounded-[2.5rem] overflow-hidden w-full border border-white/5">
+          <CardContent className="p-0">
+            <div className="flex flex-col lg:flex-row min-h-[650px] max-h-[800px] w-full">
+              {/* Folder Sidebar */}
+              <div className="w-full lg:w-80 bg-zinc-900/40 backdrop-blur-md border-b lg:border-b-0 lg:border-r border-white/10 p-6 flex flex-col shrink-0">
+                <div className="flex items-center gap-2 mb-6">
+                  <FolderOpen className="h-5 w-5 text-primary" />
+                  <h3 className="font-headline font-black text-sm uppercase tracking-widest text-primary">
+                    Folder Contents
+                  </h3>
+                </div>
+                <div className="overflow-y-auto flex-1 space-y-2 max-h-[250px] lg:max-h-[none] pr-2">
+                  {material.folderFiles.map((file, idx) => {
+                    const isSelected = idx === selectedFolderFileIndex;
+                    const isPdfFile = file.type === 'pdf';
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => setSelectedFolderFileIndex(idx)}
+                        className={cn(
+                          "w-full text-left p-3.5 rounded-xl transition-all flex items-center justify-between text-sm group border",
+                          isSelected 
+                            ? "bg-primary text-black font-bold border-primary shadow-lg shadow-primary/20 hover:bg-primary" 
+                            : "bg-secondary/10 hover:bg-secondary/35 text-zinc-300 border-white/5 hover:border-white/10"
+                        )}
+                      >
+                        <div className="flex items-center gap-3 truncate">
+                          {isPdfFile ? (
+                            <FileText className={cn("h-4 w-4 shrink-0", isSelected ? "text-black" : "text-red-500 group-hover:scale-110 transition-transform")} />
+                          ) : (
+                            <Eye className={cn("h-4 w-4 shrink-0", isSelected ? "text-black" : "text-teal-400 group-hover:scale-110 transition-transform")} />
+                          )}
+                          <span className="truncate pr-1">{file.name}</span>
+                        </div>
+                        <Badge 
+                          variant="outline" 
+                          className={cn(
+                            "text-[9px] uppercase font-black tracking-widest scale-90 border-none px-1.5 py-0.5",
+                            isSelected 
+                              ? "bg-black/20 text-black" 
+                              : isPdfFile ? "bg-red-500/10 text-red-400" : "bg-teal-400/10 text-teal-400"
+                          )}
+                        >
+                          {file.type}
+                        </Badge>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Document Preview Pane */}
+              <div className="flex-1 bg-zinc-950/30 flex flex-col relative w-full h-full min-h-[450px]">
+                {detectedType === 'image' ? (
+                  <div className="flex-1 flex flex-col items-center justify-center p-8 relative min-h-[500px]">
+                    <div className="aspect-[16/10] w-full h-full relative min-h-[450px]">
+                      <Image 
+                        src={currentFileUrl || ''} 
+                        alt={currentFileName || 'Study Material'} 
+                        fill 
+                        className="object-contain"
+                        unoptimized
+                      />
+                    </div>
+                  </div>
+                ) : detectedType === 'pdf' ? (
+                  <div className="w-full h-full flex-1 min-h-[500px]">
+                    <PDFViewer url={currentFileUrl || ''} title={currentFileName || 'Study Notes'} />
+                  </div>
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center p-12 text-center text-muted-foreground gap-4">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <p className="text-sm">Loading folder preview...</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : !hasFile ? (
+        <Card className="border-none shadow-xl bg-card rounded-[2.5rem] overflow-hidden w-full border border-white/5">
           <CardContent className="p-8">
             <div className="aspect-video bg-secondary/20 rounded-[1.5rem] flex flex-col items-center justify-center border-2 border-dashed border-primary/20 p-10 text-center gap-4">
               <Monitor className="h-12 w-12 text-primary/40" />
@@ -1120,7 +1207,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
           </CardContent>
         </Card>
       ) : isYoutube ? (
-        <Card className="border-none shadow-xl bg-card rounded-[2rem] overflow-hidden w-full">
+        <Card className="border-none shadow-xl bg-card rounded-[2.5rem] overflow-hidden w-full border border-white/5">
           <CardContent className="p-8">
             <div className="aspect-video bg-black rounded-[1.5rem] flex items-center justify-center overflow-hidden border border-primary/20 shadow-2xl relative group">
                <div className="absolute inset-0 bg-gradient-to-br from-red-600/20 to-transparent opacity-50" />
@@ -1137,7 +1224,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
           </CardContent>
         </Card>
       ) : isImage ? (
-        <Card className="border-none shadow-xl bg-card rounded-[2rem] overflow-hidden w-full">
+        <Card className="border-none shadow-xl bg-card rounded-[2.5rem] overflow-hidden w-full border border-white/5">
           <CardContent className="p-4 sm:p-6 md:p-8">
             <div className="aspect-[16/10] min-h-[550px] bg-muted/5 rounded-[1.5rem] flex flex-col items-center justify-center border border-primary/10 transition-all overflow-hidden relative w-full h-full p-2">
               <Image 

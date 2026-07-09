@@ -11,7 +11,7 @@ export type Branch =
 
 export type Semester = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
-export type MaterialType = 'Note' | 'Assignment' | 'Previous Year Paper' | 'Textbook' | 'Lab Manual' | 'YouTube Playlist';
+export type MaterialType = 'Note' | 'Assignment' | 'Previous Year Paper' | 'Textbook' | 'Lab Manual' | 'YouTube Playlist' | 'Folder';
 
 export type UserRole = 'student' | 'teacher' | 'admin';
 
@@ -25,6 +25,12 @@ export interface User {
   semester?: Semester;
   createdAt: any;
   updatedAt: any;
+}
+
+export interface FolderFile {
+  name: string;
+  fileUrl: string;
+  type: 'pdf' | 'image';
 }
 
 export interface StudyMaterial {
@@ -42,6 +48,7 @@ export interface StudyMaterial {
   views: number;
   status: 'pending' | 'approved' | 'rejected';
   createdAt: any;
+  folderFiles?: FolderFile[];
 }
 
 export interface ForumPost {
