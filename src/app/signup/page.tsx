@@ -56,7 +56,7 @@ export default function SignupPage() {
           ? "Account registered as student (unauthorized admin request)."
           : "You have signed up successfully." 
       });
-      router.push('/dashboard');
+      router.push('/');
     } catch (err: any) {
       toast({ 
         title: "Sign Up Failed", 

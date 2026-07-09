@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error(data.error || 'Login failed');
       }
       setUser(data.user);
-      router.push('/dashboard');
+      router.push('/');
     } catch (err: any) {
       setUserError(err);
       throw err;
@@ -110,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error(data.error || 'Signup failed');
       }
       setUser(data.user);
-      router.push('/dashboard');
+      router.push('/');
     } catch (err: any) {
       setUserError(err);
       throw err;
