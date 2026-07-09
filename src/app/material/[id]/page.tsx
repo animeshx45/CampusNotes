@@ -631,6 +631,85 @@ const getSubjectsForFilter = (branch: Branch, semester: number): string[] => {
   return [];
 };
 
+// Helper component to parse and render simple markdown elements for AI Summary
+function MarkdownRenderer({ text }: { text: string }) {
+  const lines = text.split('\n');
+  const elements: React.ReactNode[] = [];
+  let listItems: React.ReactNode[] = [];
+  let inList = false;
+
+  const formatInline = (str: string) => {
+    const parts: React.ReactNode[] = [];
+    let i = 0;
+    while (i < str.length) {
+      if (str.startsWith('**', i)) {
+        const endBold = str.indexOf('**', i + 2);
+        if (endBold !== -1) {
+          parts.push(<strong key={`b-${i}`} className="font-bold text-white">{str.slice(i + 2, endBold)}</strong>);
+          i = endBold + 2;
+          continue;
+        }
+      }
+      if (str.startsWith('`', i)) {
+        const endCode = str.indexOf('`', i + 1);
+        if (endCode !== -1) {
+          parts.push(<code key={`c-${i}`} className="bg-primary/20 text-accent font-mono px-1 rounded text-[11px] font-semibold">{str.slice(i + 1, endCode)}</code>);
+          i = endCode + 1;
+          continue;
+        }
+      }
+      parts.push(str[i]);
+      i++;
+    }
+    return parts;
+  };
+
+  lines.forEach((line, idx) => {
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith('###')) {
+      if (inList) {
+        elements.push(<ul key={`ul-${idx}`} className="list-disc pl-5 space-y-1 my-2 text-zinc-300">{[...listItems]}</ul>);
+        listItems = [];
+        inList = false;
+      }
+      elements.push(<h4 key={idx} className="text-xs font-black uppercase tracking-wider text-accent mt-4 mb-2">{formatInline(trimmed.slice(3).trim())}</h4>);
+    } else if (trimmed.startsWith('##')) {
+      if (inList) {
+        elements.push(<ul key={`ul-${idx}`} className="list-disc pl-5 space-y-1 my-2 text-zinc-300">{[...listItems]}</ul>);
+        listItems = [];
+        inList = false;
+      }
+      elements.push(<h3 key={idx} className="text-sm font-black text-primary mt-5 mb-2.5">{formatInline(trimmed.slice(2).trim())}</h3>);
+    } else if (trimmed.startsWith('#')) {
+      if (inList) {
+        elements.push(<ul key={`ul-${idx}`} className="list-disc pl-5 space-y-1 my-2 text-zinc-300">{[...listItems]}</ul>);
+        listItems = [];
+        inList = false;
+      }
+      elements.push(<h2 key={idx} className="text-base font-black text-white mt-6 mb-3">{formatInline(trimmed.slice(1).trim())}</h2>);
+    } else if (trimmed.startsWith('-') || trimmed.startsWith('*')) {
+      inList = true;
+      listItems.push(<li key={idx} className="text-xs font-medium leading-relaxed my-1 text-zinc-300">{formatInline(trimmed.slice(1).trim())}</li>);
+    } else {
+      if (inList) {
+        elements.push(<ul key={`ul-${idx}`} className="list-disc pl-5 space-y-1 my-2 text-zinc-300">{[...listItems]}</ul>);
+        listItems = [];
+        inList = false;
+      }
+      if (trimmed) {
+        elements.push(<p key={idx} className="text-xs leading-relaxed my-1.5 text-zinc-300">{formatInline(trimmed)}</p>);
+      }
+    }
+  });
+
+  if (inList) {
+    elements.push(<ul key="ul-end" className="list-disc pl-5 space-y-1 my-2 text-zinc-300">{[...listItems]}</ul>);
+  }
+
+  return <div className="space-y-0.5">{elements}</div>;
+}
+
 export default function MaterialDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { toast } = useToast();
@@ -824,7 +903,8 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     setIsLoadingSummary(true);
     try {
       const result = await generateStudyMaterialSummary({ 
-        studyMaterialContent: `${material.title}. ${material.description}` 
+        studyMaterialContent: `${material.title}. ${material.description}`,
+        fileUrl: material.fileUrl
       });
       setSummary(result.summary);
     } catch (error) {
@@ -838,7 +918,8 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     setIsLoadingQuestions(true);
     try {
       const result = await generateExamQuestions({ 
-        studyMaterialText: `${material.title}. ${material.description}` 
+        studyMaterialText: `${material.title}. ${material.description}`,
+        fileUrl: material.fileUrl
       });
       setQuestions(result.examQuestions);
     } catch (error) {
@@ -1092,12 +1173,12 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
                 <TabsContent value="summary" className="p-6 min-h-[300px] focus-visible:ring-0">
                   {summary ? (
-                    <div className="text-sm bg-white/10 p-5 rounded-2xl leading-relaxed whitespace-pre-wrap animate-in fade-in zoom-in duration-500 border border-white/5 shadow-inner">
+                    <div className="text-sm bg-white/10 p-5 rounded-2xl leading-relaxed animate-in fade-in zoom-in duration-500 border border-white/5 shadow-inner">
                       <div className="flex items-center gap-2 text-accent mb-4">
                          <FileText className="h-5 w-5" />
                          <span className="font-black uppercase tracking-widest text-[10px]">Structured Summary</span>
                       </div>
-                      {summary}
+                      <MarkdownRenderer text={summary} />
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-6 gap-6 text-center">

@@ -16,6 +16,7 @@ import {z} from 'genkit';
  */
 const GenerateExamQuestionsInputSchema = z.object({
   studyMaterialText: z.string().describe('The text content of the study material from which to generate exam questions.'),
+  fileUrl: z.string().optional().describe('The URL of the PDF material file.'),
 });
 export type GenerateExamQuestionsInput = z.infer<typeof GenerateExamQuestionsInputSchema>;
 
@@ -70,7 +71,37 @@ const generateExamQuestionsFlow = ai.defineFlow(
     outputSchema: GenerateExamQuestionsOutputSchema,
   },
   async input => {
-    const {output} = await generateExamQuestionsPrompt(input);
+    let contentToAnalyze = input.studyMaterialText;
+
+    if (input.fileUrl && input.fileUrl.toLowerCase().includes('.pdf')) {
+      try {
+        const pdfParser = (await import('pdf-parse')) as any;
+        let fetchUrl = input.fileUrl;
+        if (fetchUrl.startsWith('/')) {
+          const host = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002';
+          fetchUrl = `${host}${fetchUrl}`;
+        }
+        const response = await fetch(fetchUrl);
+        if (response.ok) {
+          const buffer = Buffer.from(await response.arrayBuffer());
+          const parseFunc = pdfParser.default || pdfParser;
+          const data = await parseFunc(buffer);
+          if (data && data.text && data.text.trim()) {
+            const words = data.text.split(/\s+/);
+            const truncatedText = words.slice(0, 6000).join(' ');
+            contentToAnalyze = `Metadata details:\n${input.studyMaterialText}\n\nPDF Contents:\n${truncatedText}`;
+            console.log(`Parsed PDF for questions successfully! Length: ${data.text.length} chars.`);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to parse PDF for questions in server action:', err);
+      }
+    }
+
+    const {output} = await generateExamQuestionsPrompt({
+      studyMaterialText: contentToAnalyze,
+      fileUrl: input.fileUrl,
+    });
     return output!;
   }
 );
