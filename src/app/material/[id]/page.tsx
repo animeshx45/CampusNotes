@@ -922,6 +922,8 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
   const downloadFileUrl = async (fileUrl: string, fileName: string) => {
     try {
+      const isLegacyLocalDiskFile = fileUrl.startsWith('/uploads/') || fileUrl.includes('/uploads/');
+
       // Automatically map any legacy dev-mode direct disk uploads to dynamic API path
       let cleanUrl = fileUrl;
       if (fileUrl.startsWith('/uploads/')) {
@@ -931,7 +933,13 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
       const isRelative = !cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://');
       const fetchUrl = isRelative ? cleanUrl : `/api/pdf-proxy?url=${encodeURIComponent(cleanUrl)}`;
       const response = await fetch(fetchUrl);
-      if (!response.ok) throw new Error('File download proxy failed.');
+      
+      if (!response.ok) {
+        if (isLegacyLocalDiskFile) {
+          throw new Error('This file was uploaded locally and is not available on production. Please re-upload it.');
+        }
+        throw new Error('File download failed.');
+      }
       
       // Determine file extension dynamically from Content-Type header
       const contentType = response.headers.get('content-type') || '';
@@ -963,8 +971,19 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
         title: "Download complete!",
         description: "File successfully saved to your device.",
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error('Download failed', err);
+      
+      const isLocalErr = fileUrl.startsWith('/uploads/') || fileUrl.startsWith('/api/upload') || err.message?.includes('locally');
+      if (isLocalErr) {
+        toast({
+          title: "File Not Found on Server",
+          description: "This document was uploaded in a local development environment. Please re-upload it on the live portal.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       toast({
         title: "Direct download failed",
         description: "Opening in a new tab.",
