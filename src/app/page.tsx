@@ -375,91 +375,91 @@ export default function Home() {
       </section>
 
       {/* AI Assistant Section */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="bg-white/5 backdrop-blur-3xl rounded-[3rem] md:rounded-[5rem] p-10 md:p-24 border border-white/10 relative overflow-hidden group/lab shadow-3xl">
+      <section className="container mx-auto px-4 py-8">
+        <div className="bg-white/5 backdrop-blur-3xl rounded-[2.5rem] p-6 md:p-12 border border-white/10 relative overflow-hidden group/lab shadow-3xl">
           <div className="absolute -top-20 -right-20 p-20 opacity-5 pointer-events-none group-hover/lab:rotate-45 transition-transform duration-[3000ms]">
-             <BrainCircuit className="h-80 w-80 md:h-[30rem] md:w-[30rem] text-primary" />
+             <BrainCircuit className="h-60 w-60 md:h-[20rem] md:w-[20rem] text-primary" />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-            <div className="space-y-10 relative z-10">
-              <div className="space-y-4">
-                <Badge className="bg-accent/80 text-accent-foreground px-6 py-2 rounded-full font-black uppercase tracking-widest text-[10px] md:text-[11px] shadow-lg animate-pulse backdrop-blur-xl border border-white/20">
-                  <Sparkles className="h-4 w-4 mr-2 inline" /> AI Study Assistant
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <div className="space-y-6 relative z-10">
+              <div className="space-y-3">
+                <Badge className="bg-accent/80 text-accent-foreground px-4 py-1 rounded-full font-bold uppercase tracking-widest text-[9px] shadow-md animate-pulse backdrop-blur-xl border border-white/20">
+                  <Sparkles className="h-3 w-3 mr-1.5 inline" /> AI Study Assistant
                 </Badge>
-                <h2 className="text-4xl md:text-7xl lg:text-8xl font-headline font-bold tracking-tighter text-primary leading-[0.95]">
+                <h2 className="text-3xl md:text-5xl lg:text-6xl font-headline font-bold tracking-tighter text-primary leading-[0.95]">
                   Learn Hard <br /><span className="text-foreground italic">Concepts.</span>
                 </h2>
-                <p className="text-lg md:text-2xl text-muted-foreground font-medium max-w-lg leading-relaxed">
+                <p className="text-sm md:text-base text-muted-foreground font-medium max-w-md leading-relaxed">
                   Confused by a topic? Our AI Buddy breaks down complex engineering theories into simple analogies.
                 </p>
               </div>
               
-              <div className="space-y-6 max-w-xl">
-                 <div className="flex flex-col sm:flex-row gap-5">
+              <div className="space-y-4 max-w-lg">
+                 <div className="flex flex-col sm:flex-row gap-3">
                    <div className="flex-grow relative group">
-                      <Zap className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-primary/40 group-focus-within:text-primary z-10 transition-colors" />
+                      <Zap className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary/40 group-focus-within:text-primary z-10 transition-colors" />
                       <input 
                         placeholder="e.g. Backpropagation" 
                         value={aiTopic}
                         onChange={(e) => setAiTopic(e.target.value)}
-                        className="w-full h-16 md:h-20 pl-14 md:pl-16 pr-8 rounded-2xl bg-white/10 backdrop-blur-2xl border border-white/20 focus:ring-4 focus:ring-primary/40 outline-none text-lg md:text-xl font-bold text-white placeholder:text-white/30 shadow-inner transition-all"
+                        className="w-full h-12 pl-12 pr-6 rounded-xl bg-white/10 backdrop-blur-2xl border border-white/20 focus:ring-2 focus:ring-primary/40 outline-none text-sm font-normal text-white placeholder:text-white/30 shadow-inner transition-all"
                       />
                    </div>
                    <Button 
                     onClick={handleAiSimplify}
                     disabled={isAiLoading || !aiTopic.trim()}
-                    size="lg" 
-                    className="rounded-2xl h-16 md:h-20 px-12 md:px-16 font-black text-xl bg-primary/95 hover:bg-primary backdrop-blur-xl border border-white/10 hover:scale-[1.05] transition-all active:scale-95 gap-3 shadow-2xl shadow-primary/40"
+                    size="default" 
+                    className="rounded-xl h-12 px-8 font-bold text-sm bg-primary/95 hover:bg-primary backdrop-blur-xl border border-white/10 hover:scale-[1.02] transition-all active:scale-95 gap-2 shadow-xl shadow-primary/30"
                    >
-                     {isAiLoading ? <Loader2 className="h-7 w-7 animate-spin" /> : <Rocket className="h-7 w-7" />}
+                     {isAiLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Rocket className="h-5 w-5" />}
                      Explain
                    </Button>
                  </div>
               </div>
             </div>
 
-            <div className="relative min-h-[400px] md:min-h-[500px] flex items-center justify-center">
+            <div className="relative min-h-[300px] md:min-h-[400px] flex items-center justify-center">
               {aiResponse ? (
-                <Card className="w-full bg-white/5 backdrop-blur-3xl border border-white/20 shadow-2xl rounded-[3rem] p-10 md:p-14 animate-in zoom-in-95 fade-in slide-in-from-bottom-12 duration-700 gpu-smooth">
-                   <div className="flex items-center gap-5 text-primary mb-8 md:mb-10 border-b border-white/10 pb-6 md:pb-8">
-                      <div className="h-12 w-12 md:h-16 md:w-16 bg-white/5 rounded-2xl flex items-center justify-center shadow-inner border border-white/10">
-                        <BrainCircuit className="h-7 w-7 md:h-9 md:w-9" />
+                <Card className="w-full bg-white/5 backdrop-blur-3xl border border-white/20 shadow-2xl rounded-[2rem] p-6 md:p-8 animate-in zoom-in-95 fade-in slide-in-from-bottom-12 duration-700 gpu-smooth">
+                   <div className="flex items-center gap-4 text-primary mb-6 border-b border-white/10 pb-4">
+                      <div className="h-10 w-10 md:h-12 md:w-12 bg-white/5 rounded-xl flex items-center justify-center shadow-inner border border-white/10">
+                        <BrainCircuit className="h-5 w-5 md:h-6 md:w-6" />
                       </div>
                       <div>
-                        <h3 className="text-2xl md:text-3xl font-bold tracking-tight">AI Insights</h3>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-70">Topic: {aiTopic}</p>
+                        <h3 className="text-lg md:text-xl font-bold tracking-tight">AI Insights</h3>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground opacity-70">Topic: {aiTopic}</p>
                       </div>
                    </div>
-                   <div className="space-y-8 md:space-y-10">
-                      <div className="bg-white/5 p-8 md:p-10 rounded-[2rem] border border-white/10 text-xl md:text-2xl leading-relaxed italic text-foreground font-medium shadow-inner">
+                   <div className="space-y-6">
+                      <div className="bg-white/5 p-5 md:p-6 rounded-2xl border border-white/10 text-xs md:text-sm leading-relaxed text-foreground/90 font-normal shadow-inner">
                         "{aiResponse.explanation}"
                       </div>
-                      <div className="space-y-4 md:space-y-6">
-                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-primary ml-2">Key Takeaways</p>
-                        <div className="grid grid-cols-1 gap-3 md:gap-4">
+                      <div className="space-y-3">
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary ml-1">Key Takeaways</p>
+                        <div className="grid grid-cols-1 gap-2.5">
                           {aiResponse.keyPoints.map((pt: string, i: number) => (
-                            <div key={i} className="flex items-center gap-4 text-base md:text-lg font-bold bg-white/5 backdrop-blur-xl p-5 md:p-6 rounded-2xl border border-white/5 hover:border-primary/50 transition-all group/item">
-                              <div className="h-3 w-3 rounded-full bg-accent group-hover/item:scale-125 transition-transform shadow-[0_0_10px_rgba(234,179,8,0.3)]" />
-                              {pt}
+                            <div key={i} className="flex items-center gap-3 text-xs font-normal text-muted-foreground bg-white/5 backdrop-blur-xl p-4 rounded-xl border border-white/5 hover:border-primary/30 transition-all group/item">
+                              <div className="h-2 w-2 rounded-full bg-accent group-hover/item:scale-125 transition-transform shadow-[0_0_8px_rgba(234,179,8,0.2)] shrink-0" />
+                              <span className="flex-grow">{pt}</span>
                             </div>
                           ))}
                         </div>
                       </div>
-                      <Button variant="ghost" className="w-full h-14 md:h-16 rounded-2xl text-primary font-black uppercase text-xs tracking-widest hover:bg-white/10 border border-white/10 mt-4 backdrop-blur-xl active:scale-95" onClick={() => setAiResponse(null)}>
+                      <Button variant="ghost" className="w-full h-11 rounded-xl text-primary font-bold uppercase text-[10px] tracking-widest hover:bg-white/10 border border-white/10 mt-2 backdrop-blur-xl active:scale-95" onClick={() => setAiResponse(null)}>
                         Explain Another Topic
                       </Button>
                    </div>
                 </Card>
               ) : (
-                <div className="text-center space-y-10 md:space-y-14 group/placeholder">
-                   <div className="h-48 w-48 md:h-64 md:w-64 bg-white/5 backdrop-blur-2xl rounded-full flex items-center justify-center mx-auto shadow-2xl relative group-hover/lab:scale-105 transition-transform duration-1000 border border-white/10">
+                <div className="text-center space-y-6 group/placeholder">
+                   <div className="h-32 w-32 md:h-44 md:w-44 bg-white/5 backdrop-blur-2xl rounded-full flex items-center justify-center mx-auto shadow-2xl relative group-hover/lab:scale-105 transition-transform duration-1000 border border-white/10">
                       <div className="absolute inset-0 rounded-full border-4 border-dashed border-primary/20 animate-[spin_40s_linear_infinite]" />
-                      <Sparkles className="h-20 w-20 md:h-28 md:w-28 text-primary animate-pulse" />
+                      <Sparkles className="h-12 w-12 md:h-16 md:w-16 text-primary animate-pulse" />
                    </div>
-                   <div className="space-y-4 md:space-y-6 animate-bounce">
-                     <p className="text-3xl md:text-5xl font-headline font-bold text-primary/40 tracking-tighter">Ready to Study.</p>
-                     <p className="text-base md:text-xl text-muted-foreground font-medium max-w-[280px] md:max-w-sm mx-auto leading-relaxed">Type any complex topic to get an instant explanation.</p>
+                   <div className="space-y-2 animate-bounce">
+                     <p className="text-xl md:text-3xl font-headline font-bold text-primary/40 tracking-tighter">Ready to Study.</p>
+                     <p className="text-xs md:text-sm text-muted-foreground font-medium max-w-[200px] md:max-w-xs mx-auto leading-relaxed">Type any complex topic to get an instant explanation.</p>
                    </div>
                 </div>
               )}
