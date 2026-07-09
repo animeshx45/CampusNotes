@@ -206,83 +206,130 @@ export default function ProfileDashboardPage() {
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Left Column (2/3 width) - Edit Form & Live Timeline */}
+        {/* Left Column (2/3 width) - Edit Form, Contributors & Live Timeline */}
         <div className="lg:col-span-2 space-y-8">
           
-          {/* Edit Profile Form */}
-          <Card className="rounded-[2.5rem] border-primary/5 shadow-xl bg-card">
-            <CardHeader className="border-b border-primary/5 pb-6">
-              <CardTitle className="text-xl font-bold flex items-center gap-2">
-                <User className="h-5 w-5 text-primary" /> Edit Profile Details
-              </CardTitle>
-              <CardDescription>Update your personal information used throughout the portal.</CardDescription>
-            </CardHeader>
-            <CardContent className="pt-8">
-              <form onSubmit={handleUpdate} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Full Name</Label>
-                    <Input
-                      id="fullName"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      placeholder="Your full name"
-                      className="rounded-xl h-12 bg-secondary/10 border-none shadow-inner font-semibold text-foreground focus-visible:ring-1 focus-visible:ring-primary/30"
-                      required
-                    />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Edit Profile Form */}
+            <Card className="rounded-[2.5rem] border-primary/5 shadow-xl bg-card flex flex-col justify-between">
+              <CardHeader className="border-b border-primary/5 pb-6">
+                <CardTitle className="text-xl font-bold flex items-center gap-2">
+                  <User className="h-5 w-5 text-primary" /> Edit Profile Details
+                </CardTitle>
+                <CardDescription>Update your personal information used throughout the portal.</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-8 flex-grow">
+                <form onSubmit={handleUpdate} className="space-y-6">
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="fullName" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Full Name</Label>
+                      <Input
+                        id="fullName"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        placeholder="Your full name"
+                        className="rounded-xl h-12 bg-secondary/10 border-none shadow-inner font-semibold text-foreground focus-visible:ring-1 focus-visible:ring-primary/30"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="username" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Username</Label>
+                      <Input
+                        id="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Choose a username"
+                        className="rounded-xl h-12 bg-secondary/10 border-none shadow-inner font-semibold text-foreground focus-visible:ring-1 focus-visible:ring-primary/30"
+                        required
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="username" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Username</Label>
-                    <Input
-                      id="username"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      placeholder="Choose a username"
-                      className="rounded-xl h-12 bg-secondary/10 border-none shadow-inner font-semibold text-foreground focus-visible:ring-1 focus-visible:ring-primary/30"
-                      required
-                    />
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="branch" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Branch / Department</Label>
-                    <Select onValueChange={setBranch} value={branch}>
-                      <SelectTrigger id="branch" className="rounded-xl h-12 bg-secondary/10 border-none shadow-inner font-semibold text-foreground">
-                        <SelectValue placeholder="Which branch?" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {BRANCHES.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="branch" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Branch / Department</Label>
+                      <Select onValueChange={setBranch} value={branch}>
+                        <SelectTrigger id="branch" className="rounded-xl h-12 bg-secondary/10 border-none shadow-inner font-semibold text-foreground">
+                          <SelectValue placeholder="Which branch?" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {BRANCHES.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="semester" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Current Semester</Label>
+                      <Select onValueChange={setSemester} value={semester}>
+                        <SelectTrigger id="semester" className="rounded-xl h-12 bg-secondary/10 border-none shadow-inner font-semibold text-foreground">
+                          <SelectValue placeholder="Which semester?" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SEMESTERS.map(s => <SelectItem key={s} value={s.toString()}>Semester {s}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="semester" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Current Semester</Label>
-                    <Select onValueChange={setSemester} value={semester}>
-                      <SelectTrigger id="semester" className="rounded-xl h-12 bg-secondary/10 border-none shadow-inner font-semibold text-foreground">
-                        <SelectValue placeholder="Which semester?" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {SEMESTERS.map(s => <SelectItem key={s} value={s.toString()}>Semester {s}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
+
+                  <div className="flex justify-end gap-3 pt-6 border-t border-primary/5">
+                    <Button type="submit" disabled={isUpdating} className="rounded-xl h-12 px-6 shadow-lg shadow-primary/20 w-full">
+                      {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                      Save Changes
+                    </Button>
                   </div>
-                </div>
+                </form>
+              </CardContent>
+            </Card>
 
-                <div className="space-y-2 pt-2 bg-secondary/10 p-4 rounded-2xl border border-primary/5">
-                  <span className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-muted-foreground"><ShieldAlert className="h-4 w-4 text-amber-500" /> Account Security Info</span>
-                  <p className="text-xs text-muted-foreground">Your account email (<strong className="text-foreground">{user.email}</strong>) and role credentials are managed securely.</p>
-                </div>
+            {/* Top Contributors Card */}
+            <Card className="rounded-[2.5rem] border-none bg-primary text-primary-foreground p-8 space-y-6 shadow-2xl relative overflow-hidden flex flex-col justify-between">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <Users className="h-32 w-32 animate-pulse" />
+              </div>
+              <div className="space-y-2 relative z-10">
+                <h3 className="text-2xl font-bold">Top Contributors</h3>
+                <p className="text-sm opacity-80">Students making a difference.</p>
+              </div>
+              <div className="space-y-3 relative z-10 flex-grow mt-2">
+                {isContributorsLoading ? (
+                  [1, 2, 3].map(i => (
+                    <div key={i} className="flex items-center gap-3 bg-white/5 p-3 rounded-xl animate-pulse">
+                      <div className="h-4 w-4 bg-white/20 rounded" />
+                      <div className="h-8 w-8 bg-white/20 rounded-full" />
+                      <div className="h-4 bg-white/20 rounded flex-grow" />
+                      <div className="h-4 w-12 bg-white/20 rounded" />
+                    </div>
+                  ))
+                ) : contributors.length > 0 ? (
+                  contributors.slice(0, 5).map((contr, idx) => {
+                    const initials = (contr.fullName || contr.username || '')
+                      .split(' ')
+                      .map((n: string) => n[0])
+                      .join('')
+                      .toUpperCase()
+                      .slice(0, 2);
 
-                <div className="flex justify-end gap-3 pt-6 border-t border-primary/5">
-                  <Button type="submit" disabled={isUpdating} className="rounded-xl h-12 px-6 shadow-lg shadow-primary/20 w-full md:w-auto">
-                    {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                    Save Changes
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+                    return (
+                      <div key={contr.id || idx} className="flex items-center gap-3 bg-white/10 p-3 rounded-xl backdrop-blur-sm hover:scale-[1.02] transition-transform duration-300">
+                        <div className="text-xs font-black opacity-60 text-white">#{idx + 1}</div>
+                        <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                          {initials || '?'}
+                        </div>
+                        <div className="flex flex-col flex-grow min-w-0">
+                          <div className="font-bold text-sm truncate text-white">{contr.fullName || contr.username}</div>
+                          <div className="text-[9px] opacity-75 uppercase tracking-wider truncate text-white/95">
+                            {contr.branch ? contr.branch : (contr.role || 'Contributor')}
+                          </div>
+                        </div>
+                        <div className="text-xs font-black text-accent shrink-0">{contr.xp} XP</div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-6 text-sm opacity-60 text-white/70">No contributors yet.</div>
+                )}
+              </div>
+            </Card>
+          </div>
 
           {/* Community Timeline Feed */}
           <Card className="rounded-[2.5rem] border-primary/5 shadow-xl overflow-hidden bg-card">
@@ -361,7 +408,7 @@ export default function ProfileDashboardPage() {
           </Card>
         </div>
 
-        {/* Right Column (1/3 width) - User Card, Stats & Leaderboard */}
+        {/* Right Column (1/3 width) - User Card, Stats & Announcements */}
         <div className="space-y-8">
           
           {/* User Card */}
@@ -471,56 +518,6 @@ export default function ProfileDashboardPage() {
                 </div>
               ))}
             </CardContent>
-          </Card>
-
-          {/* Top Contributors Card */}
-          <Card className="rounded-[2.5rem] border-none bg-primary text-primary-foreground p-8 space-y-6 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-10">
-              <Users className="h-32 w-32" />
-            </div>
-            <div className="space-y-2 relative z-10">
-              <h3 className="text-2xl font-bold">Top Contributors</h3>
-              <p className="text-sm opacity-80">Students making a difference.</p>
-            </div>
-            <div className="space-y-3 relative z-10">
-              {isContributorsLoading ? (
-                [1, 2, 3].map(i => (
-                  <div key={i} className="flex items-center gap-3 bg-white/5 p-3 rounded-xl animate-pulse">
-                    <div className="h-4 w-4 bg-white/20 rounded" />
-                    <div className="h-8 w-8 bg-white/20 rounded-full" />
-                    <div className="h-4 bg-white/20 rounded flex-grow" />
-                    <div className="h-4 w-12 bg-white/20 rounded" />
-                  </div>
-                ))
-              ) : contributors.length > 0 ? (
-                contributors.slice(0, 5).map((contr, idx) => {
-                  const initials = (contr.fullName || contr.username || '')
-                    .split(' ')
-                    .map((n: string) => n[0])
-                    .join('')
-                    .toUpperCase()
-                    .slice(0, 2);
-
-                  return (
-                    <div key={contr.id || idx} className="flex items-center gap-3 bg-white/10 p-3 rounded-xl backdrop-blur-sm hover:scale-[1.02] transition-transform duration-300">
-                      <div className="text-xs font-black opacity-60">#{idx + 1}</div>
-                      <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold text-white shrink-0">
-                        {initials || '?'}
-                      </div>
-                      <div className="flex flex-col flex-grow min-w-0">
-                        <div className="font-bold text-sm truncate text-white">{contr.fullName || contr.username}</div>
-                        <div className="text-[9px] opacity-75 uppercase tracking-wider truncate text-white/95">
-                          {contr.branch ? contr.branch : (contr.role || 'Contributor')}
-                        </div>
-                      </div>
-                      <div className="text-xs font-black text-accent shrink-0">{contr.xp} XP</div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="text-center py-6 text-sm opacity-60">No contributors yet.</div>
-              )}
-            </div>
           </Card>
         </div>
       </div>
