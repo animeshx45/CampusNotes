@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import MaterialFile from '@/lib/models/MaterialFile';
-import { promises as fs } from 'fs';
-import path from 'path';
+import mongoose from 'mongoose';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,30 +12,42 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
+    await connectToDatabase();
+    const conn = mongoose.connection;
+    if (!conn.db) {
+      throw new Error('Database connection not established');
+    }
+    
+    const bucket = new mongoose.mongo.GridFSBucket(conn.db, {
+      bucketName: 'study_materials'
+    });
+
+    // Create upload stream to GridFS
+    const uploadStream = bucket.openUploadStream(file.name, {
+      metadata: {
+        originalName: file.name,
+        contentType: file.type || 'application/pdf'
+      }
+    });
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Clean file name to prevent directory traversal or invalid characters
-    const cleanName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
-    const safeFileName = `${Date.now()}-${cleanName}`;
+    await new Promise<void>((resolve, reject) => {
+      uploadStream.on('error', (err: any) => reject(err));
+      uploadStream.on('finish', () => resolve());
+      uploadStream.write(buffer);
+      uploadStream.end();
+    });
 
-    // Define public/uploads directory path
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+    const fileId = uploadStream.id.toString();
+    const fileUrl = `/api/upload?id=${fileId}`;
 
-    // Ensure uploads directory exists
-    await fs.mkdir(uploadsDir, { recursive: true });
+    console.log(`Saved file to GridFS: ${file.name} (ID: ${fileId}, Size: ${buffer.length} bytes)`);
 
-    // Write file to local disk
-    const filePath = path.join(uploadsDir, safeFileName);
-    await fs.writeFile(filePath, buffer);
-
-    console.log(`Saved file to disk: ${filePath} (${buffer.length} bytes)`);
-
-    // Return the public URL
-    const fileUrl = `/uploads/${safeFileName}`;
     return NextResponse.json({ url: fileUrl });
   } catch (error: any) {
-    console.error('File system upload error:', error);
+    console.error('GridFS upload error:', error);
     return NextResponse.json({ error: `Failed to upload file: ${error.message}` }, { status: 500 });
   }
 }
@@ -50,19 +61,64 @@ export async function GET(request: NextRequest) {
       return new NextResponse('File ID parameter is required', { status: 400 });
     }
 
-    await connectToDatabase();
-    const fileRecord = await MaterialFile.findById(fileId);
+    if (!mongoose.Types.ObjectId.isValid(fileId)) {
+      return new NextResponse('Invalid File ID format', { status: 400 });
+    }
 
-    if (!fileRecord) {
+    await connectToDatabase();
+    const conn = mongoose.connection;
+    if (!conn.db) {
+      throw new Error('Database connection not established');
+    }
+
+    const bucket = new mongoose.mongo.GridFSBucket(conn.db, {
+      bucketName: 'study_materials'
+    });
+
+    const objectId = new mongoose.Types.ObjectId(fileId);
+
+    // 1. Try to find the file in GridFS
+    const files = await bucket.find({ _id: objectId }).toArray();
+
+    if (!files || files.length === 0) {
+      // 2. Fallback to old MaterialFile schema
+      const oldFile = await MaterialFile.findById(fileId);
+      if (oldFile) {
+        const oldBuffer = Buffer.from(oldFile.data, 'base64');
+        return new NextResponse(oldBuffer, {
+          headers: {
+            'Content-Type': oldFile.contentType || 'application/pdf',
+            'Content-Disposition': `inline; filename="${encodeURIComponent(oldFile.fileName)}"`,
+            'Cache-Control': 'public, max-age=31536000, immutable'
+          }
+        });
+      }
       return new NextResponse('File not found', { status: 404 });
     }
 
-    const fileBuffer = Buffer.from(fileRecord.data, 'base64');
+    const fileRecord = files[0];
+    const downloadStream = bucket.openDownloadStream(objectId);
 
-    return new NextResponse(fileBuffer, {
+    // 3. Stream data chunk by chunk via TransformStream (production/serverless safe)
+    const passThrough = new TransformStream();
+    const writer = passThrough.writable.getWriter();
+    
+    downloadStream.on('data', (chunk: any) => {
+      writer.write(chunk);
+    });
+    
+    downloadStream.on('end', () => {
+      writer.close();
+    });
+    
+    downloadStream.on('error', (err: any) => {
+      writer.abort(err);
+    });
+
+    return new NextResponse(passThrough.readable, {
       headers: {
-        'Content-Type': fileRecord.contentType || 'application/pdf',
-        'Content-Disposition': `inline; filename="${encodeURIComponent(fileRecord.fileName)}"`,
+        'Content-Type': (fileRecord.metadata as any)?.contentType || 'application/pdf',
+        'Content-Disposition': `inline; filename="${encodeURIComponent(fileRecord.filename)}"`,
         'Cache-Control': 'public, max-age=31536000, immutable'
       }
     });
