@@ -58,6 +58,9 @@ And here is the browser verification session recording:
 ## PDF Rendering Proxy Fix & Database Storage Migration
 * **User-Agent Header Added:** Modified [pdf-proxy/route.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/api/pdf-proxy/route.ts#L18) to append a browser `User-Agent` header to proxy fetch requests, preventing strict origin hosts (such as W3C) from rejecting the connection with a `403 Forbidden` status code.
 * **Server Logging:** Added console error tracking on failed requests to help logs track unsuccessful fetches.
+* **Local Mock PDF Resolution:**
+  * Created a valid, light mock PDF document at [dummy.pdf](file:///c:/Users/rajur/Downloads/project%20(1)/public/dummy.pdf) inside the project's public folder.
+  * Replaced the external `w3.org` URL with a local reference `'/dummy.pdf'` in [mock-data.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/lib/mock-data.ts#L27). This resolves loading failures due to origin hosts blocking cloud environment IP ranges.
 * **Database File Storage (MongoDB):**
   * Created a Mongoose model [MaterialFile.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/lib/models/MaterialFile.ts) to permanently store uploaded PDF files as Base64-encoded strings directly inside MongoDB.
   * Reconfigured the local server upload endpoint [upload/route.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/api/upload/route.ts) to write to MongoDB (`POST`) and serve files dynamically (`GET`) via stable relative paths (`/api/upload?id=...`).

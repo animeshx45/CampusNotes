@@ -24,7 +24,7 @@ export const MATERIAL_TYPES: MaterialType[] = [
 ];
 
 // A reliable sample PDF for testing purposes
-const SAMPLE_PDF_URL = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+const SAMPLE_PDF_URL = '/dummy.pdf';
 
 /**
  * Generates the common 1st year syllabus (Sem 1 & 2) for all branches.
