@@ -84,8 +84,9 @@ And here is the browser verification session recording:
   * Added estimated file size helper function `getSimulatedFileSize` to populate real-world sizes for uploaded PDFs.
   * Configured `downloadFileUrl` in [page.tsx](file:///c:/Users/rajur%20(1)/Downloads/project%20(1)/src/app/material/[id]/page.tsx#L923) to automatically intercept legacy dev-mode URLs starting with `/uploads/` and dynamically rewrite them to the `/api/upload?id=...` endpoint. Additionally, added error catching so that if a legacy local-only file fails to download, the site displays a friendly Red Toast warning requesting a re-upload instead of navigating to a blank 404 page.
   * Updated `SAMPLE_PDF_URL` in [mock-data.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/lib/mock-data.ts#L28) to point to Mozilla's master compressed PDF test file hosted on `raw.githubusercontent.com` to prevent local `/dummy.pdf` 404 navigation errors on live environments.
-* **Database Cleanups:**
+* **Database Cleanups & Git binary protection:**
   * Created and ran a script `scratch/delete-broken.js` to connect to MongoDB Atlas and purge 5 broken/corrupted legacy files that were uploaded in the local environment and had missing file data in production. This leaves only clean, valid mock/production-upload files in the library.
+  * Added a `.gitattributes` file to the root of the workspace to mark all `.pdf`, `.png`, `.jpg`, `.jpeg`, `.webp`, `.gif`, and fonts/icons as `binary` files, permanently preventing Git from automatically converting line endings (LF to CRLF) and corrupting binary assets in the future.
 * **Production MongoDB Document Storage Upload Optimization:**
   * Replaced GridFS sequential chunk-by-chunk write streaming with direct Mongoose `MaterialFile` document creation in [route.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/api/upload/route.ts#L57) for production environment uploads. Storing small uploaded files (Vercel payload limited to 4.5MB anyway) as Base64 MongoDB documents takes < 0.5s, preventing Gateway timeouts/failures on serverless containers.
 * **Folder note creation and persistence fix (API POST):**
