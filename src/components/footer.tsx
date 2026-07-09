@@ -1,38 +1,39 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Mail, MapPin, ExternalLink, Globe, CloudRain, Wind, ThermometerSun, MessageSquare } from 'lucide-react';
+import { Mail, MapPin, ExternalLink, Globe, Phone, MessageSquare } from 'lucide-react';
 import { Logo } from '@/components/logo';
 
 export function Footer() {
-  const visitorCount = "0002486"; // Mock visitor count
+  const [visitorCount, setVisitorCount] = useState<string>("0000000");
+
+  useEffect(() => {
+    const recordVisit = async () => {
+      try {
+        const hasVisited = sessionStorage.getItem('hasVisitedCampusNotes');
+        let res;
+        if (!hasVisited) {
+          res = await fetch('/api/visitors', { method: 'POST' });
+          sessionStorage.setItem('hasVisitedCampusNotes', 'true');
+        } else {
+          res = await fetch('/api/visitors');
+        }
+        if (res.ok) {
+          const json = await res.json();
+          const countStr = String(json.count || 0).padStart(7, '0');
+          setVisitorCount(countStr);
+        }
+      } catch (e) {
+        console.error("Failed to load visitor count", e);
+      }
+    };
+    recordVisit();
+  }, []);
   
   return (
     <footer className="w-full flex flex-col font-body">
-      {/* Top Ticker / Weather Bar - Academic Green */}
-      <div className="bg-primary text-primary-foreground py-2 px-4 text-[9px] md:text-xs font-bold shadow-lg relative z-10">
-        <div className="container mx-auto flex flex-wrap justify-between items-center gap-2 md:gap-4">
-          <div className="flex items-center gap-2">
-            <span className="opacity-80">Campus Now :</span>
-            <CloudRain className="h-3 w-3 md:h-4 md:w-4" />
-          </div>
-          <div className="flex items-center gap-4 md:gap-6">
-            <div className="flex items-center gap-1.5">
-              <ThermometerSun className="h-3 w-3 md:h-3.5 md:w-3.5 opacity-70" />
-              <span>12 °C</span>
-            </div>
-            <div className="hidden xs:flex items-center gap-1.5">
-              <span className="opacity-70 text-[9px] md:text-[10px]">Humidity : 82</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Wind className="h-3 w-3 md:h-3.5 md:w-3.5 opacity-70" />
-              <span>3 km/h</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Footer Body - Dark Green/Black theme */}
       <div className="bg-card text-white py-12 md:py-16 px-4 border-b border-white/5 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(22,163,74,0.05),transparent_40%)]" />
@@ -51,6 +52,9 @@ export function Footer() {
               </p>
               <p className="flex items-center justify-center lg:justify-start gap-3">
                 <Mail className="h-4 w-4 text-accent shrink-0" /> rajuranjanxbkj@gmail.com
+              </p>
+              <p className="flex items-center justify-center lg:justify-start gap-3">
+                <Phone className="h-4 w-4 text-accent shrink-0" /> +91 9693929816
               </p>
               <p className="flex items-center justify-center lg:justify-start gap-3">
                 <Globe className="h-4 w-4 text-accent shrink-0" /> www.nitsri.ac.in

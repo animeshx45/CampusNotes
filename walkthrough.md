@@ -38,3 +38,13 @@ And here is the browser verification session recording:
 ## Partner Footer and Real-Time Stats Modification
 * **Partner Logos Removal:** Deleted the `Partner Logos Bar` element block from the global [footer.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/components/footer.tsx#L107) to remove the external partner links container entirely.
 * **Real-time Database Stats:** Removed the hardcoded offset values (`+ 150`, `+ 1240`, `+ 3400`) from the homepage statistics metrics in [page.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/page.tsx#L148) so that the homepage counters reflect direct, real-time database counts.
+
+## Weather Bar Removal, Live Visitor Count & Phone Contact Updates
+* **Weather Bar Removal:** Removed the green weather/temperature ticker bar container from the top of the global [footer.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/components/footer.tsx#L14).
+* **Live Visitor Counter:** 
+  * Created a Mongoose model [Visitor.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/lib/models/Visitor.ts) to track visitor records in MongoDB.
+  * Created Next.js API endpoints [route.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/api/visitors/route.ts) with `GET` (fetch current count) and `POST` (atomically increment and return count) handlers.
+  * Implemented client-side session-aware logic in [footer.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/components/footer.tsx) using `sessionStorage` to fetch the live count, incrementing only on new sessions to prevent reload spamming.
+* **Contact Information:**
+  * Updated [contact/page.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/contact/page.tsx#L117) to replace the support card description with your phone number `+91 9693929816`.
+  * Added the phone number `+91 9693929816` directly to the portal branding contact details list in [footer.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/components/footer.tsx#L55).

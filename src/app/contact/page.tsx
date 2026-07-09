@@ -117,8 +117,8 @@ export default function ContactPage() {
                   <Phone className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold">Support</h3>
-                  <p className="text-muted-foreground">Student-run initiative for peer support.</p>
+                  <h3 className="font-bold">Phone</h3>
+                  <p className="text-muted-foreground">+91 9693929816</p>
                 </div>
               </div>
             </div>
