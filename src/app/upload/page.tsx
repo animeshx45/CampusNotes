@@ -683,7 +683,70 @@ export default function UploadPage() {
   };
 
   const uploadFileHelper = async (file: File): Promise<string> => {
-    // 1. Try local server database storage (highly reliable, no external dependencies, doesn't expire)
+    const isSmallFile = file.size < 4.5 * 1024 * 1024; // 4.5 MB limit for Vercel/App Hosting payloads
+
+    // 1. Try local server database storage (GridFS) ONLY for small files to avoid serverless payload limits
+    if (isSmallFile) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        if (res.ok) {
+          const result = await res.json();
+          const uploadUrl = result?.url;
+          if (uploadUrl) {
+            return uploadUrl;
+          }
+        }
+      } catch (localUploadError) {
+        console.warn("Local database upload failed, attempting Firebase Storage fallback...", localUploadError);
+      }
+    }
+
+    // 2. Try default Firebase Storage bucket (now configured with storageBucket in config.ts)
+    try {
+      const { firebaseApp } = initializeFirebase();
+      const storage = getStorage(firebaseApp); // Automatically uses the default appspot.com bucket
+      const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
+      await uploadBytes(fileRef, file);
+      return await getDownloadURL(fileRef);
+    } catch (storageError) {
+      console.warn("Default Firebase Storage bucket upload failed, trying explicit appspot fallback...", storageError);
+      
+      // 3. Try explicit appspot bucket fallback
+      try {
+        const { firebaseApp } = initializeFirebase();
+        const storageBucket = "studio-864601925-cef48.appspot.com";
+        const storage = getStorage(firebaseApp, `gs://${storageBucket}`);
+        const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
+        await uploadBytes(fileRef, file);
+        return await getDownloadURL(fileRef);
+      } catch (fallbackStorageError) {
+        console.warn("Explicit appspot Firebase Storage upload failed, trying firebasestorage.app fallback...", fallbackStorageError);
+        
+        // 4. Try explicit firebasestorage.app fallback
+        try {
+          const { firebaseApp } = initializeFirebase();
+          const storageBucket = "studio-864601925-cef48.firebasestorage.app";
+          const storage = getStorage(firebaseApp, `gs://${storageBucket}`);
+          const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
+          await uploadBytes(fileRef, file);
+          return await getDownloadURL(fileRef);
+        } catch (finalStorageError) {
+          console.error("All Firebase Storage upload methods failed.", finalStorageError);
+        }
+      }
+    }
+
+    // If the file is large and Firebase storage failed, we can't upload to the local DB because of the serverless payload limit
+    if (!isSmallFile) {
+      throw new Error("Failed to upload file to Firebase Storage. Please ensure you are logged in and have a stable internet connection.");
+    }
+
+    // Last resort for small files: try local db upload again
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -691,63 +754,16 @@ export default function UploadPage() {
         method: 'POST',
         body: formData,
       });
-      if (!res.ok) throw new Error("Local upload server returned " + res.status);
-      const result = await res.json();
-      const uploadUrl = result?.url;
-      if (uploadUrl) {
-        return uploadUrl;
+      if (res.ok) {
+        const result = await res.json();
+        const uploadUrl = result?.url;
+        if (uploadUrl) {
+          return uploadUrl;
+        }
       }
-      throw new Error("Invalid response from local upload server");
-    } catch (localUploadError) {
-      console.warn("Local database upload failed, trying Firebase Storage...", localUploadError);
-    }
-
-    // 2. Try Firebase Storage
-    try {
-      const { firebaseApp } = initializeFirebase();
-      const storageBucket = "studio-864601925-cef48.firebasestorage.app";
-      const storage = getStorage(firebaseApp, `gs://${storageBucket}`);
-      storage.maxUploadRetryTime = 2000;
-      storage.maxOperationRetryTime = 2000;
-      const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
-      await uploadBytes(fileRef, file);
-      return await getDownloadURL(fileRef);
-    } catch (storageError) {
-      console.warn("Firebase Storage upload failed, trying fallback...", storageError);
-      
-      // 3. Try secondary bucket fallback
-      try {
-        const { firebaseApp } = initializeFirebase();
-        const storageBucket = "studio-864601925-cef48.appspot.com";
-        const storage = getStorage(firebaseApp, `gs://${storageBucket}`);
-        storage.maxUploadRetryTime = 2000;
-        storage.maxOperationRetryTime = 2000;
-        const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
-        await uploadBytes(fileRef, file);
-        return await getDownloadURL(fileRef);
-      } catch (fallbackStorageError) {
-        console.warn("Secondary Firebase Storage upload failed, trying public host fallback...", fallbackStorageError);
-      }
-    }
-
-    // 4. Fallback to free file sharing host (tmpfiles.org) as last resort
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('https://tmpfiles.org/api/v1/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      if (!res.ok) throw new Error("Public upload server returned " + res.status);
-      const result = await res.json();
-      const uploadUrl = result?.data?.url;
-      if (uploadUrl) {
-        return uploadUrl.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
-      }
-      throw new Error("Invalid response from public upload server");
-    } catch (publicHostError) {
-      console.error("All upload methods failed.", publicHostError);
-      throw new Error("Failed to upload file. Please check your internet connection.");
+      throw new Error("Local server returned " + res.status);
+    } catch (finalError: any) {
+      throw new Error("Failed to upload file. Ensure you are logged in and your internet connection is stable. Details: " + finalError.message);
     }
   };
 
