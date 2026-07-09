@@ -7,6 +7,13 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Chatbot } from '@/components/chatbot';
 import { AuthProvider } from '@/context/AuthContext';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: 'CampusNotes | NIT Srinagar Peer Study Portal',
@@ -20,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="font-body antialiased flex flex-col min-h-screen overflow-x-hidden">
+      <body className={`${inter.variable} font-body antialiased flex flex-col min-h-screen overflow-x-hidden`}>
         <FirebaseClientProvider>
           <AuthProvider>
             <ThemeProvider
