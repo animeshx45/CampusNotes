@@ -173,23 +173,17 @@ export async function GET(request: NextRequest) {
     const fileRecord = files[0];
     const downloadStream = bucket.openDownloadStream(objectId);
 
-    // 3. Stream data chunk by chunk via TransformStream (production/serverless safe)
-    const passThrough = new TransformStream();
-    const writer = passThrough.writable.getWriter();
-    
-    downloadStream.on('data', (chunk: any) => {
-      writer.write(chunk);
-    });
-    
-    downloadStream.on('end', () => {
-      writer.close();
-    });
-    
-    downloadStream.on('error', (err: any) => {
-      writer.abort(err);
+    // Read the stream into a single buffer to guarantee safe serverless delivery on environments like Vercel
+    const chunks: any[] = [];
+    await new Promise<void>((resolve, reject) => {
+      downloadStream.on('data', (chunk: any) => chunks.push(Buffer.from(chunk)));
+      downloadStream.on('end', () => resolve());
+      downloadStream.on('error', (err: any) => reject(err));
     });
 
-    return new NextResponse(passThrough.readable, {
+    const fileBuffer = Buffer.concat(chunks);
+
+    return new NextResponse(fileBuffer, {
       headers: {
         'Content-Type': (fileRecord.metadata as any)?.contentType || 'application/pdf',
         'Content-Disposition': `inline; filename="${encodeURIComponent(fileRecord.filename)}"`,
