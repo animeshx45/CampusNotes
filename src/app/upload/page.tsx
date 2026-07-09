@@ -16,13 +16,14 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Upload, CheckCircle2, Loader2, Zap, GraduationCap, 
   ListPlus, FileSpreadsheet, PlayCircle, Trash2, AlertTriangle, 
-  Check, Info, Link2, ExternalLink
+  Check, Info, Link2, ExternalLink, ShieldAlert
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { materialService } from '@/services/material-service';
 import { Branch, MaterialType, Semester } from '@/lib/types';
 import { initializeFirebase } from '@/firebase';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useAuth } from '@/context/AuthContext';
 
 interface BulkUploadItem {
   tempId: string;
@@ -627,10 +628,44 @@ const getSubjectsForFilter = (branch: Branch, semester: number): string[] => {
 export default function UploadPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { user, isUserLoading } = useAuth();
   
   const [isUploading, setIsUploading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  if (isUserLoading) {
+    return (
+      <div className="container mx-auto px-4 py-40 flex flex-col items-center justify-center gap-4">
+        <Loader2 className="h-10 w-10 text-primary animate-spin" />
+        <p className="text-muted-foreground font-medium text-sm">Verifying authentication status...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-32 max-w-md text-center space-y-8 animate-in fade-in duration-500">
+        <div className="bg-primary/10 w-24 h-24 rounded-full flex items-center justify-center mx-auto shadow-inner">
+          <ShieldAlert className="h-12 w-12 text-primary" />
+        </div>
+        <div className="space-y-3">
+          <h1 className="text-3xl font-headline font-bold text-primary">Login Required</h1>
+          <p className="text-muted-foreground leading-relaxed text-sm">
+            Please log in or sign up to upload study materials to CampusNotes.
+          </p>
+        </div>
+        <div className="flex flex-col gap-3">
+          <Button onClick={() => router.push('/login')} className="w-full h-12 rounded-full font-bold shadow-lg" size="lg">
+            Log In
+          </Button>
+          <Button onClick={() => router.push('/signup')} variant="outline" className="w-full h-12 rounded-full font-bold" size="lg">
+            Create an Account
+          </Button>
+        </div>
+      </div>
+    );
+  }
   
   const [formData, setFormData] = useState({
     title: '',
@@ -818,7 +853,7 @@ export default function UploadPage() {
         semester: formData.semester,
         type: formData.type,
         author: formData.author,
-        uploaderId: 'public-user',
+        uploaderId: user.id || user.uid || 'public-user',
         fileUrl: finalFileUrl,
         status: 'approved',
         createdAt: new Date().toISOString()
@@ -1145,7 +1180,7 @@ export default function UploadPage() {
           semester: item.semester,
           type: item.type,
           author: item.author,
-          uploaderId: 'public-user',
+          uploaderId: user.id || user.uid || 'public-user',
           fileUrl: item.fileUrl,
           status: 'approved',
           createdAt: new Date().toISOString()

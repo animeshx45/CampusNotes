@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import User from '@/lib/models/User';
+import OTP from '@/lib/models/OTP';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
@@ -9,14 +10,21 @@ const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
 export async function POST(request: Request) {
   try {
-    const { name, email, password, role, branch, semester } = await request.json();
+    const { name, email, password, role, branch, semester, otp } = await request.json();
 
-    if (!name || !email || !password) {
-      return NextResponse.json({ error: 'Name, email, and password are required' }, { status: 400 });
+    if (!name || !email || !password || !otp) {
+      return NextResponse.json({ error: 'Name, email, password, and verification OTP are required' }, { status: 400 });
     }
 
     await connectToDatabase();
 
+    // 1. Verify OTP
+    const otpRecord = await OTP.findOne({ email: email.toLowerCase() });
+    if (!otpRecord || otpRecord.otp !== otp) {
+      return NextResponse.json({ error: 'Invalid or expired verification OTP' }, { status: 400 });
+    }
+
+    // 2. Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return NextResponse.json({ error: 'User already exists with this email' }, { status: 400 });
@@ -35,6 +43,9 @@ export async function POST(request: Request) {
       branch: branch || null,
       semester: semester || null,
     });
+
+    // Delete verified OTP record
+    await OTP.deleteOne({ email: email.toLowerCase() });
 
     const userObj = newUser.toObject();
     const roleToAssign = userObj.email.toLowerCase() === adminEmail ? 'admin' : newUser.role;

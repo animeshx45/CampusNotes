@@ -2,9 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import MaterialFile from '@/lib/models/MaterialFile';
 import mongoose from 'mongoose';
+import { cookies } from 'next/headers';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
 export async function POST(request: NextRequest) {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('token')?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized: Please log in first.' }, { status: 401 });
+    }
+
+    try {
+      const decoded: any = jwt.verify(token, JWT_SECRET);
+      if (!decoded || !decoded.id) {
+        return NextResponse.json({ error: 'Unauthorized: Invalid authentication token.' }, { status: 401 });
+      }
+    } catch (e) {
+      return NextResponse.json({ error: 'Unauthorized: Expired or invalid token.' }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
 
