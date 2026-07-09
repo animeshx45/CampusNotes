@@ -1,0 +1,11 @@
+# Enforce binary files to prevent automatic line-ending conversions (LF -> CRLF) on Windows
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
