@@ -145,9 +145,9 @@ export default function Home() {
     const totalDownloads = materials?.reduce((acc, m) => acc + (m.downloadCount || 0), 0) || 0;
 
     return [
-      { label: 'Total Notes', value: (totalNotes + 150).toLocaleString(), icon: FileText, color: 'text-primary' },
-      { label: 'Students Helped', value: (totalStudents + 1240).toLocaleString(), icon: Users, color: 'text-accent' },
-      { label: 'Total Downloads', value: (totalDownloads + 3400).toLocaleString(), icon: Download, color: 'text-primary' },
+      { label: 'Total Notes', value: totalNotes.toLocaleString(), icon: FileText, color: 'text-primary' },
+      { label: 'Students Helped', value: totalStudents.toLocaleString(), icon: Users, color: 'text-accent' },
+      { label: 'Total Downloads', value: totalDownloads.toLocaleString(), icon: Download, color: 'text-primary' },
     ];
   }, [materials, users]);
 

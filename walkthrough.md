@@ -34,3 +34,7 @@ And here is the browser verification session recording:
 ## Git Repository Sync
 * Tracked and staged the modified files.
 * Committed and pushed all changes directly to the remote GitHub repository at `https://github.com/animeshx45/CampusNotes.git` on the `main` branch.
+
+## Partner Footer and Real-Time Stats Modification
+* **Partner Logos Removal:** Deleted the `Partner Logos Bar` element block from the global [footer.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/components/footer.tsx#L107) to remove the external partner links container entirely.
+* **Real-time Database Stats:** Removed the hardcoded offset values (`+ 150`, `+ 1240`, `+ 3400`) from the homepage statistics metrics in [page.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/page.tsx#L148) so that the homepage counters reflect direct, real-time database counts.

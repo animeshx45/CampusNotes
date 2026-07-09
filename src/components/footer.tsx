@@ -104,23 +104,7 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Partner Logos Bar */}
-      <div className="bg-secondary/50 py-6 md:py-8 overflow-hidden border-b border-white/5">
-        <div className="container mx-auto flex flex-wrap justify-center items-center gap-6 md:gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-700 px-4">
-          <div className="h-8 md:h-10 w-24 md:w-32 relative"><Image src="https://placehold.co/200x60/transparent/ffffff?text=Samarth+eGov" alt="Partner" fill className="object-contain" unoptimized /></div>
-          <div className="h-8 md:h-10 w-24 md:w-32 relative"><Image src="https://placehold.co/200x60/transparent/ffffff?text=DigiLocker" alt="Partner" fill className="object-contain" unoptimized /></div>
-          <div className="h-8 md:h-10 w-24 md:w-32 relative"><Image src="https://placehold.co/200x60/transparent/ffffff?text=india.gov.in" alt="Partner" fill className="object-contain" unoptimized /></div>
-          <div className="h-8 md:h-10 w-24 md:w-32 relative"><Image src="https://placehold.co/200x60/transparent/ffffff?text=STUDY+IN+INDIA" alt="Partner" fill className="object-contain" unoptimized /></div>
-          
-          <div className="flex items-center gap-4 w-full md:w-auto justify-center md:justify-start mt-4 md:mt-0">
-             <select className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-[9px] md:text-[10px] text-white outline-none focus:ring-1 focus:ring-primary/40">
-                <option value="en">English (Portal)</option>
-                <option value="hi">Hindi</option>
-             </select>
-             <span className="text-[9px] md:text-[10px] opacity-40 font-bold uppercase tracking-tighter">CampusNotes v1.0</span>
-          </div>
-        </div>
-      </div>
+
 
       {/* Final Bottom Bar */}
       <div className="bg-background text-muted-foreground py-6 px-4 text-[9px] md:text-[10px] font-bold uppercase tracking-widest border-t border-white/5">
