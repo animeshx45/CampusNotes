@@ -187,6 +187,43 @@ export default function ForumThreadPage({ params }: { params: Promise<{ id: stri
     }
   };
 
+  const handleToggleLikeReply = async (replyId: string) => {
+    if (!user) {
+      toast({ title: "Auth Required", description: "You must be logged in to like comments.", variant: "destructive" });
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/forum/${id}/replies`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          replyId,
+          userId: user.id || user.uid,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to like reply");
+
+      const json = await res.json();
+      if (json.success && json.likes) {
+        setPost(prev => {
+          if (!prev) return null;
+          const updatedReplies = (prev.replies || []).map(r => {
+            const rId = r.id || (r as any)._id;
+            if (rId === replyId) {
+              return { ...r, likes: json.likes };
+            }
+            return r;
+          });
+          return { ...prev, replies: updatedReplies };
+        });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Could not process like.", variant: "destructive" });
+    }
+  };
+
   useEffect(() => {
     if (user?.fullName) {
       setReplierName(user.fullName);
@@ -390,8 +427,16 @@ export default function ForumThreadPage({ params }: { params: Promise<{ id: stri
                         <p className="text-sm leading-relaxed text-foreground/80">{reply.content}</p>
                       )}
                       <div className="flex items-center gap-4 pt-1">
-                         <button className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest">
-                            <ThumbsUp className="h-3 w-3" /> Like
+                         <button 
+                          className={`flex items-center gap-1.5 text-[10px] font-black transition-colors uppercase tracking-widest ${
+                            user && reply.likes?.includes(user.id || user.uid || '') 
+                              ? 'text-primary hover:text-primary/80' 
+                              : 'text-muted-foreground hover:text-primary'
+                          }`}
+                          onClick={() => handleToggleLikeReply(reply.id || (reply as any)._id)}
+                         >
+                            <ThumbsUp className={`h-3 w-3 ${user && reply.likes?.includes(user.id || user.uid || '') ? 'fill-current' : ''}`} /> 
+                            {reply.likes?.length ? `${reply.likes.length} Likes` : 'Like'}
                          </button>
                          <button 
                           className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest"
@@ -403,7 +448,7 @@ export default function ForumThreadPage({ params }: { params: Promise<{ id: stri
                          </button>
                       </div>
                    </div>
-                    <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex gap-1 shrink-0">
                       {canEditReply(reply) && (
                         <Button 
                           type="button"

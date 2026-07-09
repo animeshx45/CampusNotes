@@ -65,6 +65,9 @@ export function Navbar() {
             {user ? (
               <>
                 <Button variant="ghost" asChild className="rounded-2xl font-black text-[10px] uppercase tracking-widest h-10 px-4 hover:bg-primary/5">
+                  <Link href="/profile">Profile</Link>
+                </Button>
+                <Button variant="ghost" asChild className="rounded-2xl font-black text-[10px] uppercase tracking-widest h-10 px-4 hover:bg-primary/5">
                   <Link href="/dashboard">Dashboard</Link>
                 </Button>
                 {user.role === 'admin' && (
@@ -119,6 +122,13 @@ export function Navbar() {
                   <div className="border-t border-white/5 my-4 pt-4 space-y-2">
                     {user ? (
                       <>
+                        <Link 
+                          href="/profile"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="text-base font-semibold p-4 hover:bg-white/5 rounded-xl flex items-center gap-4 text-zinc-300 hover:text-white transition-all"
+                        >
+                          Profile
+                        </Link>
                         <Link 
                           href="/dashboard"
                           onClick={() => setIsMobileMenuOpen(false)}

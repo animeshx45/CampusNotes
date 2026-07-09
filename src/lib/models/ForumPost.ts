@@ -4,6 +4,7 @@ const ForumReplySchema = new Schema({
   content: { type: String, required: true },
   authorId: { type: String, required: true },
   authorName: { type: String, required: true },
+  likes: { type: [String], default: [] },
 }, {
   timestamps: true,
   toJSON: {
@@ -22,6 +23,7 @@ const ForumPostSchema = new Schema({
   authorId: { type: String, required: true },
   authorName: { type: String, required: true },
   branch: { type: String, required: true },
+  likes: { type: [String], default: [] },
   replies: [ForumReplySchema],
 }, {
   timestamps: true,

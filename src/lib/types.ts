@@ -52,6 +52,7 @@ export interface ForumPost {
   authorName: string;
   branch: Branch;
   createdAt: any;
+  likes?: string[];
   replies?: ForumReply[];
 }
 
@@ -62,6 +63,7 @@ export interface ForumReply {
   authorId: string;
   authorName: string;
   createdAt: any;
+  likes?: string[];
 }
 
 export interface Notification {

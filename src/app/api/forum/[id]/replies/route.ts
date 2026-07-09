@@ -113,3 +113,50 @@ export async function PUT(
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }
+
+// PATCH /api/forum/[id]/replies - Toggle like on a reply
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: postId } = await params;
+    const body = await request.json();
+    const { replyId, userId } = body;
+
+    if (!replyId || !userId || !mongoose.Types.ObjectId.isValid(postId) || !mongoose.Types.ObjectId.isValid(replyId)) {
+      return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
+    }
+
+    await connectToDatabase();
+
+    const post = await ForumPost.findById(postId);
+    if (!post) {
+      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    }
+
+    const reply = post.replies.id(replyId);
+    if (!reply) {
+      return NextResponse.json({ error: 'Reply not found' }, { status: 404 });
+    }
+
+    if (!reply.likes) {
+      reply.likes = [];
+    }
+
+    const likeIdx = reply.likes.indexOf(userId);
+    if (likeIdx > -1) {
+      reply.likes.splice(likeIdx, 1);
+    } else {
+      reply.likes.push(userId);
+    }
+
+    await post.save();
+
+    return NextResponse.json({ success: true, likes: reply.likes });
+  } catch (error: any) {
+    console.error('Failed to toggle like on reply:', error);
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+  }
+}
+
