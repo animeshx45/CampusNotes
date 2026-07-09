@@ -54,7 +54,17 @@ export default function SignupPage() {
       if (!res.ok) {
         throw new Error(data.error || 'Failed to send OTP');
       }
-      toast({ title: "Verification Code Sent!", description: `We sent a code to ${email}. Check your inbox.` });
+      
+      if (data.devMode && data.otp) {
+        toast({ 
+          title: "SMTP Not Configured (Development Mode)", 
+          description: `To test signup, enter this code: ${data.otp}. (To send real emails, add EMAIL_USER and EMAIL_PASS to your env variables).`,
+          variant: "default",
+          duration: 15000
+        });
+      } else {
+        toast({ title: "Verification Code Sent!", description: `We sent a code to ${email}. Check your inbox.` });
+      }
       setStep('otp');
     } catch (err: any) {
       toast({ title: "OTP Sending Failed", description: err.message || "Failed to send code.", variant: "destructive" });

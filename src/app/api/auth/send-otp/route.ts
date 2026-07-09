@@ -67,11 +67,11 @@ export async function POST(request: NextRequest) {
         `,
       });
       console.log(`Verification email sent successfully to ${email}`);
+      return NextResponse.json({ success: true });
     } else {
-      console.warn('SMTP credentials not configured. OTP logged to console above.');
+      console.warn('SMTP credentials not configured. OTP logged to console and returned for testing.');
+      return NextResponse.json({ success: true, devMode: true, otp });
     }
-
-    return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('Send OTP error:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
