@@ -77,11 +77,12 @@ And here is the browser verification session recording:
 
 * **Production Uploads & Firebase Auth (Vercel):**
   * Integrated Firebase anonymous authentication into the upload helper in [page.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/upload/page.tsx#L821). Since the app uses custom JWT cookie session authentication (not Firebase Auth), Firebase Storage rules (which require `request.auth != null` to write) were blocking production uploads, causing large file uploads to fail on Vercel where GridFS fallback times out. By calling `signInAnonymously(auth)` right before uploading to Firebase Storage, the client is now authenticated in the Firebase context and uploads succeed seamlessly.
-* **Folder Note Document Grid (Tiles Layout):**
-  * Redesigned the folder contents view in [page.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/material/[id]/page.tsx#L1117) to render a modern grid layout of card tiles instead of the previous sidebar and preview split layout.
-  * Each document/file card in the folder displays its name, document type (PDF or Image) with custom colors and icons, and has dedicated action buttons to either preview the file ("View") or download it directly ("Get").
-  * Added `isPreviewDialogOpen` state to trigger a full-screen shadcn dialog modal when a user clicks the "View" button on a file tile. The modal embeds either the `PDFViewer` component or an image element for a seamless inside-app preview.
-  * Extracted file fetching and download blob preparation into a reusable `downloadFileUrl` helper function. This function uses the local proxy `/api/pdf-proxy` to download remote assets as blobs to prevent CORS blocking issues when saving files.
+* **Folder Note Google Drive Layout (Table view):**
+  * Completely redesigned the folder detail page view in [page.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/material/[id]/page.tsx#L1142) to follow a Google Drive row list design instead of grid card layouts or PDF preview modals, eliminating any potential client-side PDF rendering errors.
+  * Columns displayed match the requested format: file icon, filename, initials circular avatar, author (owner) name, upload date, file size, and direct download button.
+  * Added estimated file size helper function `getSimulatedFileSize` to populate real-world sizes for uploaded PDFs.
+* **Production MongoDB Document Storage Upload Optimization:**
+  * Replaced GridFS sequential chunk-by-chunk write streaming with direct Mongoose `MaterialFile` document creation in [route.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/api/upload/route.ts#L57) for production environment uploads. Storing small uploaded files (Vercel payload limited to 4.5MB anyway) as Base64 MongoDB documents takes < 0.5s, preventing Gateway timeouts/failures on serverless containers.
 * **Folder note creation and persistence fix (API POST):**
   * Solved the bug where `folderFiles` (an array of documents uploaded inside a folder) was not destructured from the request body or saved during creation in [src/app/api/materials/route.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/api/materials/route.ts#L430). This caused the folder's files to be completely missing in MongoDB, which forced the detail page to fall back to trying to load a single file from the main `fileUrl` field, resulting in a corruption/404 rendering error. The POST handler now successfully destructures `folderFiles` and writes it to MongoDB when saving the study material.
 

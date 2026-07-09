@@ -55,42 +55,25 @@ export async function POST(request: NextRequest) {
     }
 
     await connectToDatabase();
-    const conn = mongoose.connection;
-    if (!conn.db) {
-      throw new Error('Database connection not established');
-    }
-    
-    const bucket = new mongoose.mongo.GridFSBucket(conn.db, {
-      bucketName: 'study_materials',
-      chunkSizeBytes: 2 * 1024 * 1024 // 2MB chunks to reduce network latency roundtrips
-    });
-
-    // Create upload stream to GridFS
-    const uploadStream = bucket.openUploadStream(file.name, {
-      metadata: {
-        originalName: file.name,
-        contentType: file.type || 'application/pdf'
-      }
-    });
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    await new Promise<void>((resolve, reject) => {
-      uploadStream.on('error', (err: any) => reject(err));
-      uploadStream.on('finish', () => resolve());
-      uploadStream.write(buffer);
-      uploadStream.end();
+    // Save to MaterialFile model in MongoDB (fast, no stream/timeout issues on serverless)
+    const newFile = await MaterialFile.create({
+      fileName: file.name,
+      contentType: file.type || 'application/pdf',
+      data: buffer.toString('base64')
     });
 
-    const fileId = uploadStream.id.toString();
+    const fileId = newFile._id.toString();
     const fileUrl = `/api/upload?id=${fileId}`;
 
-    console.log(`Saved file to GridFS: ${file.name} (ID: ${fileId}, Size: ${buffer.length} bytes)`);
+    console.log(`Saved file to MaterialFile: ${file.name} (ID: ${fileId}, Size: ${buffer.length} bytes)`);
 
     return NextResponse.json({ url: fileUrl });
   } catch (error: any) {
-    console.error('GridFS upload error:', error);
+    console.error('MaterialFile upload error:', error);
     return NextResponse.json({ error: `Failed to upload file: ${error.message}` }, { status: 500 });
   }
 }

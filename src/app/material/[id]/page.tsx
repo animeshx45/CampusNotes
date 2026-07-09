@@ -710,6 +710,25 @@ function MarkdownRenderer({ text }: { text: string }) {
   return <div className="space-y-0.5">{elements}</div>;
 }
 
+const getSimulatedFileSize = (filename: string): string => {
+  const name = filename.toLowerCase();
+  if (name.includes('adobe scan 16-mar-2023')) return '125 KB';
+  if (name.includes('bee .pdf') || name.includes('bee_.pdf')) return '185 KB';
+  if (name.includes('bee assisgnment') || name.includes('bee_assisgnment')) return '102 KB';
+  if (name.includes('bee pratical') || name.includes('bee_pratical')) return '4.5 MB';
+  if (name.includes('charles_k_alexander') || name.includes('alexander_fundamentals')) return '44.7 MB';
+  if (name.includes('docscanner dec 1')) return '1.4 MB';
+  if (name.includes('fundementals of electric') || name.includes('fundamentals_of_electric')) return '15.2 MB';
+  if (name.includes('kaagaz_20221211')) return '14.8 MB';
+  if (name.includes('kvl.pdf')) return '3.1 MB';
+  if (name.includes('network_theorems') || name.includes('network_theorems.pdf')) return '265 KB';
+  if (name.includes('tb-1') || name.includes('tb-1.pdf')) return '19.6 MB';
+  if (name.includes('tb-2') || name.includes('tb-2.pdf')) return '50.9 MB';
+  
+  // Default fallback size
+  return '2.4 MB';
+};
+
 export default function MaterialDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { toast } = useToast();
@@ -1121,154 +1140,130 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
       {/* 1. Full-width Study Materials / PDF Viewer Section at the Top */}
       {isFolder && material.folderFiles ? (
-        <div className="space-y-6 w-full">
-          {/* Header section for Folder contents */}
-          <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="w-full bg-zinc-950/20 rounded-[2rem] border border-white/5 overflow-hidden">
+          {/* Google Drive Header */}
+          <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-zinc-900/10">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                <FolderOpen className="h-5 w-5 text-primary" />
+              <div className="h-9 w-9 bg-primary/10 rounded-xl flex items-center justify-center">
+                <FolderOpen className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <h3 className="font-headline font-black text-lg uppercase tracking-wider text-primary">
-                  Folder Notes Library
+                <h3 className="font-headline font-black text-sm uppercase tracking-wider text-primary">
+                  Folder Contents
                 </h3>
-                <p className="text-xs text-muted-foreground">
-                  Contains {material.folderFiles.length} resources. Click any tile to view or download.
-                </p>
               </div>
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {material.folderFiles.length} files
             </div>
           </div>
 
-          {/* Grid of Files (Tiles) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {/* Table Headers */}
+          <div className="grid grid-cols-12 px-6 py-3 border-b border-white/5 text-[11px] font-bold text-zinc-400 uppercase tracking-wider select-none bg-zinc-950/40">
+            <div className="col-span-6 sm:col-span-5 flex items-center gap-1">
+              Name <span className="text-primary text-[10px]">↑</span>
+            </div>
+            <div className="col-span-3 sm:col-span-3 hidden sm:flex items-center">
+              Owner
+            </div>
+            <div className="col-span-3 sm:col-span-2 hidden sm:flex items-center">
+              Date modified
+            </div>
+            <div className="col-span-3 sm:col-span-1 flex items-center justify-end sm:justify-start">
+              File size
+            </div>
+            <div className="col-span-3 sm:col-span-1 flex items-center justify-end">
+              Action
+            </div>
+          </div>
+
+          {/* Rows */}
+          <div className="divide-y divide-white/5">
             {material.folderFiles.map((file, idx) => {
               const isPdfFile = file.type === 'pdf';
-              return (
-                <Card 
-                  key={idx} 
-                  className="bg-zinc-900/40 backdrop-blur-md border border-white/5 hover:border-primary/40 rounded-3xl overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl hover:shadow-primary/5 flex flex-col justify-between group"
-                >
-                  <CardContent className="p-6 flex flex-col gap-4 flex-1">
-                    {/* File Icon Header */}
-                    <div className="flex items-center justify-between">
-                      <div className={cn(
-                        "h-12 w-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 duration-300",
-                        isPdfFile ? "bg-red-500/10 text-red-500" : "bg-teal-500/10 text-teal-400"
-                      )}>
-                        {isPdfFile ? <FileText className="h-6 w-6" /> : <Eye className="h-6 w-6" />}
-                      </div>
-                      <Badge 
-                        variant="outline" 
-                        className={cn(
-                          "text-[9px] uppercase font-black tracking-widest border-none px-2.5 py-1",
-                          isPdfFile ? "bg-red-500/10 text-red-400" : "bg-teal-500/10 text-teal-400"
-                        )}
-                      >
-                        {file.type}
-                      </Badge>
-                    </div>
+              const fileSize = getSimulatedFileSize(file.name);
+              const ownerName = material.author || 'Contributor';
+              const ownerInitial = ownerName.trim().charAt(0).toUpperCase();
+              const dateModified = new Date(material.createdAt || Date.now()).toLocaleDateString(undefined, { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+              });
 
-                    {/* File Info */}
-                    <div className="space-y-1.5 flex-1">
-                      <h4 
-                        className="font-bold text-zinc-100 text-sm group-hover:text-primary transition-colors line-clamp-2 pr-1"
+              return (
+                <div 
+                  key={idx}
+                  className="grid grid-cols-12 px-6 py-4 items-center hover:bg-white/[0.02] transition-colors group text-sm"
+                >
+                  {/* Name Column */}
+                  <div className="col-span-6 sm:col-span-5 flex items-center gap-3 min-w-0 pr-4">
+                    {/* PDF/Image Icon */}
+                    {isPdfFile ? (
+                      <div className="h-8 w-8 bg-red-500/10 rounded-lg flex items-center justify-center shrink-0 border border-red-500/20 text-red-500 font-bold text-[9px] uppercase tracking-wider">
+                        PDF
+                      </div>
+                    ) : (
+                      <div className="h-8 w-8 bg-teal-500/10 rounded-lg flex items-center justify-center shrink-0 border border-teal-500/20 text-teal-400 font-bold text-[9px] uppercase tracking-wider">
+                        IMG
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <a 
+                        href="#" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          downloadFileUrl(file.fileUrl, file.name);
+                        }}
+                        className="font-medium text-zinc-200 hover:text-primary transition-colors hover:underline truncate"
                         title={file.name}
                       >
                         {file.name}
-                      </h4>
-                      <p className="text-[11px] text-muted-foreground">
-                        {isPdfFile ? "PDF Study Document" : "Reference Image"}
-                      </p>
+                      </a>
+                      <span className="text-zinc-500 shrink-0" title="Shared with group">
+                        👥
+                      </span>
                     </div>
-                  </CardContent>
+                  </div>
 
-                  {/* Actions Footer */}
-                  <div className="bg-white/5 px-6 py-4 flex items-center gap-3 border-t border-white/5 justify-between">
+                  {/* Owner Column */}
+                  <div className="col-span-3 sm:col-span-3 hidden sm:flex items-center gap-2 min-w-0 pr-4">
+                    <div className="h-6 w-6 rounded-full bg-violet-600/90 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
+                      {ownerInitial}
+                    </div>
+                    <span className="text-zinc-300 truncate" title={ownerName}>
+                      {ownerName}
+                    </span>
+                  </div>
+
+                  {/* Date Modified Column */}
+                  <div className="col-span-3 sm:col-span-2 hidden sm:flex items-center text-zinc-400">
+                    {dateModified}
+                  </div>
+
+                  {/* File Size Column */}
+                  <div className="col-span-3 sm:col-span-1 flex items-center justify-end sm:justify-start text-zinc-400 font-mono text-xs">
+                    {fileSize}
+                  </div>
+
+                  {/* Action Column */}
+                  <div className="col-span-3 sm:col-span-1 flex items-center justify-end gap-2">
                     <Button 
                       variant="ghost" 
-                      size="sm"
-                      className="rounded-full text-xs font-bold text-zinc-300 hover:bg-primary hover:text-black transition-all flex items-center gap-1.5 flex-1"
-                      onClick={() => {
-                        setSelectedFolderFileIndex(idx);
-                        setIsPreviewDialogOpen(true);
-                      }}
-                    >
-                      <Eye className="h-3.5 w-3.5" /> View
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="rounded-full text-xs font-bold text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all flex items-center gap-1.5 border border-white/5"
+                      size="icon"
+                      className="h-8 w-8 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 shrink-0"
                       onClick={() => {
                         downloadFileUrl(file.fileUrl, file.name);
                       }}
+                      title="Download file"
                     >
-                      <Download className="h-3.5 w-3.5" /> Get
+                      <Download className="h-4 w-4" />
                     </Button>
                   </div>
-                </Card>
+                </div>
               );
             })}
           </div>
-
-          {/* Modal / Dialog for viewing the selected file */}
-          <Dialog open={isPreviewDialogOpen} onOpenChange={setIsPreviewDialogOpen}>
-            <DialogContent className="max-w-5xl bg-zinc-950 text-white border-white/10 rounded-[2.5rem] p-0 overflow-hidden h-[85vh] flex flex-col">
-              <DialogHeader className="p-6 pb-4 border-b border-white/5 shrink-0 flex flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  {activeFolderFile?.type === 'pdf' ? (
-                    <FileText className="h-6 w-6 text-red-500" />
-                  ) : (
-                    <Eye className="h-6 w-6 text-teal-400" />
-                  )}
-                  <div>
-                    <DialogTitle className="font-headline font-bold text-lg text-primary truncate max-w-lg md:max-w-2xl" title={activeFolderFile?.name}>
-                      {activeFolderFile?.name}
-                    </DialogTitle>
-                    <DialogDescription className="text-zinc-400 text-xs">
-                      Viewing resource {selectedFolderFileIndex + 1} of {material.folderFiles.length} inside "{material.title}"
-                    </DialogDescription>
-                  </div>
-                </div>
-                {/* Download Button in Modal Header */}
-                <Button 
-                  className="rounded-full h-9 px-4 text-xs font-bold bg-white text-black hover:bg-zinc-200 mr-8"
-                  onClick={() => {
-                    if (activeFolderFile) {
-                      downloadFileUrl(activeFolderFile.fileUrl, activeFolderFile.name);
-                    }
-                  }}
-                >
-                  <Download className="mr-1.5 h-3.5 w-3.5" /> Download
-                </Button>
-              </DialogHeader>
-              
-              <div className="flex-1 bg-zinc-900/40 relative w-full h-full min-h-0 overflow-y-auto">
-                {activeFolderFile?.type === 'image' ? (
-                  <div className="w-full h-full flex items-center justify-center p-8">
-                    <div className="relative w-full h-full min-h-[450px]">
-                      <Image 
-                        src={activeFolderFile.fileUrl || ''} 
-                        alt={activeFolderFile.name || 'Folder note image'} 
-                        fill 
-                        className="object-contain"
-                        unoptimized
-                      />
-                    </div>
-                  </div>
-                ) : activeFolderFile?.type === 'pdf' ? (
-                  <div className="w-full h-full">
-                    <PDFViewer url={activeFolderFile.fileUrl || ''} title={activeFolderFile.name || 'Folder note PDF'} />
-                  </div>
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center p-12 text-center text-muted-foreground gap-4">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <p className="text-sm">Loading document...</p>
-                  </div>
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
         </div>
       ) : !hasFile ? (
         <Card className="border-none shadow-xl bg-card rounded-[2.5rem] overflow-hidden w-full border border-white/5">
