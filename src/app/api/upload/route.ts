@@ -4,6 +4,8 @@ import MaterialFile from '@/lib/models/MaterialFile';
 import mongoose from 'mongoose';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
@@ -30,6 +32,26 @@ export async function POST(request: NextRequest) {
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    }
+
+    // In development mode, save the file to local disk (public/uploads) to prevent slow remote GridFS uploads
+    if (process.env.NODE_ENV === 'development') {
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+
+      const cleanName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+      const safeFileName = `${Date.now()}-${cleanName}`;
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+
+      await fs.mkdir(uploadsDir, { recursive: true });
+
+      const filePath = path.join(uploadsDir, safeFileName);
+      await fs.writeFile(filePath, buffer);
+
+      console.log(`[Dev Mode] Saved file to local disk: ${filePath} (${buffer.length} bytes)`);
+
+      const fileUrl = `/uploads/${safeFileName}`;
+      return NextResponse.json({ url: fileUrl });
     }
 
     await connectToDatabase();

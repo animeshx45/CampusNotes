@@ -768,8 +768,15 @@ export default function UploadPage() {
   };
 
   const uploadFileHelper = async (file: File, onProgress: (progress: number) => void): Promise<string> => {
-    const isLocal = typeof window !== 'undefined' && 
-      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    const isLocal = typeof window !== 'undefined' && (
+      window.location.hostname === 'localhost' || 
+      window.location.hostname === '127.0.0.1' || 
+      window.location.hostname === '[::1]' ||
+      window.location.hostname.startsWith('192.168.') ||
+      window.location.hostname.startsWith('10.') ||
+      window.location.hostname.startsWith('172.') ||
+      window.location.hostname.endsWith('.local')
+    );
 
     // Helper: Local upload to GridFS (with real-time progress monitoring via XHR)
     const uploadLocally = async () => {

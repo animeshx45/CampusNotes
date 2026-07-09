@@ -734,6 +734,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
   // Local state to dynamically hold the parsed/verified file type (handles query params & dynamic /api/upload urls)
   const [detectedType, setDetectedType] = useState<'pdf' | 'image' | 'youtube' | 'other' | null>(null);
   const [selectedFolderFileIndex, setSelectedFolderFileIndex] = useState<number>(0);
+  const [isPreviewDialogOpen, setIsPreviewDialogOpen] = useState<boolean>(false);
 
   const isYoutube = !!(material && material.type === 'YouTube Playlist');
   const isFolder = !!(material && (material.type === 'Folder' || (material.folderFiles && material.folderFiles.length > 0)));
@@ -900,25 +901,10 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     );
   }
 
-  const handleDownload = async () => {
-    if (!currentFileUrl) {
-      toast({ title: "No Link", description: "This resource doesn't have a download link yet." });
-      return;
-    }
-    
-    materialService.incrementDownloadCount(id);
-
-    if (isYoutube) {
-      window.open(currentFileUrl, '_blank');
-      return;
-    }
-
+  const downloadFileUrl = async (fileUrl: string, fileName: string) => {
     try {
-      setIsDownloading(true);
-      toast({ title: "Downloading", description: "Fetching document content..." });
-      
-      const isRelative = !currentFileUrl.startsWith('http://') && !currentFileUrl.startsWith('https://');
-      const fetchUrl = isRelative ? currentFileUrl : `/api/pdf-proxy?url=${encodeURIComponent(currentFileUrl)}`;
+      const isRelative = !fileUrl.startsWith('http://') && !fileUrl.startsWith('https://');
+      const fetchUrl = isRelative ? fileUrl : `/api/pdf-proxy?url=${encodeURIComponent(fileUrl)}`;
       const response = await fetch(fetchUrl);
       if (!response.ok) throw new Error('File download proxy failed.');
       
@@ -940,7 +926,7 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
       
       const link = document.createElement('a');
       link.href = blobUrl;
-      const cleanFileName = currentFileName || 'study_material';
+      const cleanFileName = fileName || 'study_material';
       const hasExtension = cleanFileName.match(/\.[a-zA-Z0-9]+$/);
       link.download = hasExtension ? cleanFileName : `${cleanFileName.replace(/[^a-z0-9]/gi, '_')}.${extension}`;
       document.body.appendChild(link);
@@ -959,7 +945,27 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
         description: "Opening in a new tab.",
         variant: "destructive",
       });
-      window.open(material.fileUrl, '_blank');
+      window.open(fileUrl, '_blank');
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!currentFileUrl) {
+      toast({ title: "No Link", description: "This resource doesn't have a download link yet." });
+      return;
+    }
+    
+    materialService.incrementDownloadCount(id);
+
+    if (isYoutube) {
+      window.open(currentFileUrl, '_blank');
+      return;
+    }
+
+    try {
+      setIsDownloading(true);
+      toast({ title: "Downloading", description: "Fetching document content..." });
+      await downloadFileUrl(currentFileUrl, currentFileName || 'study_material');
     } finally {
       setIsDownloading(false);
     }
@@ -1115,85 +1121,155 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
       {/* 1. Full-width Study Materials / PDF Viewer Section at the Top */}
       {isFolder && material.folderFiles ? (
-        <Card className="border-none shadow-xl bg-card rounded-[2.5rem] overflow-hidden w-full border border-white/5">
-          <CardContent className="p-0">
-            <div className="flex flex-col lg:flex-row min-h-[650px] max-h-[800px] w-full">
-              {/* Folder Sidebar */}
-              <div className="w-full lg:w-80 bg-zinc-900/40 backdrop-blur-md border-b lg:border-b-0 lg:border-r border-white/10 p-6 flex flex-col shrink-0">
-                <div className="flex items-center gap-2 mb-6">
-                  <FolderOpen className="h-5 w-5 text-primary" />
-                  <h3 className="font-headline font-black text-sm uppercase tracking-widest text-primary">
-                    Folder Contents
-                  </h3>
-                </div>
-                <div className="overflow-y-auto flex-1 space-y-2 max-h-[250px] lg:max-h-[none] pr-2">
-                  {material.folderFiles.map((file, idx) => {
-                    const isSelected = idx === selectedFolderFileIndex;
-                    const isPdfFile = file.type === 'pdf';
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => setSelectedFolderFileIndex(idx)}
+        <div className="space-y-6 w-full">
+          {/* Header section for Folder contents */}
+          <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                <FolderOpen className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-headline font-black text-lg uppercase tracking-wider text-primary">
+                  Folder Notes Library
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Contains {material.folderFiles.length} resources. Click any tile to view or download.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Grid of Files (Tiles) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {material.folderFiles.map((file, idx) => {
+              const isPdfFile = file.type === 'pdf';
+              return (
+                <Card 
+                  key={idx} 
+                  className="bg-zinc-900/40 backdrop-blur-md border border-white/5 hover:border-primary/40 rounded-3xl overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl hover:shadow-primary/5 flex flex-col justify-between group"
+                >
+                  <CardContent className="p-6 flex flex-col gap-4 flex-1">
+                    {/* File Icon Header */}
+                    <div className="flex items-center justify-between">
+                      <div className={cn(
+                        "h-12 w-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 duration-300",
+                        isPdfFile ? "bg-red-500/10 text-red-500" : "bg-teal-500/10 text-teal-400"
+                      )}>
+                        {isPdfFile ? <FileText className="h-6 w-6" /> : <Eye className="h-6 w-6" />}
+                      </div>
+                      <Badge 
+                        variant="outline" 
                         className={cn(
-                          "w-full text-left p-3.5 rounded-xl transition-all flex items-center justify-between text-sm group border",
-                          isSelected 
-                            ? "bg-primary text-black font-bold border-primary shadow-lg shadow-primary/20 hover:bg-primary" 
-                            : "bg-secondary/10 hover:bg-secondary/35 text-zinc-300 border-white/5 hover:border-white/10"
+                          "text-[9px] uppercase font-black tracking-widest border-none px-2.5 py-1",
+                          isPdfFile ? "bg-red-500/10 text-red-400" : "bg-teal-500/10 text-teal-400"
                         )}
                       >
-                        <div className="flex items-center gap-3 truncate">
-                          {isPdfFile ? (
-                            <FileText className={cn("h-4 w-4 shrink-0", isSelected ? "text-black" : "text-red-500 group-hover:scale-110 transition-transform")} />
-                          ) : (
-                            <Eye className={cn("h-4 w-4 shrink-0", isSelected ? "text-black" : "text-teal-400 group-hover:scale-110 transition-transform")} />
-                          )}
-                          <span className="truncate pr-1">{file.name}</span>
-                        </div>
-                        <Badge 
-                          variant="outline" 
-                          className={cn(
-                            "text-[9px] uppercase font-black tracking-widest scale-90 border-none px-1.5 py-0.5",
-                            isSelected 
-                              ? "bg-black/20 text-black" 
-                              : isPdfFile ? "bg-red-500/10 text-red-400" : "bg-teal-400/10 text-teal-400"
-                          )}
-                        >
-                          {file.type}
-                        </Badge>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+                        {file.type}
+                      </Badge>
+                    </div>
 
-              {/* Document Preview Pane */}
-              <div className="flex-1 bg-zinc-950/30 flex flex-col relative w-full h-full min-h-[450px]">
-                {detectedType === 'image' ? (
-                  <div className="flex-1 flex flex-col items-center justify-center p-8 relative min-h-[500px]">
-                    <div className="aspect-[16/10] w-full h-full relative min-h-[450px]">
+                    {/* File Info */}
+                    <div className="space-y-1.5 flex-1">
+                      <h4 
+                        className="font-bold text-zinc-100 text-sm group-hover:text-primary transition-colors line-clamp-2 pr-1"
+                        title={file.name}
+                      >
+                        {file.name}
+                      </h4>
+                      <p className="text-[11px] text-muted-foreground">
+                        {isPdfFile ? "PDF Study Document" : "Reference Image"}
+                      </p>
+                    </div>
+                  </CardContent>
+
+                  {/* Actions Footer */}
+                  <div className="bg-white/5 px-6 py-4 flex items-center gap-3 border-t border-white/5 justify-between">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="rounded-full text-xs font-bold text-zinc-300 hover:bg-primary hover:text-black transition-all flex items-center gap-1.5 flex-1"
+                      onClick={() => {
+                        setSelectedFolderFileIndex(idx);
+                        setIsPreviewDialogOpen(true);
+                      }}
+                    >
+                      <Eye className="h-3.5 w-3.5" /> View
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="rounded-full text-xs font-bold text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all flex items-center gap-1.5 border border-white/5"
+                      onClick={() => {
+                        downloadFileUrl(file.fileUrl, file.name);
+                      }}
+                    >
+                      <Download className="h-3.5 w-3.5" /> Get
+                    </Button>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Modal / Dialog for viewing the selected file */}
+          <Dialog open={isPreviewDialogOpen} onOpenChange={setIsPreviewDialogOpen}>
+            <DialogContent className="max-w-5xl bg-zinc-950 text-white border-white/10 rounded-[2.5rem] p-0 overflow-hidden h-[85vh] flex flex-col">
+              <DialogHeader className="p-6 pb-4 border-b border-white/5 shrink-0 flex flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  {activeFolderFile?.type === 'pdf' ? (
+                    <FileText className="h-6 w-6 text-red-500" />
+                  ) : (
+                    <Eye className="h-6 w-6 text-teal-400" />
+                  )}
+                  <div>
+                    <DialogTitle className="font-headline font-bold text-lg text-primary truncate max-w-lg md:max-w-2xl" title={activeFolderFile?.name}>
+                      {activeFolderFile?.name}
+                    </DialogTitle>
+                    <DialogDescription className="text-zinc-400 text-xs">
+                      Viewing resource {selectedFolderFileIndex + 1} of {material.folderFiles.length} inside "{material.title}"
+                    </DialogDescription>
+                  </div>
+                </div>
+                {/* Download Button in Modal Header */}
+                <Button 
+                  className="rounded-full h-9 px-4 text-xs font-bold bg-white text-black hover:bg-zinc-200 mr-8"
+                  onClick={() => {
+                    if (activeFolderFile) {
+                      downloadFileUrl(activeFolderFile.fileUrl, activeFolderFile.name);
+                    }
+                  }}
+                >
+                  <Download className="mr-1.5 h-3.5 w-3.5" /> Download
+                </Button>
+              </DialogHeader>
+              
+              <div className="flex-1 bg-zinc-900/40 relative w-full h-full min-h-0 overflow-y-auto">
+                {activeFolderFile?.type === 'image' ? (
+                  <div className="w-full h-full flex items-center justify-center p-8">
+                    <div className="relative w-full h-full min-h-[450px]">
                       <Image 
-                        src={currentFileUrl || ''} 
-                        alt={currentFileName || 'Study Material'} 
+                        src={activeFolderFile.fileUrl || ''} 
+                        alt={activeFolderFile.name || 'Folder note image'} 
                         fill 
                         className="object-contain"
                         unoptimized
                       />
                     </div>
                   </div>
-                ) : detectedType === 'pdf' ? (
-                  <div className="w-full h-full flex-1 min-h-[500px]">
-                    <PDFViewer url={currentFileUrl || ''} title={currentFileName || 'Study Notes'} />
+                ) : activeFolderFile?.type === 'pdf' ? (
+                  <div className="w-full h-full">
+                    <PDFViewer url={activeFolderFile.fileUrl || ''} title={activeFolderFile.name || 'Folder note PDF'} />
                   </div>
                 ) : (
-                  <div className="flex-1 flex flex-col items-center justify-center p-12 text-center text-muted-foreground gap-4">
+                  <div className="w-full h-full flex flex-col items-center justify-center p-12 text-center text-muted-foreground gap-4">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <p className="text-sm">Loading folder preview...</p>
+                    <p className="text-sm">Loading document...</p>
                   </div>
                 )}
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </DialogContent>
+          </Dialog>
+        </div>
       ) : !hasFile ? (
         <Card className="border-none shadow-xl bg-card rounded-[2.5rem] overflow-hidden w-full border border-white/5">
           <CardContent className="p-8">

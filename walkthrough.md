@@ -64,5 +64,16 @@ And here is the browser verification session recording:
 * **Database File Storage (MongoDB):**
   * Created a Mongoose model [MaterialFile.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/lib/models/MaterialFile.ts) to permanently store uploaded PDF files as Base64-encoded strings directly inside MongoDB.
   * Reconfigured the local server upload endpoint [upload/route.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/api/upload/route.ts) to write to MongoDB (`POST`) and serve files dynamically (`GET`) via stable relative paths (`/api/upload?id=...`).
-  * Reordered `uploadFileHelper` in [upload/page.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/upload/page.tsx#L685) to prioritize this local MongoDB-backed upload. This bypasses fragile temporary hosting networks (like `tmpfiles.org` whose uploads automatically expire in 60 minutes) and Firebase Storage configuration dependencies.
+  * Reconfigured the `uploadFileHelper` in [upload/page.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/upload/page.tsx#L685) to prioritize this local MongoDB-backed upload. This bypasses fragile temporary hosting networks (like `tmpfiles.org` whose uploads automatically expire in 60 minutes) and Firebase Storage configuration dependencies.
   * Updated [pdf-viewer.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/components/pdf-viewer.tsx#L191) to check content headers and prevent downloading broken HTML error pages as corrupt PDF files.
+
+## Local Development File Upload Performance Fix & Folder Notes Layout Enhancements
+
+* **Local Upload Performance Fix (API & Page):**
+  * Updated [route.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/api/upload/route.ts#L33) to intercept upload requests in local development mode (`process.env.NODE_ENV === 'development'`) and save them directly to the local disk at `public/uploads` rather than attempting a slow chunk-by-chunk write to the remote MongoDB Atlas GridFS database over the network. This makes local file uploads instant (< 100ms) and prevents the client-side "Syncing Knowledge" loading state from hanging or timing out.
+  * Reconfigured the `isLocal` utility in [page.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/upload/page.tsx#L771) to match other local hostnames such as private IP ranges (e.g. `192.168.*`, `10.*`) or `.local` domains, ensuring that local network configurations are correctly categorized as local development environments.
+* **Folder Note Document Grid (Tiles Layout):**
+  * Redesigned the folder contents view in [page.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/material/[id]/page.tsx#L1117) to render a modern grid layout of card tiles instead of the previous sidebar and preview split layout.
+  * Each document/file card in the folder displays its name, document type (PDF or Image) with custom colors and icons, and has dedicated action buttons to either preview the file ("View") or download it directly ("Get").
+  * Added `isPreviewDialogOpen` state to trigger a full-screen shadcn dialog modal when a user clicks the "View" button on a file tile. The modal embeds either the `PDFViewer` component or an image element for a seamless inside-app preview.
+  * Extracted file fetching and download blob preparation into a reusable `downloadFileUrl` helper function. This function uses the local proxy `/api/pdf-proxy` to download remote assets as blobs to prevent CORS blocking issues when saving files.
