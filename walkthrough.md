@@ -87,6 +87,9 @@ And here is the browser verification session recording:
 * **Database Cleanups & Git binary protection:**
   * Created and ran a script `scratch/delete-broken.js` to connect to MongoDB Atlas and purge 5 broken/corrupted legacy files that were uploaded in the local environment and had missing file data in production. This leaves only clean, valid mock/production-upload files in the library.
   * Added a `.gitattributes` file to the root of the workspace to mark all `.pdf`, `.png`, `.jpg`, `.jpeg`, `.webp`, `.gif`, and fonts/icons as `binary` files, permanently preventing Git from automatically converting line endings (LF to CRLF) and corrupting binary assets in the future.
+* **Visual Upload Progress Bar:**
+  * Added a premium, visual progress bar card in [page.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/upload/page.tsx#L1574) that renders directly above the submit button during file uploads.
+  * It shows the upload percentage in real-time alongside a glowing loading bar, keeping users updated on the upload progress of their notes or folder files.
 * **Production MongoDB Document Storage Upload Optimization:**
   * Replaced GridFS sequential chunk-by-chunk write streaming with direct Mongoose `MaterialFile` document creation in [route.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/api/upload/route.ts#L57) for production environment uploads. Storing small uploaded files (Vercel payload limited to 4.5MB anyway) as Base64 MongoDB documents takes < 0.5s, preventing Gateway timeouts/failures on serverless containers.
 * **Folder note creation and persistence fix (API POST):**
