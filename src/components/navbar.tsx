@@ -67,9 +67,6 @@ export function Navbar() {
                 <Button variant="ghost" asChild className="rounded-2xl font-black text-[10px] uppercase tracking-widest h-10 px-4 hover:bg-primary/5">
                   <Link href="/profile">Profile</Link>
                 </Button>
-                <Button variant="ghost" asChild className="rounded-2xl font-black text-[10px] uppercase tracking-widest h-10 px-4 hover:bg-primary/5">
-                  <Link href="/dashboard">Dashboard</Link>
-                </Button>
                 {user.role === 'admin' && (
                   <Button variant="ghost" asChild className="rounded-2xl font-black text-[10px] uppercase tracking-widest h-10 px-4 text-primary hover:bg-primary/5">
                     <Link href="/admin">Admin</Link>
@@ -128,13 +125,6 @@ export function Navbar() {
                           className="text-base font-semibold p-4 hover:bg-white/5 rounded-xl flex items-center gap-4 text-zinc-300 hover:text-white transition-all"
                         >
                           Profile
-                        </Link>
-                        <Link 
-                          href="/dashboard"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className="text-base font-semibold p-4 hover:bg-white/5 rounded-xl flex items-center gap-4 text-zinc-300 hover:text-white transition-all"
-                        >
-                          Dashboard
                         </Link>
                         {user.role === 'admin' && (
                           <Link 
