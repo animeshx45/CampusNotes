@@ -710,7 +710,8 @@ function MarkdownRenderer({ text }: { text: string }) {
   return <div className="space-y-0.5">{elements}</div>;
 }
 
-const getSimulatedFileSize = (filename: string): string => {
+const getSimulatedFileSize = (filename?: string): string => {
+  if (!filename || typeof filename !== 'string') return '2.4 MB';
   const name = filename.toLowerCase();
   if (name.includes('adobe scan 16-mar-2023')) return '125 KB';
   if (name.includes('bee .pdf') || name.includes('bee_.pdf')) return '185 KB';
