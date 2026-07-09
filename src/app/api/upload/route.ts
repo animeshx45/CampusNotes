@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
       console.log(`[Dev Mode] Saved file to local disk: ${filePath} (${buffer.length} bytes)`);
 
-      const fileUrl = `/uploads/${safeFileName}`;
+      const fileUrl = `/api/upload?id=${safeFileName}`;
       return NextResponse.json({ url: fileUrl });
     }
 
@@ -105,7 +105,37 @@ export async function GET(request: NextRequest) {
     }
 
     if (!mongoose.Types.ObjectId.isValid(fileId)) {
-      return new NextResponse('Invalid File ID format', { status: 400 });
+      // Check if it's a file saved locally in development mode
+      try {
+        const filePath = path.join(process.cwd(), 'public', 'uploads', fileId);
+        // Check if file exists
+        await fs.access(filePath);
+        
+        // Read file contents
+        const fileBuffer = await fs.readFile(filePath);
+        
+        // Determine content type
+        let contentType = 'application/pdf';
+        if (fileId.toLowerCase().endsWith('.png')) {
+          contentType = 'image/png';
+        } else if (fileId.toLowerCase().endsWith('.jpg') || fileId.toLowerCase().endsWith('.jpeg')) {
+          contentType = 'image/jpeg';
+        } else if (fileId.toLowerCase().endsWith('.webp')) {
+          contentType = 'image/webp';
+        } else if (fileId.toLowerCase().endsWith('.gif')) {
+          contentType = 'image/gif';
+        }
+
+        return new NextResponse(fileBuffer, {
+          headers: {
+            'Content-Type': contentType,
+            'Content-Disposition': `inline; filename="${encodeURIComponent(fileId)}"`,
+            'Cache-Control': 'public, max-age=31536000, immutable'
+          }
+        });
+      } catch (err) {
+        return new NextResponse('Invalid File ID format or local file not found', { status: 400 });
+      }
     }
 
     await connectToDatabase();

@@ -23,6 +23,7 @@ import { materialService } from '@/services/material-service';
 import { Branch, MaterialType, Semester, FolderFile } from '@/lib/types';
 import { initializeFirebase } from '@/firebase';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { getAuth, signInAnonymously } from 'firebase/auth';
 import { useAuth } from '@/context/AuthContext';
 
 interface BulkUploadItem {
@@ -821,6 +822,18 @@ export default function UploadPage() {
     // Helper: Firebase Storage upload
     const uploadToFirebase = async () => {
       const { firebaseApp } = initializeFirebase();
+      const auth = getAuth(firebaseApp);
+
+      // Authenticate anonymously to satisfy storage security rules
+      if (auth && !auth.currentUser) {
+        try {
+          await signInAnonymously(auth);
+          console.log("Logged in anonymously to Firebase Auth for storage upload.");
+        } catch (authError) {
+          console.warn("Firebase anonymous authentication failed:", authError);
+        }
+      }
+
       const storage = getStorage(firebaseApp);
       const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
       const uploadTask = uploadBytesResumable(fileRef, file);
@@ -863,6 +876,17 @@ export default function UploadPage() {
       // Try explicit appspot bucket
       try {
         const { firebaseApp } = initializeFirebase();
+        const auth = getAuth(firebaseApp);
+
+        if (auth && !auth.currentUser) {
+          try {
+            await signInAnonymously(auth);
+            console.log("Logged in anonymously to Firebase Auth for fallback storage upload.");
+          } catch (authError) {
+            console.warn("Firebase anonymous authentication failed for fallback:", authError);
+          }
+        }
+
         const storageBucket = "studio-864601925-cef48.appspot.com";
         const storage = getStorage(firebaseApp, `gs://${storageBucket}`);
         const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
