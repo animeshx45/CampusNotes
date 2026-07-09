@@ -55,6 +55,11 @@ And here is the browser verification session recording:
 * **Client-side Form Submission:** Refactored `handleSubmit` in [contact/page.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/contact/page.tsx#L34) to send POST requests to `/api/contact` instead of making a direct client-side Firestore insert.
 * **Environment Configuration:** Appended Twilio settings (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`) as placeholders to the project [.env](file:///c:/Users/rajur/Downloads/project%20(1)/.env#L11) file for setup instructions.
 
-## PDF Rendering Proxy Fix
+## PDF Rendering Proxy Fix & Database Storage Migration
 * **User-Agent Header Added:** Modified [pdf-proxy/route.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/api/pdf-proxy/route.ts#L18) to append a browser `User-Agent` header to proxy fetch requests, preventing strict origin hosts (such as W3C) from rejecting the connection with a `403 Forbidden` status code.
 * **Server Logging:** Added console error tracking on failed requests to help logs track unsuccessful fetches.
+* **Database File Storage (MongoDB):**
+  * Created a Mongoose model [MaterialFile.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/lib/models/MaterialFile.ts) to permanently store uploaded PDF files as Base64-encoded strings directly inside MongoDB.
+  * Reconfigured the local server upload endpoint [upload/route.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/api/upload/route.ts) to write to MongoDB (`POST`) and serve files dynamically (`GET`) via stable relative paths (`/api/upload?id=...`).
+  * Reordered `uploadFileHelper` in [upload/page.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/upload/page.tsx#L685) to prioritize this local MongoDB-backed upload. This bypasses fragile temporary hosting networks (like `tmpfiles.org` whose uploads automatically expire in 60 minutes) and Firebase Storage configuration dependencies.
+  * Updated [pdf-viewer.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/components/pdf-viewer.tsx#L191) to check content headers and prevent downloading broken HTML error pages as corrupt PDF files.

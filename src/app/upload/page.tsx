@@ -683,35 +683,7 @@ export default function UploadPage() {
   };
 
   const uploadFileHelper = async (file: File): Promise<string> => {
-    // 1. Try Firebase Storage
-    try {
-      const { firebaseApp } = initializeFirebase();
-      const storageBucket = "studio-864601925-cef48.firebasestorage.app";
-      const storage = getStorage(firebaseApp, `gs://${storageBucket}`);
-      storage.maxUploadRetryTime = 2000;
-      storage.maxOperationRetryTime = 2000;
-      const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
-      await uploadBytes(fileRef, file);
-      return await getDownloadURL(fileRef);
-    } catch (storageError) {
-      console.warn("Firebase Storage upload failed, trying fallback...", storageError);
-      
-      // 2. Try secondary bucket fallback
-      try {
-        const { firebaseApp } = initializeFirebase();
-        const storageBucket = "studio-864601925-cef48.appspot.com";
-        const storage = getStorage(firebaseApp, `gs://${storageBucket}`);
-        storage.maxUploadRetryTime = 2000;
-        storage.maxOperationRetryTime = 2000;
-        const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
-        await uploadBytes(fileRef, file);
-        return await getDownloadURL(fileRef);
-      } catch (fallbackStorageError) {
-        console.warn("Secondary Firebase Storage upload failed, trying public host fallback...", fallbackStorageError);
-      }
-    }
-
-    // 3. Fallback to local server storage
+    // 1. Try local server database storage (highly reliable, no external dependencies, doesn't expire)
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -727,27 +699,55 @@ export default function UploadPage() {
       }
       throw new Error("Invalid response from local upload server");
     } catch (localUploadError) {
-      console.warn("Local upload failed, trying public host fallback...", localUploadError);
+      console.warn("Local database upload failed, trying Firebase Storage...", localUploadError);
+    }
 
-      // 4. Fallback to free file sharing host (tmpfiles.org) as last resort
+    // 2. Try Firebase Storage
+    try {
+      const { firebaseApp } = initializeFirebase();
+      const storageBucket = "studio-864601925-cef48.firebasestorage.app";
+      const storage = getStorage(firebaseApp, `gs://${storageBucket}`);
+      storage.maxUploadRetryTime = 2000;
+      storage.maxOperationRetryTime = 2000;
+      const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
+      await uploadBytes(fileRef, file);
+      return await getDownloadURL(fileRef);
+    } catch (storageError) {
+      console.warn("Firebase Storage upload failed, trying fallback...", storageError);
+      
+      // 3. Try secondary bucket fallback
       try {
-        const formData = new FormData();
-        formData.append('file', file);
-        const res = await fetch('https://tmpfiles.org/api/v1/upload', {
-          method: 'POST',
-          body: formData,
-        });
-        if (!res.ok) throw new Error("Public upload server returned " + res.status);
-        const result = await res.json();
-        const uploadUrl = result?.data?.url;
-        if (uploadUrl) {
-          return uploadUrl.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
-        }
-        throw new Error("Invalid response from public upload server");
-      } catch (publicHostError) {
-        console.error("All upload methods failed.", publicHostError);
-        throw new Error("Failed to upload file. Please check your internet connection.");
+        const { firebaseApp } = initializeFirebase();
+        const storageBucket = "studio-864601925-cef48.appspot.com";
+        const storage = getStorage(firebaseApp, `gs://${storageBucket}`);
+        storage.maxUploadRetryTime = 2000;
+        storage.maxOperationRetryTime = 2000;
+        const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
+        await uploadBytes(fileRef, file);
+        return await getDownloadURL(fileRef);
+      } catch (fallbackStorageError) {
+        console.warn("Secondary Firebase Storage upload failed, trying public host fallback...", fallbackStorageError);
       }
+    }
+
+    // 4. Fallback to free file sharing host (tmpfiles.org) as last resort
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('https://tmpfiles.org/api/v1/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Public upload server returned " + res.status);
+      const result = await res.json();
+      const uploadUrl = result?.data?.url;
+      if (uploadUrl) {
+        return uploadUrl.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+      }
+      throw new Error("Invalid response from public upload server");
+    } catch (publicHostError) {
+      console.error("All upload methods failed.", publicHostError);
+      throw new Error("Failed to upload file. Please check your internet connection.");
     }
   };
 

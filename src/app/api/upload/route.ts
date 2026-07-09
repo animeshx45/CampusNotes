@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { connectToDatabase } from '@/lib/db';
+import MaterialFile from '@/lib/models/MaterialFile';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,26 +11,53 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
+    await connectToDatabase();
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    const base64Data = buffer.toString('base64');
 
-    // Save to public/uploads directory
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    
-    // Create directory if it doesn't exist
-    await fs.mkdir(uploadDir, { recursive: true });
+    const newFile = await MaterialFile.create({
+      fileName: file.name,
+      contentType: file.type || 'application/pdf',
+      data: base64Data
+    });
 
-    // Generate safe filename
-    const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-    const filePath = path.join(uploadDir, filename);
-
-    await fs.writeFile(filePath, buffer);
-
-    // Return the public URL
-    const fileUrl = `/uploads/${filename}`;
+    const fileUrl = `/api/upload?id=${newFile._id.toString()}`;
     return NextResponse.json({ url: fileUrl });
   } catch (error: any) {
-    console.error('Local upload error:', error);
+    console.error('Database upload error:', error);
     return NextResponse.json({ error: `Failed to upload file: ${error.message}` }, { status: 500 });
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const fileId = searchParams.get('id');
+
+    if (!fileId) {
+      return new NextResponse('File ID parameter is required', { status: 400 });
+    }
+
+    await connectToDatabase();
+    const fileRecord = await MaterialFile.findById(fileId);
+
+    if (!fileRecord) {
+      return new NextResponse('File not found', { status: 404 });
+    }
+
+    const fileBuffer = Buffer.from(fileRecord.data, 'base64');
+
+    return new NextResponse(fileBuffer, {
+      headers: {
+        'Content-Type': fileRecord.contentType || 'application/pdf',
+        'Content-Disposition': `inline; filename="${encodeURIComponent(fileRecord.fileName)}"`,
+        'Cache-Control': 'public, max-age=31536000, immutable'
+      }
+    });
+  } catch (error: any) {
+    console.error('File retrieval error:', error);
+    return new NextResponse(`Error retrieving file: ${error.message}`, { status: 500 });
   }
 }

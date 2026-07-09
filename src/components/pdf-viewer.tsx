@@ -191,6 +191,12 @@ export default function PDFViewer({ url, title }: PDFViewerProps) {
       const fetchUrl = isRelative ? url : `/api/pdf-proxy?url=${encodeURIComponent(url)}`;
       const response = await fetch(fetchUrl);
       if (!response.ok) throw new Error('File download proxy failed.');
+      
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('text/html')) {
+        throw new Error('Retrieved content is HTML instead of PDF. The file may have expired or is inaccessible.');
+      }
+
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
       
