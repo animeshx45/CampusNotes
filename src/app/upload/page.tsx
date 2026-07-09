@@ -857,23 +857,34 @@ export default function UploadPage() {
       });
     };
 
-    // 1. If running locally, prioritize local GridFS upload (instant copy, no size limits)
-    if (isLocal) {
+    const isSmallFile = file.size < 4.5 * 1024 * 1024;
+
+    // 1. For small files (under Vercel's 4.5MB limit), prioritize direct fast MongoDB upload
+    if (isSmallFile) {
       try {
-        console.log("Local development environment detected. Prioritizing local GridFS upload with real progress tracking.");
+        console.log("File is under 4.5MB. Prioritizing direct fast MongoDB upload.");
         return await uploadLocally();
       } catch (localError) {
-        console.warn("Local upload failed, falling back to Firebase Storage...", localError);
+        console.warn("Direct upload failed, falling back to Firebase...", localError);
       }
     }
 
-    // 2. Production or fallback: Prioritize Firebase Storage to bypass serverless payload limits
+    // 2. For local development, always upload locally regardless of size (no serverless limit)
+    if (isLocal && !isSmallFile) {
+      try {
+        return await uploadLocally();
+      } catch (localError) {
+        console.warn("Local upload failed, falling back to Firebase...", localError);
+      }
+    }
+
+    // 3. For large files in production, use Firebase Storage
     try {
       return await uploadToFirebase();
     } catch (storageError) {
       console.warn("Firebase Storage upload failed, trying explicit appspot fallback...", storageError);
       
-      // Try explicit appspot bucket
+      // Try explicit appspot bucket fallback
       try {
         const { firebaseApp } = initializeFirebase();
         const auth = getAuth(firebaseApp);
@@ -881,7 +892,6 @@ export default function UploadPage() {
         if (auth && !auth.currentUser) {
           try {
             await signInAnonymously(auth);
-            console.log("Logged in anonymously to Firebase Auth for fallback storage upload.");
           } catch (authError) {
             console.warn("Firebase anonymous authentication failed for fallback:", authError);
           }
@@ -909,20 +919,11 @@ export default function UploadPage() {
           );
         });
       } catch (fallbackError) {
-        console.error("All production upload routes failed. Falling back to local server GridFS...", fallbackError);
+        console.error("All upload options exhausted.", fallbackError);
       }
     }
 
-    // 3. Fallback: Try GridFS (only if not tried yet and small enough for serverless limit)
-    const isSmallFile = file.size < 4.5 * 1024 * 1024;
-    if (!isLocal && isSmallFile) {
-      onProgress(30);
-      const url = await uploadLocally();
-      onProgress(100);
-      return url;
-    }
-
-    throw new Error("Failed to upload file. Please ensure you are logged in and have a stable network connection.");
+    throw new Error("Failed to upload file. Please ensure you have a stable network connection.");
   };
 
   const handleUpload = async (e: React.FormEvent) => {
