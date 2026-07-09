@@ -723,11 +723,70 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
   const [dbMaterial, setDbMaterial] = useState<StudyMaterial | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const material = mockMaterial || dbMaterial;
+
   const isOwner = !!(user && (
     (dbMaterial && (user.id === dbMaterial.uploaderId || user.uid === dbMaterial.uploaderId || user.fullName === dbMaterial.author)) ||
     (mockMaterial && user.fullName === mockMaterial.author)
   ));
   const canEditOrDelete = isAdmin || isOwner;
+
+  // Local state to dynamically hold the parsed/verified file type (handles query params & dynamic /api/upload urls)
+  const [detectedType, setDetectedType] = useState<'pdf' | 'image' | 'youtube' | 'other' | null>(null);
+
+  const isYoutube = !!(material && material.type === 'YouTube Playlist');
+
+  useEffect(() => {
+    if (isYoutube) {
+      setDetectedType('youtube');
+      return;
+    }
+    if (!material?.fileUrl) {
+      setDetectedType(null);
+      return;
+    }
+    
+    const lowerUrl = material.fileUrl.toLowerCase();
+    // 1. Static pattern check (handles standard file extensions, picsum placeholder, and Firebase storage with query tokens)
+    if (lowerUrl.match(/\.(jpeg|jpg|gif|png|webp)(\?|$)/i) || lowerUrl.includes('picsum.photos') || lowerUrl.includes('placehold.co')) {
+      setDetectedType('image');
+      return;
+    }
+    if (lowerUrl.match(/\.pdf(\?|$)/i)) {
+      setDetectedType('pdf');
+      return;
+    }
+
+    // 2. Network-based HEAD metadata check fallback for dynamic routes (like /api/upload?id=...)
+    let isMounted = true;
+    const checkType = async () => {
+      try {
+        const isRelative = !material.fileUrl.startsWith('http://') && !material.fileUrl.startsWith('https://');
+        const checkUrl = isRelative ? material.fileUrl : `/api/pdf-proxy?url=${encodeURIComponent(material.fileUrl)}`;
+        
+        // We use HEAD method to only fetch headers (extremely light and fast)
+        const res = await fetch(checkUrl, { method: 'HEAD' });
+        if (res.ok) {
+          const contentType = res.headers.get('content-type') || '';
+          if (isMounted) {
+            if (contentType.toLowerCase().includes('image/')) {
+              setDetectedType('image');
+            } else if (contentType.toLowerCase().includes('pdf')) {
+              setDetectedType('pdf');
+            } else {
+              setDetectedType('pdf'); // default
+            }
+          }
+        }
+      } catch (e) {
+        if (isMounted) {
+          setDetectedType('pdf');
+        }
+      }
+    };
+    checkType();
+    return () => { isMounted = false; };
+  }, [material?.fileUrl, isYoutube]);
 
   useEffect(() => {
     if (id.startsWith('it-') || id.startsWith('cse-') || id.startsWith('chem-') || id.includes('s3-') || id.includes('s4-') || id.includes('s5-') || id.includes('s6-') || id.includes('s7-') || id.includes('s8-') || id.startsWith('common-')) {
@@ -748,8 +807,6 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     };
     fetchMaterial();
   }, [id]);
-
-  const material = mockMaterial || dbMaterial;
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
@@ -966,64 +1023,8 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     return new Date().toLocaleDateString();
   };
 
-  const isYoutube = material.type === 'YouTube Playlist';
-  const hasFile = !!material.fileUrl;
+  const hasFile = !!(material && material.fileUrl);
   
-  // Local state to dynamically hold the parsed/verified file type (handles query params & dynamic /api/upload urls)
-  const [detectedType, setDetectedType] = useState<'pdf' | 'image' | 'youtube' | 'other' | null>(null);
-
-  useEffect(() => {
-    if (isYoutube) {
-      setDetectedType('youtube');
-      return;
-    }
-    if (!material?.fileUrl) {
-      setDetectedType(null);
-      return;
-    }
-    
-    const lowerUrl = material.fileUrl.toLowerCase();
-    // 1. Static pattern check (handles standard file extensions, picsum placeholder, and Firebase storage with query tokens)
-    if (lowerUrl.match(/\.(jpeg|jpg|gif|png|webp)(\?|$)/i) || lowerUrl.includes('picsum.photos') || lowerUrl.includes('placehold.co')) {
-      setDetectedType('image');
-      return;
-    }
-    if (lowerUrl.match(/\.pdf(\?|$)/i)) {
-      setDetectedType('pdf');
-      return;
-    }
-
-    // 2. Network-based HEAD metadata check fallback for dynamic routes (like /api/upload?id=...)
-    let isMounted = true;
-    const checkType = async () => {
-      try {
-        const isRelative = !material.fileUrl.startsWith('http://') && !material.fileUrl.startsWith('https://');
-        const checkUrl = isRelative ? material.fileUrl : `/api/pdf-proxy?url=${encodeURIComponent(material.fileUrl)}`;
-        
-        // We use HEAD method to only fetch headers (extremely light and fast)
-        const res = await fetch(checkUrl, { method: 'HEAD' });
-        if (res.ok) {
-          const contentType = res.headers.get('content-type') || '';
-          if (isMounted) {
-            if (contentType.toLowerCase().includes('image/')) {
-              setDetectedType('image');
-            } else if (contentType.toLowerCase().includes('pdf')) {
-              setDetectedType('pdf');
-            } else {
-              setDetectedType('pdf'); // default
-            }
-          }
-        }
-      } catch (e) {
-        if (isMounted) {
-          setDetectedType('pdf');
-        }
-      }
-    };
-    checkType();
-    return () => { isMounted = false; };
-  }, [material?.fileUrl, isYoutube]);
-
   // isImage flag resolves dynamically once detectedType resolves
   const isImage = detectedType === 'image' || (hasFile && !detectedType && (
     material.fileUrl?.match(/\.(jpeg|jpg|gif|png|webp)(\?|$)/i) || 
