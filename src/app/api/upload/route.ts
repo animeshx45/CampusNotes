@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import MaterialFile from '@/lib/models/MaterialFile';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,22 +13,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    await connectToDatabase();
-
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const base64Data = buffer.toString('base64');
 
-    const newFile = await MaterialFile.create({
-      fileName: file.name,
-      contentType: file.type || 'application/pdf',
-      data: base64Data
-    });
+    // Clean file name to prevent directory traversal or invalid characters
+    const cleanName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    const safeFileName = `${Date.now()}-${cleanName}`;
 
-    const fileUrl = `/api/upload?id=${newFile._id.toString()}`;
+    // Define public/uploads directory path
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+
+    // Ensure uploads directory exists
+    await fs.mkdir(uploadsDir, { recursive: true });
+
+    // Write file to local disk
+    const filePath = path.join(uploadsDir, safeFileName);
+    await fs.writeFile(filePath, buffer);
+
+    console.log(`Saved file to disk: ${filePath} (${buffer.length} bytes)`);
+
+    // Return the public URL
+    const fileUrl = `/uploads/${safeFileName}`;
     return NextResponse.json({ url: fileUrl });
   } catch (error: any) {
-    console.error('Database upload error:', error);
+    console.error('File system upload error:', error);
     return NextResponse.json({ error: `Failed to upload file: ${error.message}` }, { status: 500 });
   }
 }
