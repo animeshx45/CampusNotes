@@ -46,8 +46,8 @@ And here is the browser verification session recording:
   * Created Next.js API endpoints [route.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/api/visitors/route.ts) with `GET` (fetch current count) and `POST` (atomically increment and return count) handlers.
   * Implemented client-side session-aware logic in [footer.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/components/footer.tsx) using `sessionStorage` to fetch the live count, incrementing only on new sessions to prevent reload spamming.
 * **Contact Information:**
-  * Updated [contact/page.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/contact/page.tsx#L117) to replace the support card description with your phone number `+91 9693929816`.
-  * Added the phone number `+91 9693929816` directly to the portal branding contact details list in [footer.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/components/footer.tsx#L55).
+  * Updated [contact/page.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/contact/page.tsx#L117) to replace the support card description with your phone number `+91 7889866214`.
+  * Added the phone number `+91 7889866214` directly to the portal branding contact details list in [footer.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/components/footer.tsx#L55).
 
 ## SMS Alerts & Contact API Migration
 * **API Endpoint & MongoDB Save:** Created a Mongoose model [ContactMessage.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/lib/models/ContactMessage.ts) and a Next.js API route [route.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/api/contact/route.ts) (`POST /api/contact`) to store contact form feedback in MongoDB.

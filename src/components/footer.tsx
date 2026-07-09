@@ -54,7 +54,7 @@ export function Footer() {
                 <Mail className="h-4 w-4 text-accent shrink-0" /> rajuranjanxbkj@gmail.com
               </p>
               <p className="flex items-center justify-center lg:justify-start gap-3">
-                <Phone className="h-4 w-4 text-accent shrink-0" /> +91 9693929816
+                <Phone className="h-4 w-4 text-accent shrink-0" /> +91 7889866214
               </p>
               <p className="flex items-center justify-center lg:justify-start gap-3">
                 <Globe className="h-4 w-4 text-accent shrink-0" /> www.nitsri.ac.in
