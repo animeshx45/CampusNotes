@@ -922,8 +922,14 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
   const downloadFileUrl = async (fileUrl: string, fileName: string) => {
     try {
-      const isRelative = !fileUrl.startsWith('http://') && !fileUrl.startsWith('https://');
-      const fetchUrl = isRelative ? fileUrl : `/api/pdf-proxy?url=${encodeURIComponent(fileUrl)}`;
+      // Automatically map any legacy dev-mode direct disk uploads to dynamic API path
+      let cleanUrl = fileUrl;
+      if (fileUrl.startsWith('/uploads/')) {
+        cleanUrl = `/api/upload?id=${fileUrl.substring('/uploads/'.length)}`;
+      }
+
+      const isRelative = !cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://');
+      const fetchUrl = isRelative ? cleanUrl : `/api/pdf-proxy?url=${encodeURIComponent(cleanUrl)}`;
       const response = await fetch(fetchUrl);
       if (!response.ok) throw new Error('File download proxy failed.');
       

@@ -25,7 +25,7 @@ export const MATERIAL_TYPES: MaterialType[] = [
 ];
 
 // A reliable sample PDF for testing purposes
-const SAMPLE_PDF_URL = '/dummy.pdf';
+const SAMPLE_PDF_URL = 'https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pgh.pdf';
 
 /**
  * Generates the common 1st year syllabus (Sem 1 & 2) for all branches.
