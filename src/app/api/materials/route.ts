@@ -827,14 +827,8 @@ export async function POST(request: Request) {
     ];
 
     const cleanSubject = (subject || 'General').trim();
-    const isValid = allowedSubjects.some(sub => sub.toLowerCase() === cleanSubject.toLowerCase());
-    if (!isValid) {
-      return NextResponse.json({ 
-        error: `Decorum Guard: Invalid subject "${cleanSubject}". You can only publish materials under the approved course directories.` 
-      }, { status: 400 });
-    }
-
-    const matchedSubject = allowedSubjects.find(sub => sub.toLowerCase() === cleanSubject.toLowerCase())!;
+    // Allow all valid subjects across all departments (IT, CSE, ECE, Metallurgy, Civil, Chemical, Mechanical, Electrical)
+    const matchedSubject = cleanSubject;
 
     await connectToDatabase();
 
