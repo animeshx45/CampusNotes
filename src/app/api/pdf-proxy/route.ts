@@ -15,8 +15,13 @@ export async function GET(request: NextRequest) {
       targetUrl = `${origin}${pdfUrl.startsWith('/') ? '' : '/'}${pdfUrl}`;
     }
 
-    const response = await fetch(targetUrl);
+    const response = await fetch(targetUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    });
     if (!response.ok) {
+      console.error(`[PDF Proxy Error] Failed to fetch PDF from ${targetUrl}. Status: ${response.status} ${response.statusText}`);
       return new NextResponse(`Failed to fetch PDF: ${response.statusText}`, { status: response.status });
     }
 
