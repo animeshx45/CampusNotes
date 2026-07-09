@@ -22,7 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { materialService } from '@/services/material-service';
 import { Branch, MaterialType, Semester } from '@/lib/types';
 import { initializeFirebase } from '@/firebase';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '@/context/AuthContext';
 
 interface BulkUploadItem {
@@ -633,6 +633,7 @@ export default function UploadPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   if (isUserLoading) {
     return (
@@ -729,66 +730,112 @@ export default function UploadPage() {
     }
   };
 
-  const uploadFileHelper = async (file: File): Promise<string> => {
-    // 1. Try default Firebase Storage bucket (fastest, client-to-CDN, highly optimized, no double-network hop)
-    try {
+  const uploadFileHelper = async (file: File, onProgress: (progress: number) => void): Promise<string> => {
+    const isLocal = typeof window !== 'undefined' && 
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+    // Helper: Local upload to GridFS (practically instant on localhost, no payload limits in node dev server)
+    const uploadLocally = async () => {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      if (res.ok) {
+        const result = await res.json();
+        const uploadUrl = result?.url;
+        if (uploadUrl) {
+          return uploadUrl;
+        }
+      }
+      throw new Error("Local server returned " + res.status);
+    };
+
+    // Helper: Firebase Storage upload
+    const uploadToFirebase = async () => {
       const { firebaseApp } = initializeFirebase();
-      const storage = getStorage(firebaseApp); // Automatically uses the default appspot.com bucket
+      const storage = getStorage(firebaseApp);
       const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
-      await uploadBytes(fileRef, file);
-      return await getDownloadURL(fileRef);
+      const uploadTask = uploadBytesResumable(fileRef, file);
+
+      return new Promise<string>((resolve, reject) => {
+        uploadTask.on('state_changed', 
+          (snapshot) => {
+            const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+            onProgress(progress);
+          }, 
+          (error) => reject(error), 
+          async () => {
+            try {
+              const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+              resolve(downloadUrl);
+            } catch (urlErr) {
+              reject(urlErr);
+            }
+          }
+        );
+      });
+    };
+
+    // 1. If running locally, prioritize local GridFS upload (instant copy, no size limits)
+    if (isLocal) {
+      try {
+        console.log("Local development environment detected. Prioritizing instant local GridFS upload.");
+        onProgress(50); // mock progress for instant copy
+        const url = await uploadLocally();
+        onProgress(100);
+        return url;
+      } catch (localError) {
+        console.warn("Local upload failed, falling back to Firebase Storage...", localError);
+      }
+    }
+
+    // 2. Production or fallback: Prioritize Firebase Storage to bypass serverless payload limits
+    try {
+      return await uploadToFirebase();
     } catch (storageError) {
-      console.warn("Default Firebase Storage bucket upload failed, trying explicit appspot fallback...", storageError);
+      console.warn("Firebase Storage upload failed, trying explicit appspot fallback...", storageError);
       
-      // 2. Try explicit appspot bucket fallback
+      // Try explicit appspot bucket
       try {
         const { firebaseApp } = initializeFirebase();
         const storageBucket = "studio-864601925-cef48.appspot.com";
         const storage = getStorage(firebaseApp, `gs://${storageBucket}`);
         const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
-        await uploadBytes(fileRef, file);
-        return await getDownloadURL(fileRef);
-      } catch (fallbackStorageError) {
-        console.warn("Explicit appspot Firebase Storage upload failed, trying firebasestorage.app fallback...", fallbackStorageError);
-        
-        // 3. Try explicit firebasestorage.app fallback
-        try {
-          const { firebaseApp } = initializeFirebase();
-          const storageBucket = "studio-864601925-cef48.firebasestorage.app";
-          const storage = getStorage(firebaseApp, `gs://${storageBucket}`);
-          const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
-          await uploadBytes(fileRef, file);
-          return await getDownloadURL(fileRef);
-        } catch (finalStorageError) {
-          console.error("All Firebase Storage upload methods failed. Falling back to local server GridFS...", finalStorageError);
-        }
+        const uploadTask = uploadBytesResumable(fileRef, file);
+        return new Promise<string>((resolve, reject) => {
+          uploadTask.on('state_changed', 
+            (snapshot) => {
+              const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+              onProgress(progress);
+            }, 
+            (error) => reject(error), 
+            async () => {
+              try {
+                const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                resolve(downloadUrl);
+              } catch (urlErr) {
+                reject(urlErr);
+              }
+            }
+          );
+        });
+      } catch (fallbackError) {
+        console.error("All production upload routes failed. Falling back to local server GridFS...", fallbackError);
       }
     }
 
-    // 4. Fallback to local server database storage (GridFS) only if file is small enough (< 4.5MB) to avoid serverless payload limits
+    // 3. Fallback: Try GridFS (only if not tried yet and small enough for serverless limit)
     const isSmallFile = file.size < 4.5 * 1024 * 1024;
-    if (isSmallFile) {
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-        if (res.ok) {
-          const result = await res.json();
-          const uploadUrl = result?.url;
-          if (uploadUrl) {
-            return uploadUrl;
-          }
-        }
-        throw new Error("Local server returned " + res.status);
-      } catch (finalError: any) {
-        throw new Error("Failed to upload file. Ensure you are logged in and your internet connection is stable. Details: " + finalError.message);
-      }
-    } else {
-      throw new Error("Failed to upload file to Firebase Storage. Since the file is larger than 4.5MB, it cannot be uploaded to local database storage due to serverless size limitations.");
+    if (!isLocal && isSmallFile) {
+      onProgress(30);
+      const url = await uploadLocally();
+      onProgress(100);
+      return url;
     }
+
+    throw new Error("Failed to upload file. Please ensure you are logged in and have a stable network connection.");
   };
 
   const handleUpload = async (e: React.FormEvent) => {
@@ -805,12 +852,15 @@ export default function UploadPage() {
     }
 
     setIsUploading(true);
+    setUploadProgress(0);
     
     try {
       let finalFileUrl = formData.fileUrl;
       if (formData.type !== 'YouTube Playlist' && selectedFile) {
         try {
-          finalFileUrl = await uploadFileHelper(selectedFile);
+          finalFileUrl = await uploadFileHelper(selectedFile, (progress) => {
+            setUploadProgress(progress);
+          });
         } catch (uploadError: any) {
           toast({
             title: "Upload Failed",
@@ -818,6 +868,7 @@ export default function UploadPage() {
             variant: "destructive"
           });
           setIsUploading(false);
+          setUploadProgress(null);
           return;
         }
       }
@@ -837,6 +888,7 @@ export default function UploadPage() {
       });
       
       setIsSuccess(true);
+      setUploadProgress(null);
       toast({
         title: "Done!",
         description: "Your notes have been shared with everyone.",
@@ -850,6 +902,7 @@ export default function UploadPage() {
         variant: "destructive"
       });
       setIsUploading(false);
+      setUploadProgress(null);
     }
   };
 
@@ -1387,7 +1440,7 @@ export default function UploadPage() {
                   {isUploading ? (
                     <>
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Syncing Knowledge...
+                      Syncing Knowledge... {uploadProgress !== null ? `(${uploadProgress}%)` : ''}
                     </>
                   ) : (
                     <>
