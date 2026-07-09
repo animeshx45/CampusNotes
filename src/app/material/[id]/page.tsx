@@ -858,13 +858,27 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
       const fetchUrl = isRelative ? material.fileUrl : `/api/pdf-proxy?url=${encodeURIComponent(material.fileUrl)}`;
       const response = await fetch(fetchUrl);
       if (!response.ok) throw new Error('File download proxy failed.');
+      
+      // Determine file extension dynamically from Content-Type header
+      const contentType = response.headers.get('content-type') || '';
+      let extension = 'pdf';
+      if (contentType.toLowerCase().includes('image/png')) {
+        extension = 'png';
+      } else if (contentType.toLowerCase().includes('image/jpeg')) {
+        extension = 'jpg';
+      } else if (contentType.toLowerCase().includes('image/webp')) {
+        extension = 'webp';
+      } else if (contentType.toLowerCase().includes('image/gif')) {
+        extension = 'gif';
+      }
+
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
       
       const link = document.createElement('a');
       link.href = blobUrl;
       const formattedTitle = material.title ? material.title.replace(/[^a-z0-9]/gi, '_') : 'study_material';
-      link.download = `${formattedTitle}.pdf`;
+      link.download = `${formattedTitle}.${extension}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -954,7 +968,68 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
   const isYoutube = material.type === 'YouTube Playlist';
   const hasFile = !!material.fileUrl;
-  const isImage = hasFile && (material.fileUrl?.match(/\.(jpeg|jpg|gif|png|webp)$/i) || material.fileUrl?.includes('picsum.photos') || material.fileUrl?.includes('placehold.co'));
+  
+  // Local state to dynamically hold the parsed/verified file type (handles query params & dynamic /api/upload urls)
+  const [detectedType, setDetectedType] = useState<'pdf' | 'image' | 'youtube' | 'other' | null>(null);
+
+  useEffect(() => {
+    if (isYoutube) {
+      setDetectedType('youtube');
+      return;
+    }
+    if (!material?.fileUrl) {
+      setDetectedType(null);
+      return;
+    }
+    
+    const lowerUrl = material.fileUrl.toLowerCase();
+    // 1. Static pattern check (handles standard file extensions, picsum placeholder, and Firebase storage with query tokens)
+    if (lowerUrl.match(/\.(jpeg|jpg|gif|png|webp)(\?|$)/i) || lowerUrl.includes('picsum.photos') || lowerUrl.includes('placehold.co')) {
+      setDetectedType('image');
+      return;
+    }
+    if (lowerUrl.match(/\.pdf(\?|$)/i)) {
+      setDetectedType('pdf');
+      return;
+    }
+
+    // 2. Network-based HEAD metadata check fallback for dynamic routes (like /api/upload?id=...)
+    let isMounted = true;
+    const checkType = async () => {
+      try {
+        const isRelative = !material.fileUrl.startsWith('http://') && !material.fileUrl.startsWith('https://');
+        const checkUrl = isRelative ? material.fileUrl : `/api/pdf-proxy?url=${encodeURIComponent(material.fileUrl)}`;
+        
+        // We use HEAD method to only fetch headers (extremely light and fast)
+        const res = await fetch(checkUrl, { method: 'HEAD' });
+        if (res.ok) {
+          const contentType = res.headers.get('content-type') || '';
+          if (isMounted) {
+            if (contentType.toLowerCase().includes('image/')) {
+              setDetectedType('image');
+            } else if (contentType.toLowerCase().includes('pdf')) {
+              setDetectedType('pdf');
+            } else {
+              setDetectedType('pdf'); // default
+            }
+          }
+        }
+      } catch (e) {
+        if (isMounted) {
+          setDetectedType('pdf');
+        }
+      }
+    };
+    checkType();
+    return () => { isMounted = false; };
+  }, [material?.fileUrl, isYoutube]);
+
+  // isImage flag resolves dynamically once detectedType resolves
+  const isImage = detectedType === 'image' || (hasFile && !detectedType && (
+    material.fileUrl?.match(/\.(jpeg|jpg|gif|png|webp)(\?|$)/i) || 
+    material.fileUrl?.includes('picsum.photos') || 
+    material.fileUrl?.includes('placehold.co')
+  ));
   
   const getEmbedUrl = (url: string) => {
     if (!url) return '';
@@ -964,7 +1039,6 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     if (url.includes('drive.google.com') && url.includes('/preview')) {
       return url;
     }
-    // Fallback: wrap direct PDF/documents in Google Docs Viewer
     return `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
   };
   

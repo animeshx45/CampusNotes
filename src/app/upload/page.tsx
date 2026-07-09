@@ -678,7 +678,19 @@ export default function UploadPage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      const maxLimit = 50 * 1024 * 1024; // 50MB limit
+      if (file.size > maxLimit) {
+        toast({
+          title: "File too large!",
+          description: "Maximum allowed file size is 50MB.",
+          variant: "destructive"
+        });
+        e.target.value = ''; // Reset input
+        setSelectedFile(null);
+        return;
+      }
+      setSelectedFile(file);
     }
   };
 
