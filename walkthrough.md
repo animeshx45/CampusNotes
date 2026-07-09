@@ -48,3 +48,9 @@ And here is the browser verification session recording:
 * **Contact Information:**
   * Updated [contact/page.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/contact/page.tsx#L117) to replace the support card description with your phone number `+91 9693929816`.
   * Added the phone number `+91 9693929816` directly to the portal branding contact details list in [footer.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/components/footer.tsx#L55).
+
+## SMS Alerts & Contact API Migration
+* **API Endpoint & MongoDB Save:** Created a Mongoose model [ContactMessage.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/lib/models/ContactMessage.ts) and a Next.js API route [route.ts](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/api/contact/route.ts) (`POST /api/contact`) to store contact form feedback in MongoDB.
+* **Twilio SMS Notification:** Added Twilio REST API integration to the POST handler in `route.ts`. When feedback is submitted, if credentials are set, it triggers an SMS notification to your phone number `+91 7889866214`.
+* **Client-side Form Submission:** Refactored `handleSubmit` in [contact/page.tsx](file:///c:/Users/rajur/Downloads/project%20(1)/src/app/contact/page.tsx#L34) to send POST requests to `/api/contact` instead of making a direct client-side Firestore insert.
+* **Environment Configuration:** Appended Twilio settings (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`) as placeholders to the project [.env](file:///c:/Users/rajur/Downloads/project%20(1)/.env#L11) file for setup instructions.

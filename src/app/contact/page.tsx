@@ -7,12 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useFirestore, addDocumentNonBlocking } from '@/firebase';
-import { collection, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 export default function ContactPage() {
-  const db = useFirestore();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -35,10 +32,17 @@ export default function ContactPage() {
 
     setIsLoading(true);
     try {
-      await addDocumentNonBlocking(collection(db, 'contactMessages'), {
-        ...formData,
-        createdAt: serverTimestamp()
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
+
+      if (!res.ok) {
+        throw new Error('Failed to submit message');
+      }
       
       setIsSuccess(true);
       setFormData({ name: '', email: '', message: '' });
