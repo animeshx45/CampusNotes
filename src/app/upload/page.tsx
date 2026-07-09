@@ -730,9 +730,43 @@ export default function UploadPage() {
   };
 
   const uploadFileHelper = async (file: File): Promise<string> => {
-    const isSmallFile = file.size < 4.5 * 1024 * 1024; // 4.5 MB limit for Vercel/App Hosting payloads
+    // 1. Try default Firebase Storage bucket (fastest, client-to-CDN, highly optimized, no double-network hop)
+    try {
+      const { firebaseApp } = initializeFirebase();
+      const storage = getStorage(firebaseApp); // Automatically uses the default appspot.com bucket
+      const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
+      await uploadBytes(fileRef, file);
+      return await getDownloadURL(fileRef);
+    } catch (storageError) {
+      console.warn("Default Firebase Storage bucket upload failed, trying explicit appspot fallback...", storageError);
+      
+      // 2. Try explicit appspot bucket fallback
+      try {
+        const { firebaseApp } = initializeFirebase();
+        const storageBucket = "studio-864601925-cef48.appspot.com";
+        const storage = getStorage(firebaseApp, `gs://${storageBucket}`);
+        const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
+        await uploadBytes(fileRef, file);
+        return await getDownloadURL(fileRef);
+      } catch (fallbackStorageError) {
+        console.warn("Explicit appspot Firebase Storage upload failed, trying firebasestorage.app fallback...", fallbackStorageError);
+        
+        // 3. Try explicit firebasestorage.app fallback
+        try {
+          const { firebaseApp } = initializeFirebase();
+          const storageBucket = "studio-864601925-cef48.firebasestorage.app";
+          const storage = getStorage(firebaseApp, `gs://${storageBucket}`);
+          const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
+          await uploadBytes(fileRef, file);
+          return await getDownloadURL(fileRef);
+        } catch (finalStorageError) {
+          console.error("All Firebase Storage upload methods failed. Falling back to local server GridFS...", finalStorageError);
+        }
+      }
+    }
 
-    // 1. Try local server database storage (GridFS) ONLY for small files to avoid serverless payload limits
+    // 4. Fallback to local server database storage (GridFS) only if file is small enough (< 4.5MB) to avoid serverless payload limits
+    const isSmallFile = file.size < 4.5 * 1024 * 1024;
     if (isSmallFile) {
       try {
         const formData = new FormData();
@@ -748,69 +782,12 @@ export default function UploadPage() {
             return uploadUrl;
           }
         }
-      } catch (localUploadError) {
-        console.warn("Local database upload failed, attempting Firebase Storage fallback...", localUploadError);
+        throw new Error("Local server returned " + res.status);
+      } catch (finalError: any) {
+        throw new Error("Failed to upload file. Ensure you are logged in and your internet connection is stable. Details: " + finalError.message);
       }
-    }
-
-    // 2. Try default Firebase Storage bucket (now configured with storageBucket in config.ts)
-    try {
-      const { firebaseApp } = initializeFirebase();
-      const storage = getStorage(firebaseApp); // Automatically uses the default appspot.com bucket
-      const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
-      await uploadBytes(fileRef, file);
-      return await getDownloadURL(fileRef);
-    } catch (storageError) {
-      console.warn("Default Firebase Storage bucket upload failed, trying explicit appspot fallback...", storageError);
-      
-      // 3. Try explicit appspot bucket fallback
-      try {
-        const { firebaseApp } = initializeFirebase();
-        const storageBucket = "studio-864601925-cef48.appspot.com";
-        const storage = getStorage(firebaseApp, `gs://${storageBucket}`);
-        const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
-        await uploadBytes(fileRef, file);
-        return await getDownloadURL(fileRef);
-      } catch (fallbackStorageError) {
-        console.warn("Explicit appspot Firebase Storage upload failed, trying firebasestorage.app fallback...", fallbackStorageError);
-        
-        // 4. Try explicit firebasestorage.app fallback
-        try {
-          const { firebaseApp } = initializeFirebase();
-          const storageBucket = "studio-864601925-cef48.firebasestorage.app";
-          const storage = getStorage(firebaseApp, `gs://${storageBucket}`);
-          const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
-          await uploadBytes(fileRef, file);
-          return await getDownloadURL(fileRef);
-        } catch (finalStorageError) {
-          console.error("All Firebase Storage upload methods failed.", finalStorageError);
-        }
-      }
-    }
-
-    // If the file is large and Firebase storage failed, we can't upload to the local DB because of the serverless payload limit
-    if (!isSmallFile) {
-      throw new Error("Failed to upload file to Firebase Storage. Please ensure you are logged in and have a stable internet connection.");
-    }
-
-    // Last resort for small files: try local db upload again
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      if (res.ok) {
-        const result = await res.json();
-        const uploadUrl = result?.url;
-        if (uploadUrl) {
-          return uploadUrl;
-        }
-      }
-      throw new Error("Local server returned " + res.status);
-    } catch (finalError: any) {
-      throw new Error("Failed to upload file. Ensure you are logged in and your internet connection is stable. Details: " + finalError.message);
+    } else {
+      throw new Error("Failed to upload file to Firebase Storage. Since the file is larger than 4.5MB, it cannot be uploaded to local database storage due to serverless size limitations.");
     }
   };
 
