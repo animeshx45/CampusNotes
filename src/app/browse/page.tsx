@@ -942,29 +942,26 @@ export default function BrowsePage() {
 
             {!activeFolder ? (
               foldersToShow.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 animate-in fade-in duration-300">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 animate-in fade-in duration-300">
                   {foldersToShow.map(folder => (
                     <Card 
                       key={folder.name}
-                      className="group cursor-pointer border-primary/5 hover:border-primary/20 hover:shadow-2xl transition-all duration-300 rounded-[2rem] overflow-hidden bg-card/85 flex flex-col p-6 relative hover:-translate-y-1.5 border"
+                      className="group cursor-pointer border-primary/5 hover:border-primary/20 hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden bg-card/85 flex flex-col p-3 relative hover:-translate-y-1 border"
                       onClick={() => setActiveFolder(folder.name)}
                     >
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-md">
-                          <Folder className="h-7 w-7" />
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-sm">
+                          <Folder className="h-4.5 w-4.5" />
                         </div>
-                        <Badge variant="secondary" className="rounded-full px-3 py-1 font-bold text-xs bg-primary/5 text-primary border-none">
-                          {folder.files.length} {folder.files.length === 1 ? 'file' : 'files'}
+                        <Badge variant="secondary" className="rounded-full px-2 py-0.5 font-bold text-[10px] bg-primary/5 text-primary border-none">
+                          {folder.files.length}
                         </Badge>
                       </div>
-                      <h3 className="text-xl font-headline font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 mt-2 uppercase">
+                      <h3 className="text-xs font-headline font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 mt-1 uppercase leading-tight">
                         {folder.name}
                       </h3>
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                        Access course curriculum, lecture slides, assignments, and sample test papers.
-                      </p>
-                      <div className="flex items-center gap-1 text-[10px] font-black text-primary uppercase tracking-widest mt-6 opacity-0 group-hover:opacity-100 transition-opacity">
-                        Open Folder <ChevronRight className="h-3 w-3" />
+                      <div className="flex items-center gap-1 text-[9px] font-black text-primary uppercase tracking-widest mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        Open <ChevronRight className="h-2.5 w-2.5" />
                       </div>
                     </Card>
                   ))}
