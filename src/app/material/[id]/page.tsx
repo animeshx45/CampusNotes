@@ -29,6 +29,7 @@ import { useUser } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import PDFViewer from '@/components/pdf-viewer';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 const ModernLoader = ({ message }: { message: string }) => (
   <div className="container mx-auto px-4 py-40 flex flex-col items-center justify-center gap-6 animate-in fade-in duration-500">
@@ -730,7 +731,7 @@ const getSimulatedFileSize = (filename?: string): string => {
   return '2.4 MB';
 };
 
-export default function MaterialDetailPage({ params }: { params: Promise<{ id: string }> }) {
+function MaterialDetailPageContent({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { toast } = useToast();
   const { user } = useUser();
@@ -923,6 +924,10 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
   const downloadFileUrl = async (fileUrl: string, fileName: string) => {
     try {
+      if (!fileUrl || typeof fileUrl !== 'string') {
+        throw new Error('This file does not have a valid download URL.');
+      }
+
       const isLegacyLocalDiskFile = fileUrl.startsWith('/uploads/') || fileUrl.includes('/uploads/');
 
       // Automatically map any legacy dev-mode direct disk uploads to dynamic API path
@@ -975,11 +980,11 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     } catch (err: any) {
       console.error('Download failed', err);
       
-      const isLocalErr = fileUrl.startsWith('/uploads/') || fileUrl.startsWith('/api/upload') || err.message?.includes('locally');
+      const isLocalErr = !fileUrl || typeof fileUrl !== 'string' || fileUrl.startsWith('/uploads/') || fileUrl.startsWith('/api/upload') || err.message?.includes('locally');
       if (isLocalErr) {
         toast({
           title: "File Not Found on Server",
-          description: "This document was uploaded in a local development environment. Please re-upload it on the live portal.",
+          description: "This document was uploaded locally or does not have a valid file URL. Please re-upload it.",
           variant: "destructive",
         });
         return;
@@ -990,7 +995,9 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
         description: "Opening in a new tab.",
         variant: "destructive",
       });
-      window.open(fileUrl, '_blank');
+      if (fileUrl) {
+        window.open(fileUrl, '_blank');
+      }
     }
   };
 
@@ -1205,90 +1212,100 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
 
           {/* Rows */}
           <div className="divide-y divide-white/5">
-            {material.folderFiles.map((file, idx) => {
-              const isPdfFile = file.type === 'pdf';
-              const fileSize = getSimulatedFileSize(file.name);
-              const ownerName = material.author || 'Contributor';
-              const ownerInitial = ownerName.trim().charAt(0).toUpperCase();
-              const dateModified = new Date(material.createdAt || Date.now()).toLocaleDateString(undefined, { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric' 
-              });
+            {material.folderFiles && Array.isArray(material.folderFiles) ? (
+              material.folderFiles.filter(Boolean).map((file, idx) => {
+                const isPdfFile = file?.type === 'pdf';
+                const fileSize = getSimulatedFileSize(file?.name || '');
+                const ownerName = material.author || 'Contributor';
+                const ownerInitial = ownerName.trim().charAt(0).toUpperCase();
+                const dateModified = new Date(material.createdAt || Date.now()).toLocaleDateString(undefined, { 
+                  year: 'numeric', 
+                  month: 'short', 
+                  day: 'numeric' 
+                });
 
-              return (
-                <div 
-                  key={idx}
-                  className="grid grid-cols-12 px-6 py-4 items-center hover:bg-white/[0.02] transition-colors group text-sm"
-                >
-                  {/* Name Column */}
-                  <div className="col-span-6 sm:col-span-5 flex items-center gap-3 min-w-0 pr-4">
-                    {/* PDF/Image Icon */}
-                    {isPdfFile ? (
-                      <div className="h-8 w-8 bg-red-500/10 rounded-lg flex items-center justify-center shrink-0 border border-red-500/20 text-red-500 font-bold text-[9px] uppercase tracking-wider">
-                        PDF
+                return (
+                  <div 
+                    key={idx}
+                    className="grid grid-cols-12 px-6 py-4 items-center hover:bg-white/[0.02] transition-colors group text-sm"
+                  >
+                    {/* Name Column */}
+                    <div className="col-span-6 sm:col-span-5 flex items-center gap-3 min-w-0 pr-4">
+                      {/* PDF/Image Icon */}
+                      {isPdfFile ? (
+                        <div className="h-8 w-8 bg-red-500/10 rounded-lg flex items-center justify-center shrink-0 border border-red-500/20 text-red-500 font-bold text-[9px] uppercase tracking-wider">
+                          PDF
+                        </div>
+                      ) : (
+                        <div className="h-8 w-8 bg-teal-500/10 rounded-lg flex items-center justify-center shrink-0 border border-teal-500/20 text-teal-400 font-bold text-[9px] uppercase tracking-wider">
+                          IMG
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <a 
+                          href="#" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (file?.fileUrl) {
+                              downloadFileUrl(file.fileUrl, file.name || 'file');
+                            }
+                          }}
+                          className="font-medium text-zinc-200 hover:text-primary transition-colors hover:underline truncate"
+                          title={file?.name || 'file'}
+                        >
+                          {file?.name || 'Unnamed File'}
+                        </a>
+                        <span className="text-zinc-500 shrink-0" title="Shared with group">
+                          👥
+                        </span>
                       </div>
-                    ) : (
-                      <div className="h-8 w-8 bg-teal-500/10 rounded-lg flex items-center justify-center shrink-0 border border-teal-500/20 text-teal-400 font-bold text-[9px] uppercase tracking-wider">
-                        IMG
+                    </div>
+
+                    {/* Owner Column */}
+                    <div className="col-span-3 sm:col-span-3 hidden sm:flex items-center gap-2 min-w-0 pr-4">
+                      <div className="h-6 w-6 rounded-full bg-violet-600/90 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
+                        {ownerInitial}
                       </div>
-                    )}
-                    
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <a 
-                        href="#" 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          downloadFileUrl(file.fileUrl, file.name);
-                        }}
-                        className="font-medium text-zinc-200 hover:text-primary transition-colors hover:underline truncate"
-                        title={file.name}
-                      >
-                        {file.name}
-                      </a>
-                      <span className="text-zinc-500 shrink-0" title="Shared with group">
-                        👥
+                      <span className="text-zinc-300 truncate" title={ownerName}>
+                        {ownerName}
                       </span>
                     </div>
-                  </div>
 
-                  {/* Owner Column */}
-                  <div className="col-span-3 sm:col-span-3 hidden sm:flex items-center gap-2 min-w-0 pr-4">
-                    <div className="h-6 w-6 rounded-full bg-violet-600/90 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
-                      {ownerInitial}
+                    {/* Date Modified Column */}
+                    <div className="col-span-3 sm:col-span-2 hidden sm:flex items-center text-zinc-400">
+                      {dateModified}
                     </div>
-                    <span className="text-zinc-300 truncate" title={ownerName}>
-                      {ownerName}
-                    </span>
-                  </div>
 
-                  {/* Date Modified Column */}
-                  <div className="col-span-3 sm:col-span-2 hidden sm:flex items-center text-zinc-400">
-                    {dateModified}
-                  </div>
+                    {/* File Size Column */}
+                    <div className="col-span-3 sm:col-span-1 flex items-center justify-end sm:justify-start text-zinc-400 font-mono text-xs">
+                      {fileSize}
+                    </div>
 
-                  {/* File Size Column */}
-                  <div className="col-span-3 sm:col-span-1 flex items-center justify-end sm:justify-start text-zinc-400 font-mono text-xs">
-                    {fileSize}
+                    {/* Action Column */}
+                    <div className="col-span-3 sm:col-span-1 flex items-center justify-end gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="h-8 w-8 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 shrink-0"
+                        onClick={() => {
+                          if (file?.fileUrl) {
+                            downloadFileUrl(file.fileUrl, file.name || 'file');
+                          }
+                        }}
+                        title="Download file"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-
-                  {/* Action Column */}
-                  <div className="col-span-3 sm:col-span-1 flex items-center justify-end gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      className="h-8 w-8 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 shrink-0"
-                      onClick={() => {
-                        downloadFileUrl(file.fileUrl, file.name);
-                      }}
-                      title="Download file"
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })
+            ) : (
+              <div className="p-8 text-center text-muted-foreground text-sm">
+                No files in this folder.
+              </div>
+            )}
           </div>
         </div>
       ) : !hasFile ? (
@@ -1699,3 +1716,12 @@ export default function MaterialDetailPage({ params }: { params: Promise<{ id: s
     </div>
   );
 }
+
+export default function MaterialDetailPage(props: { params: Promise<{ id: string }> }) {
+  return (
+    <ErrorBoundary>
+      <MaterialDetailPageContent {...props} />
+    </ErrorBoundary>
+  );
+}
+

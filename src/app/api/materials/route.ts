@@ -401,11 +401,6 @@ export async function GET(request: Request) {
       'Program Elective Lab I'
     ];
 
-    // Purge materials that do not belong to the allowed subjects (ensuring absolute decorum)
-    await StudyMaterial.deleteMany({
-      subject: { $nin: allowedSubjects }
-    });
-
     const query: any = {};
     if (branch && branch !== 'all') {
       query.branch = branch;
@@ -837,7 +832,7 @@ export async function POST(request: Request) {
       subject: matchedSubject,
       description,
       branch,
-      semester: parseInt(semester),
+      semester: Number(semester),
       type,
       fileUrl,
       author,

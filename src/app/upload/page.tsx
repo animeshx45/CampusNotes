@@ -637,6 +637,51 @@ export default function UploadPage() {
   const [selectedFolderFiles, setSelectedFolderFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
+  const [formData, setFormData] = useState({
+    title: '',
+    subject: '',
+    description: '',
+    branch: '' as Branch,
+    semester: 1 as Semester,
+    type: 'Note' as MaterialType,
+    author: '',
+    fileUrl: '',
+  });
+
+  // Bulk YouTube / Link States
+  const [bulkLinksText, setBulkLinksText] = useState('');
+  const [bulkLinksDefaults, setBulkLinksDefaults] = useState({
+    branch: '' as Branch,
+    semester: 1 as Semester,
+    type: 'YouTube Playlist' as MaterialType,
+    author: '',
+    description: 'Reference video lectures and playlists.',
+  });
+  const [bulkLinkItems, setBulkLinkItems] = useState<BulkUploadItem[]>([]);
+  const [isBulkLinksPrepared, setIsBulkLinksPrepared] = useState(false);
+
+  // Bulk CSV/JSON States
+  const [jsonPasteText, setJsonPasteText] = useState('');
+  const [bulkFileItems, setBulkFileItems] = useState<BulkUploadItem[]>([]);
+  const [isFilePrepared, setIsFilePrepared] = useState(false);
+
+  // Shared Bulk Upload Progress
+  const [isBulkUploading, setIsBulkUploading] = useState(false);
+  const [bulkUploadProgress, setBulkUploadProgress] = useState(0);
+  const [bulkUploadStatusText, setBulkUploadStatusText] = useState('');
+
+  const availableSubjects = getSubjectsForFilter(formData.branch, formData.semester as number);
+
+  useEffect(() => {
+    const list = getSubjectsForFilter(formData.branch, formData.semester as number);
+    if (list.length > 0) {
+      setFormData(prev => ({ ...prev, subject: list[0] }));
+    } else {
+      setFormData(prev => ({ ...prev, subject: '' }));
+    }
+  }, [formData.semester, formData.branch]);
+
+  // Auth guard - early returns AFTER all hooks
   if (isUserLoading) {
     return (
       <div className="container mx-auto px-4 py-40 flex flex-col items-center justify-center gap-4">
@@ -669,50 +714,6 @@ export default function UploadPage() {
       </div>
     );
   }
-  
-  const [formData, setFormData] = useState({
-    title: '',
-    subject: '',
-    description: '',
-    branch: '' as Branch,
-    semester: 1 as Semester,
-    type: 'Note' as MaterialType,
-    author: '',
-    fileUrl: '',
-  });
-
-  const availableSubjects = getSubjectsForFilter(formData.branch, formData.semester as number);
-
-  useEffect(() => {
-    const list = getSubjectsForFilter(formData.branch, formData.semester as number);
-    if (list.length > 0) {
-      setFormData(prev => ({ ...prev, subject: list[0] }));
-    } else {
-      setFormData(prev => ({ ...prev, subject: '' }));
-    }
-  }, [formData.semester, formData.branch]);
-
-  // Bulk YouTube / Link States
-  const [bulkLinksText, setBulkLinksText] = useState('');
-  const [bulkLinksDefaults, setBulkLinksDefaults] = useState({
-    branch: '' as Branch,
-    semester: 1 as Semester,
-    type: 'YouTube Playlist' as MaterialType,
-    author: '',
-    description: 'Reference video lectures and playlists.',
-  });
-  const [bulkLinkItems, setBulkLinkItems] = useState<BulkUploadItem[]>([]);
-  const [isBulkLinksPrepared, setIsBulkLinksPrepared] = useState(false);
-
-  // Bulk CSV/JSON States
-  const [jsonPasteText, setJsonPasteText] = useState('');
-  const [bulkFileItems, setBulkFileItems] = useState<BulkUploadItem[]>([]);
-  const [isFilePrepared, setIsFilePrepared] = useState(false);
-
-  // Shared Bulk Upload Progress
-  const [isBulkUploading, setIsBulkUploading] = useState(false);
-  const [bulkUploadProgress, setBulkUploadProgress] = useState(0);
-  const [bulkUploadStatusText, setBulkUploadStatusText] = useState('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
