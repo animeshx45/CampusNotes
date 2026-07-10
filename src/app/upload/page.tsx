@@ -770,155 +770,95 @@ export default function UploadPage() {
   };
 
   const uploadFileHelper = async (file: File, onProgress: (progress: number) => void): Promise<string> => {
-    // Helper: Upload to server via XHR with FormData (multipart) and credentials
-    const uploadViaServer = async (timeoutMs: number) => {
-      return new Promise<string>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
+    // ============================================================
+    // UPLOAD STRATEGY: Direct-to-Firebase-Storage
+    // ============================================================
+    // Files are uploaded DIRECTLY from the browser to Firebase Storage.
+    // The server never touches the file bytes — this completely eliminates:
+    //   - 413 Payload Too Large errors (no server body size limit)
+    //   - MongoDB 16MB BSON document limit
+    //   - Progress bar resetting (single upload path, no fallback chains)
+    //   - Serverless function timeouts
+    // ============================================================
 
-        xhr.timeout = timeoutMs;
-        // Ensure cookies (JWT token) are sent with the request
-        xhr.withCredentials = true;
+    const { firebaseApp } = initializeFirebase();
+    const auth = getAuth(firebaseApp);
 
-        xhr.upload.addEventListener('progress', (event) => {
-          if (event.lengthComputable) {
-            const progress = Math.round((event.loaded / event.total) * 100);
-            onProgress(progress);
-          }
-        });
-
-        xhr.addEventListener('load', () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              const result = JSON.parse(xhr.responseText);
-              if (result?.url) {
-                resolve(result.url);
-              } else {
-                reject(new Error("No URL returned from server"));
-              }
-            } catch (err) {
-              reject(err);
-            }
-          } else if (xhr.status === 401) {
-            let errorMsg = 'Your session has expired. Please log in again and retry.';
-            try {
-              const errResult = JSON.parse(xhr.responseText);
-              if (errResult?.error) errorMsg = errResult.error;
-            } catch (e) { /* ignore */ }
-            reject(new Error(errorMsg));
-          } else if (xhr.status === 413) {
-            reject(new Error('FILE_TOO_LARGE'));
-          } else {
-            let errorMsg = `Upload failed (status ${xhr.status})`;
-            try {
-              const errResult = JSON.parse(xhr.responseText);
-              if (errResult?.error) errorMsg = errResult.error;
-            } catch (e) { /* ignore */ }
-            reject(new Error(errorMsg));
-          }
-        });
-
-        xhr.addEventListener('error', () => {
-          reject(new Error("Network error occurred during upload. Check your connection."));
-        });
-
-        xhr.addEventListener('timeout', () => {
-          reject(new Error(`Upload timed out after ${timeoutMs / 1000} seconds. Try a smaller file or check your connection.`));
-        });
-
-        xhr.open('POST', '/api/upload');
-        
-        // Use FormData (multipart/form-data) instead of raw binary.
-        // This avoids platform body-parser issues that cause 413 errors.
-        const formData = new FormData();
-        formData.append('file', file, file.name);
-        xhr.send(formData);
-      });
-    };
-
-    // Helper: Firebase Storage upload with timeout protection
-    const uploadToFirebase = async (bucketUrl?: string) => {
-      const { firebaseApp } = initializeFirebase();
-      const auth = getAuth(firebaseApp);
-
-      // Authenticate anonymously to satisfy storage security rules
-      if (auth && !auth.currentUser) {
-        try {
-          await signInAnonymously(auth);
-          console.log("Logged in anonymously to Firebase Auth for storage upload.");
-        } catch (authError) {
-          console.warn("Firebase anonymous authentication failed:", authError);
-        }
-      }
-
-      const storage = bucketUrl ? getStorage(firebaseApp, bucketUrl) : getStorage(firebaseApp);
-      const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
-      const uploadTask = uploadBytesResumable(fileRef, file);
-
-      // Wrap in a race between the upload and a 120-second timeout
-      const uploadPromise = new Promise<string>((resolve, reject) => {
-        uploadTask.on('state_changed', 
-          (snapshot) => {
-            const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-            onProgress(progress);
-          }, 
-          (error) => reject(error), 
-          async () => {
-            try {
-              const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-              resolve(downloadUrl);
-            } catch (urlErr) {
-              reject(urlErr);
-            }
-          }
-        );
-      });
-
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => {
-          try { uploadTask.cancel(); } catch (e) { /* ignore */ }
-          reject(new Error("Firebase upload timed out after 120 seconds."));
-        }, 120000);
-      });
-
-      return Promise.race([uploadPromise, timeoutPromise]);
-    };
-
-    // === UPLOAD STRATEGY ===
-    // All files: try server upload first (via FormData).
-    // If server returns 413 or network fails, fall back to Firebase Storage.
-    // Auth errors (401) are never retried — surface them immediately.
-
-    const fileSizeMB = file.size / (1024 * 1024);
-    const dynamicTimeout = Math.max(60000, 60000 + Math.ceil(fileSizeMB / 5) * 30000);
-    console.log(`Uploading ${fileSizeMB.toFixed(1)}MB file via server (timeout: ${dynamicTimeout / 1000}s)...`);
-
-    try {
-      return await uploadViaServer(dynamicTimeout);
-    } catch (serverError: any) {
-      const errorMessage = serverError?.message || '';
-      
-      // Auth errors — surface immediately, no fallback
-      if (errorMessage.includes('session has expired') || errorMessage.includes('Unauthorized') || errorMessage.includes('log in')) {
-        throw serverError;
-      }
-
-      // For 413 or any other server failure, fall back to Firebase Storage
-      console.log(`Server upload failed: ${errorMessage}. Falling back to Firebase Storage...`);
-      // NOTE: We do NOT reset progress to 0 here — Firebase will update it as it progresses
-      
+    // Sign in anonymously if not already authenticated (required by Storage security rules)
+    if (!auth.currentUser) {
       try {
-        return await uploadToFirebase();
-      } catch (firebaseError) {
-        console.warn("Firebase Storage fallback failed:", firebaseError);
-        try {
-          return await uploadToFirebase(`gs://studio-864601925-cef48.appspot.com`);
-        } catch (bucketError) {
-          console.warn("Explicit bucket fallback also failed:", bucketError);
-        }
+        await signInAnonymously(auth);
+      } catch (authErr: any) {
+        console.warn('Firebase anonymous auth failed:', authErr);
+        // Don't block upload — some Storage rules allow public writes
       }
-      
-      throw new Error("Failed to upload file. Please check your internet connection and try again.");
     }
+
+    // Try the default bucket first, then the explicit bucket URL as fallback
+    const bucketConfigs = [
+      undefined, // default bucket from firebaseConfig.storageBucket
+      `gs://studio-864601925-cef48.appspot.com` // explicit bucket
+    ];
+
+    let lastError: Error | null = null;
+
+    for (const bucketUrl of bucketConfigs) {
+      try {
+        const storage = bucketUrl ? getStorage(firebaseApp, bucketUrl) : getStorage(firebaseApp);
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const storagePath = `materials/${Date.now()}-${safeName}`;
+        const fileRef = ref(storage, storagePath);
+
+        const url = await new Promise<string>((resolve, reject) => {
+          const uploadTask = uploadBytesResumable(fileRef, file, {
+            contentType: file.type || 'application/octet-stream',
+            customMetadata: { originalName: file.name }
+          });
+
+          // Timeout: 3 minutes for large files
+          const timeoutId = setTimeout(() => {
+            try { uploadTask.cancel(); } catch (_) {}
+            reject(new Error('Upload timed out. Please check your connection and try again.'));
+          }, 180_000);
+
+          uploadTask.on('state_changed',
+            (snapshot) => {
+              // Report real progress — never resets because there's only one upload
+              const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+              onProgress(pct);
+            },
+            (error) => {
+              clearTimeout(timeoutId);
+              reject(error);
+            },
+            async () => {
+              clearTimeout(timeoutId);
+              try {
+                const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                resolve(downloadUrl);
+              } catch (urlErr) {
+                reject(urlErr);
+              }
+            }
+          );
+        });
+
+        return url; // Success — return immediately
+      } catch (err: any) {
+        lastError = err;
+        console.warn(`Firebase upload failed${bucketUrl ? ` (bucket: ${bucketUrl})` : ' (default bucket)'}:`, err?.message);
+        // Continue to next bucket config
+      }
+    }
+
+    // Both bucket attempts failed
+    throw new Error(
+      lastError?.message?.includes('timed out')
+        ? 'Upload timed out. Please check your internet connection and try again.'
+        : lastError?.message?.includes('unauthorized') || lastError?.message?.includes('permission')
+          ? 'Storage permission denied. Please contact the administrator.'
+          : `Failed to upload file: ${lastError?.message || 'Unknown error'}`
+    );
   };
 
   const handleUpload = async (e: React.FormEvent) => {
