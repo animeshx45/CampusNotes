@@ -770,25 +770,16 @@ export default function UploadPage() {
   };
 
   const uploadFileHelper = async (file: File, onProgress: (progress: number) => void): Promise<string> => {
-    const isLocal = typeof window !== 'undefined' && (
-      window.location.hostname === 'localhost' || 
-      window.location.hostname === '127.0.0.1' || 
-      window.location.hostname === '[::1]' ||
-      window.location.hostname.startsWith('192.168.') ||
-      window.location.hostname.startsWith('10.') ||
-      window.location.hostname.startsWith('172.') ||
-      window.location.hostname.endsWith('.local')
-    );
-
-    // Helper: Upload to server via XHR (for local dev or MongoDB fallback) — 30s timeout
-    const uploadViaServer = async () => {
+    // Helper: Upload to server via XHR with credentials (cookies) and dynamic timeout
+    const uploadViaServer = async (timeoutMs: number) => {
       return new Promise<string>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        const formData = new FormData();
-        formData.append('file', file);
+        const fd = new FormData();
+        fd.append('file', file);
 
-        // 30 second timeout to prevent infinite hangs
-        xhr.timeout = 30000;
+        xhr.timeout = timeoutMs;
+        // Ensure cookies (JWT token) are sent with the request
+        xhr.withCredentials = true;
 
         xhr.upload.addEventListener('progress', (event) => {
           if (event.lengthComputable) {
@@ -809,21 +800,34 @@ export default function UploadPage() {
             } catch (err) {
               reject(err);
             }
+          } else if (xhr.status === 401) {
+            // Auth error — surface it clearly so user knows to re-login
+            let errorMsg = 'Your session has expired. Please log in again and retry.';
+            try {
+              const errResult = JSON.parse(xhr.responseText);
+              if (errResult?.error) errorMsg = errResult.error;
+            } catch (e) { /* ignore */ }
+            reject(new Error(errorMsg));
           } else {
-            reject(new Error(`Server returned status ${xhr.status}`));
+            let errorMsg = `Upload failed (status ${xhr.status})`;
+            try {
+              const errResult = JSON.parse(xhr.responseText);
+              if (errResult?.error) errorMsg = errResult.error;
+            } catch (e) { /* ignore */ }
+            reject(new Error(errorMsg));
           }
         });
 
         xhr.addEventListener('error', () => {
-          reject(new Error("Network error occurred during upload"));
+          reject(new Error("Network error occurred during upload. Check your connection."));
         });
 
         xhr.addEventListener('timeout', () => {
-          reject(new Error("Upload timed out after 30 seconds. Please try again."));
+          reject(new Error(`Upload timed out after ${timeoutMs / 1000} seconds. Try a smaller file or check your connection.`));
         });
 
         xhr.open('POST', '/api/upload');
-        xhr.send(formData);
+        xhr.send(fd);
       });
     };
 
@@ -876,87 +880,52 @@ export default function UploadPage() {
     };
 
     // === UPLOAD STRATEGY ===
-    // Firebase App Hosting uses Cloud Run which supports up to 32MB request body.
-    // Always use server route first — it's reliable and gives real progress.
-    // Firebase Storage is only a fallback for very large files (>30MB).
+    // Files <=50MB: Upload via server API route (MongoDB storage).
+    //   - Server route handles auth, stores file, returns URL.
+    //   - If server fails, the error is surfaced immediately — no silent fallback
+    //     that would reset the progress bar to 0%.
+    // Files >50MB are rejected at the file picker level (handleFileChange).
 
     const fileSizeMB = file.size / (1024 * 1024);
 
-    // 1. Server upload via /api/upload — works for files up to ~30MB on Firebase App Hosting
-    if (fileSizeMB < 30) {
-      try {
-        // Scale timeout with file size: 60s base + 30s per 5MB
-        const dynamicTimeout = Math.max(60000, 60000 + Math.ceil(fileSizeMB / 5) * 30000);
-        console.log(`Uploading ${fileSizeMB.toFixed(1)}MB file via server (timeout: ${dynamicTimeout / 1000}s)...`);
-        
-        return await new Promise<string>((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          const fd = new FormData();
-          fd.append('file', file);
+    // Scale timeout with file size: 60s base + 30s per 5MB
+    const dynamicTimeout = Math.max(60000, 60000 + Math.ceil(fileSizeMB / 5) * 30000);
+    console.log(`Uploading ${fileSizeMB.toFixed(1)}MB file via server (timeout: ${dynamicTimeout / 1000}s)...`);
 
-          xhr.timeout = dynamicTimeout;
-
-          xhr.upload.addEventListener('progress', (event) => {
-            if (event.lengthComputable) {
-              const progress = Math.round((event.loaded / event.total) * 100);
-              onProgress(progress);
-            }
-          });
-
-          xhr.addEventListener('load', () => {
-            if (xhr.status >= 200 && xhr.status < 300) {
-              try {
-                const result = JSON.parse(xhr.responseText);
-                if (result?.url) {
-                  resolve(result.url);
-                } else {
-                  reject(new Error("No URL returned from server"));
-                }
-              } catch (err) {
-                reject(err);
-              }
-            } else {
-              let errorMsg = `Upload failed (status ${xhr.status})`;
-              try {
-                const errResult = JSON.parse(xhr.responseText);
-                if (errResult?.error) errorMsg = errResult.error;
-              } catch (e) { /* ignore */ }
-              reject(new Error(errorMsg));
-            }
-          });
-
-          xhr.addEventListener('error', () => {
-            reject(new Error("Network error occurred during upload. Check your connection."));
-          });
-
-          xhr.addEventListener('timeout', () => {
-            reject(new Error(`Upload timed out after ${dynamicTimeout / 1000} seconds. Try a smaller file or check your connection.`));
-          });
-
-          xhr.open('POST', '/api/upload');
-          xhr.send(fd);
-        });
-      } catch (serverError: any) {
-        console.warn("Server upload failed:", serverError?.message);
-        // Fall through to Firebase Storage
-      }
-    }
-
-    // 2. Fallback: Firebase Storage (for very large files or if server upload failed)
     try {
-      console.log(`Trying Firebase Storage for ${fileSizeMB.toFixed(1)}MB file...`);
-      return await uploadToFirebase();
-    } catch (firebaseError) {
-      console.warn("Firebase Storage failed:", firebaseError);
+      return await uploadViaServer(dynamicTimeout);
+    } catch (serverError: any) {
+      const errorMessage = serverError?.message || '';
       
-      try {
-        return await uploadToFirebase(`gs://studio-864601925-cef48.appspot.com`);
-      } catch (bucketError) {
-        console.warn("Explicit bucket also failed:", bucketError);
+      // If it's an auth error, don't try Firebase fallback — surface it immediately
+      if (errorMessage.includes('session has expired') || errorMessage.includes('Unauthorized') || errorMessage.includes('log in')) {
+        throw serverError;
       }
-    }
 
-    throw new Error("Failed to upload file. Please check your internet connection and try again.");
+      // For network/timeout errors on large files (>30MB), try Firebase Storage as a fallback
+      if (fileSizeMB >= 30) {
+        console.log(`Server upload failed for large file (${fileSizeMB.toFixed(1)}MB), trying Firebase Storage...`);
+        onProgress(0); // Reset progress only when intentionally switching to a new upload method
+        
+        try {
+          return await uploadToFirebase();
+        } catch (firebaseError) {
+          console.warn("Firebase Storage failed:", firebaseError);
+          
+          try {
+            onProgress(0);
+            return await uploadToFirebase(`gs://studio-864601925-cef48.appspot.com`);
+          } catch (bucketError) {
+            console.warn("Explicit bucket also failed:", bucketError);
+          }
+        }
+        
+        throw new Error("Failed to upload large file. Please check your internet connection and try again.");
+      }
+
+      // For smaller files, just propagate the server error directly
+      throw serverError;
+    }
   };
 
   const handleUpload = async (e: React.FormEvent) => {
