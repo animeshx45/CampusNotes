@@ -876,42 +876,83 @@ export default function UploadPage() {
     };
 
     // === UPLOAD STRATEGY ===
+    // Firebase App Hosting uses Cloud Run which supports up to 32MB request body.
+    // Always use server route first — it's reliable and gives real progress.
+    // Firebase Storage is only a fallback for very large files (>30MB).
 
-    // 1. Local development: always use server route (no serverless size limits locally)
-    if (isLocal) {
+    const fileSizeMB = file.size / (1024 * 1024);
+
+    // 1. Server upload via /api/upload — works for files up to ~30MB on Firebase App Hosting
+    if (fileSizeMB < 30) {
       try {
-        console.log("Local dev: uploading via /api/upload");
-        return await uploadViaServer();
-      } catch (localError) {
-        console.warn("Local upload failed, trying Firebase...", localError);
+        // Scale timeout with file size: 60s base + 30s per 5MB
+        const dynamicTimeout = Math.max(60000, 60000 + Math.ceil(fileSizeMB / 5) * 30000);
+        console.log(`Uploading ${fileSizeMB.toFixed(1)}MB file via server (timeout: ${dynamicTimeout / 1000}s)...`);
+        
+        return await new Promise<string>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          const fd = new FormData();
+          fd.append('file', file);
+
+          xhr.timeout = dynamicTimeout;
+
+          xhr.upload.addEventListener('progress', (event) => {
+            if (event.lengthComputable) {
+              const progress = Math.round((event.loaded / event.total) * 100);
+              onProgress(progress);
+            }
+          });
+
+          xhr.addEventListener('load', () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                const result = JSON.parse(xhr.responseText);
+                if (result?.url) {
+                  resolve(result.url);
+                } else {
+                  reject(new Error("No URL returned from server"));
+                }
+              } catch (err) {
+                reject(err);
+              }
+            } else {
+              let errorMsg = `Upload failed (status ${xhr.status})`;
+              try {
+                const errResult = JSON.parse(xhr.responseText);
+                if (errResult?.error) errorMsg = errResult.error;
+              } catch (e) { /* ignore */ }
+              reject(new Error(errorMsg));
+            }
+          });
+
+          xhr.addEventListener('error', () => {
+            reject(new Error("Network error occurred during upload. Check your connection."));
+          });
+
+          xhr.addEventListener('timeout', () => {
+            reject(new Error(`Upload timed out after ${dynamicTimeout / 1000} seconds. Try a smaller file or check your connection.`));
+          });
+
+          xhr.open('POST', '/api/upload');
+          xhr.send(fd);
+        });
+      } catch (serverError: any) {
+        console.warn("Server upload failed:", serverError?.message);
+        // Fall through to Firebase Storage
       }
     }
 
-    // 2. Production: ALWAYS try Firebase Storage first (works for any file size)
-    if (!isLocal) {
+    // 2. Fallback: Firebase Storage (for very large files or if server upload failed)
+    try {
+      console.log(`Trying Firebase Storage for ${fileSizeMB.toFixed(1)}MB file...`);
+      return await uploadToFirebase();
+    } catch (firebaseError) {
+      console.warn("Firebase Storage failed:", firebaseError);
+      
       try {
-        console.log(`Uploading ${(file.size / 1024 / 1024).toFixed(1)}MB file via Firebase Storage...`);
-        return await uploadToFirebase();
-      } catch (firebaseError) {
-        console.warn("Firebase Storage failed, trying explicit bucket...", firebaseError);
-
-        // Try explicit appspot bucket as second attempt
-        try {
-          return await uploadToFirebase(`gs://studio-864601925-cef48.appspot.com`);
-        } catch (bucketError) {
-          console.warn("Explicit bucket also failed.", bucketError);
-        }
-
-        // 3. Fallback: For small files only, try MongoDB via /api/upload
-        const isSmallFile = file.size < 4.5 * 1024 * 1024;
-        if (isSmallFile) {
-          try {
-            console.log("Firebase failed. Small file — falling back to MongoDB upload...");
-            return await uploadViaServer();
-          } catch (serverError) {
-            console.error("MongoDB fallback also failed.", serverError);
-          }
-        }
+        return await uploadToFirebase(`gs://studio-864601925-cef48.appspot.com`);
+      } catch (bucketError) {
+        console.warn("Explicit bucket also failed:", bucketError);
       }
     }
 
