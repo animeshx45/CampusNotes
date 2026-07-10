@@ -780,12 +780,15 @@ export default function UploadPage() {
       window.location.hostname.endsWith('.local')
     );
 
-    // Helper: Local upload to GridFS (with real-time progress monitoring via XHR)
-    const uploadLocally = async () => {
+    // Helper: Upload to server via XHR (for local dev or MongoDB fallback) — 30s timeout
+    const uploadViaServer = async () => {
       return new Promise<string>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         const formData = new FormData();
         formData.append('file', file);
+
+        // 30 second timeout to prevent infinite hangs
+        xhr.timeout = 30000;
 
         xhr.upload.addEventListener('progress', (event) => {
           if (event.lengthComputable) {
@@ -815,13 +818,17 @@ export default function UploadPage() {
           reject(new Error("Network error occurred during upload"));
         });
 
+        xhr.addEventListener('timeout', () => {
+          reject(new Error("Upload timed out after 30 seconds. Please try again."));
+        });
+
         xhr.open('POST', '/api/upload');
         xhr.send(formData);
       });
     };
 
-    // Helper: Firebase Storage upload
-    const uploadToFirebase = async () => {
+    // Helper: Firebase Storage upload with timeout protection
+    const uploadToFirebase = async (bucketUrl?: string) => {
       const { firebaseApp } = initializeFirebase();
       const auth = getAuth(firebaseApp);
 
@@ -835,11 +842,12 @@ export default function UploadPage() {
         }
       }
 
-      const storage = getStorage(firebaseApp);
+      const storage = bucketUrl ? getStorage(firebaseApp, bucketUrl) : getStorage(firebaseApp);
       const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
       const uploadTask = uploadBytesResumable(fileRef, file);
 
-      return new Promise<string>((resolve, reject) => {
+      // Wrap in a race between the upload and a 90-second timeout
+      const uploadPromise = new Promise<string>((resolve, reject) => {
         uploadTask.on('state_changed', 
           (snapshot) => {
             const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
@@ -856,75 +864,58 @@ export default function UploadPage() {
           }
         );
       });
+
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => {
+          try { uploadTask.cancel(); } catch (e) { /* ignore */ }
+          reject(new Error("Firebase upload timed out after 90 seconds."));
+        }, 90000);
+      });
+
+      return Promise.race([uploadPromise, timeoutPromise]);
     };
 
-    const isSmallFile = file.size < 4.5 * 1024 * 1024;
+    // === UPLOAD STRATEGY ===
 
-    // 1. For small files (under Vercel's 4.5MB limit), prioritize direct fast MongoDB upload
-    if (isSmallFile) {
+    // 1. Local development: always use server route (no serverless size limits locally)
+    if (isLocal) {
       try {
-        console.log("File is under 4.5MB. Prioritizing direct fast MongoDB upload.");
-        return await uploadLocally();
+        console.log("Local dev: uploading via /api/upload");
+        return await uploadViaServer();
       } catch (localError) {
-        console.warn("Direct upload failed, falling back to Firebase...", localError);
+        console.warn("Local upload failed, trying Firebase...", localError);
       }
     }
 
-    // 2. For local development, always upload locally regardless of size (no serverless limit)
-    if (isLocal && !isSmallFile) {
+    // 2. Production: ALWAYS try Firebase Storage first (works for any file size)
+    if (!isLocal) {
       try {
-        return await uploadLocally();
-      } catch (localError) {
-        console.warn("Local upload failed, falling back to Firebase...", localError);
-      }
-    }
+        console.log(`Uploading ${(file.size / 1024 / 1024).toFixed(1)}MB file via Firebase Storage...`);
+        return await uploadToFirebase();
+      } catch (firebaseError) {
+        console.warn("Firebase Storage failed, trying explicit bucket...", firebaseError);
 
-    // 3. For large files in production, use Firebase Storage
-    try {
-      return await uploadToFirebase();
-    } catch (storageError) {
-      console.warn("Firebase Storage upload failed, trying explicit appspot fallback...", storageError);
-      
-      // Try explicit appspot bucket fallback
-      try {
-        const { firebaseApp } = initializeFirebase();
-        const auth = getAuth(firebaseApp);
-
-        if (auth && !auth.currentUser) {
-          try {
-            await signInAnonymously(auth);
-          } catch (authError) {
-            console.warn("Firebase anonymous authentication failed for fallback:", authError);
-          }
+        // Try explicit appspot bucket as second attempt
+        try {
+          return await uploadToFirebase(`gs://studio-864601925-cef48.appspot.com`);
+        } catch (bucketError) {
+          console.warn("Explicit bucket also failed.", bucketError);
         }
 
-        const storageBucket = "studio-864601925-cef48.appspot.com";
-        const storage = getStorage(firebaseApp, `gs://${storageBucket}`);
-        const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
-        const uploadTask = uploadBytesResumable(fileRef, file);
-        return new Promise<string>((resolve, reject) => {
-          uploadTask.on('state_changed', 
-            (snapshot) => {
-              const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-              onProgress(progress);
-            }, 
-            (error) => reject(error), 
-            async () => {
-              try {
-                const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-                resolve(downloadUrl);
-              } catch (urlErr) {
-                reject(urlErr);
-              }
-            }
-          );
-        });
-      } catch (fallbackError) {
-        console.error("All upload options exhausted.", fallbackError);
+        // 3. Fallback: For small files only, try MongoDB via /api/upload
+        const isSmallFile = file.size < 4.5 * 1024 * 1024;
+        if (isSmallFile) {
+          try {
+            console.log("Firebase failed. Small file — falling back to MongoDB upload...");
+            return await uploadViaServer();
+          } catch (serverError) {
+            console.error("MongoDB fallback also failed.", serverError);
+          }
+        }
       }
     }
 
-    throw new Error("Failed to upload file. Please ensure you have a stable network connection.");
+    throw new Error("Failed to upload file. Please check your internet connection and try again.");
   };
 
   const handleUpload = async (e: React.FormEvent) => {
