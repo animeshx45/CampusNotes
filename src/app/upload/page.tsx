@@ -771,100 +771,126 @@ export default function UploadPage() {
 
   const uploadFileHelper = async (file: File, onProgress: (progress: number) => void): Promise<string> => {
     // ============================================================
-    // UPLOAD STRATEGY: Direct-to-Firebase-Storage
+    // UPLOAD STRATEGY: Server API with XHR (for progress) → Firebase fallback
     // ============================================================
-    // Files are uploaded DIRECTLY from the browser to Firebase Storage.
-    // The server never touches the file bytes — this completely eliminates:
-    //   - 413 Payload Too Large errors (no server body size limit)
-    //   - MongoDB 16MB BSON document limit
-    //   - Progress bar resetting (single upload path, no fallback chains)
-    //   - Serverless function timeouts
+    // Primary: Upload via XHR to /api/upload with FormData.
+    //   - Server stores in MongoDB GridFS (handles files up to 50MB)
+    //   - XHR gives us real upload progress tracking
+    // Fallback: If server returns 413 or fails, try Firebase Storage.
     // ============================================================
 
-    const { firebaseApp } = initializeFirebase();
-    const auth = getAuth(firebaseApp);
+    // --- Method 1: Server upload via XHR with FormData ---
+    const uploadViaServer = (): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        const fileSizeMB = file.size / (1024 * 1024);
+        // Dynamic timeout: at least 60s, +30s per 5MB
+        const timeoutMs = Math.max(60000, 60000 + Math.ceil(fileSizeMB / 5) * 30000);
+        xhr.timeout = timeoutMs;
+        xhr.withCredentials = true;
 
-    // Sign in anonymously if not already authenticated (required by Storage security rules)
-    if (!auth.currentUser) {
-      try {
-        await signInAnonymously(auth);
-      } catch (authErr: any) {
-        console.warn('Firebase anonymous auth failed:', authErr);
-        // Don't block upload — some Storage rules allow public writes
-      }
-    }
-
-    // Try the default bucket first, then the explicit bucket URL as fallback
-    const bucketConfigs = [
-      undefined, // default bucket from firebaseConfig.storageBucket
-      `gs://studio-864601925-cef48.appspot.com` // explicit bucket
-    ];
-
-    let lastError: Error | null = null;
-
-    for (const bucketUrl of bucketConfigs) {
-      try {
-        const storage = bucketUrl ? getStorage(firebaseApp, bucketUrl) : getStorage(firebaseApp);
-        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-        const storagePath = `materials/${Date.now()}-${safeName}`;
-        const fileRef = ref(storage, storagePath);
-
-        const url = await new Promise<string>((resolve, reject) => {
-          const uploadTask = uploadBytesResumable(fileRef, file, {
-            contentType: file.type || 'application/octet-stream',
-            customMetadata: { originalName: file.name }
-          });
-
-          // Timeout: 3 minutes for large files
-          const timeoutId = setTimeout(() => {
-            try { uploadTask.cancel(); } catch (_) {}
-            reject(new Error('Upload timed out. Please check your connection and try again.'));
-          }, 180_000);
-
-          uploadTask.on('state_changed',
-            (snapshot) => {
-              // Report real progress — never resets because there's only one upload
-              const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-              onProgress(pct);
-            },
-            (error) => {
-              clearTimeout(timeoutId);
-              reject(error);
-            },
-            async () => {
-              clearTimeout(timeoutId);
-              try {
-                const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-                resolve(downloadUrl);
-              } catch (urlErr) {
-                reject(urlErr);
-              }
-            }
-          );
+        xhr.upload.addEventListener('progress', (e) => {
+          if (e.lengthComputable) {
+            onProgress(Math.round((e.loaded / e.total) * 100));
+          }
         });
 
-        return url; // Success — return immediately
-      } catch (err: any) {
-        lastError = err;
-        console.warn(`Firebase upload failed${bucketUrl ? ` (bucket: ${bucketUrl})` : ' (default bucket)'}:`, err?.message);
-        // Continue to next bucket config
+        xhr.addEventListener('load', () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const res = JSON.parse(xhr.responseText);
+              if (res?.url) resolve(res.url);
+              else reject(new Error('Server returned no URL'));
+            } catch { reject(new Error('Invalid server response')); }
+          } else if (xhr.status === 401) {
+            reject(new Error('SESSION_EXPIRED'));
+          } else if (xhr.status === 413) {
+            reject(new Error('FILE_TOO_LARGE_FOR_SERVER'));
+          } else {
+            let msg = `Server error (${xhr.status})`;
+            try { const r = JSON.parse(xhr.responseText); if (r?.error) msg = r.error; } catch {}
+            reject(new Error(msg));
+          }
+        });
+
+        xhr.addEventListener('error', () => reject(new Error('NETWORK_ERROR')));
+        xhr.addEventListener('timeout', () => reject(new Error('TIMEOUT')));
+
+        xhr.open('POST', '/api/upload');
+        const fd = new FormData();
+        fd.append('file', file, file.name);
+        xhr.send(fd);
+      });
+    };
+
+    // --- Method 2: Direct Firebase Storage upload ---
+    const uploadViaFirebase = async (): Promise<string> => {
+      const { firebaseApp } = initializeFirebase();
+      const auth = getAuth(firebaseApp);
+      if (!auth.currentUser) {
+        try { await signInAnonymously(auth); } catch { /* proceed anyway */ }
+      }
+
+      const buckets = [undefined, 'gs://studio-864601925-cef48.appspot.com'];
+      let lastErr: any = null;
+
+      for (const bucket of buckets) {
+        try {
+          const storage = bucket ? getStorage(firebaseApp, bucket) : getStorage(firebaseApp);
+          const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+          const fileRef = ref(storage, `materials/${Date.now()}-${safeName}`);
+
+          return await new Promise<string>((resolve, reject) => {
+            const task = uploadBytesResumable(fileRef, file, {
+              contentType: file.type || 'application/octet-stream'
+            });
+            const tid = setTimeout(() => { try { task.cancel(); } catch {} reject(new Error('Firebase timeout')); }, 180_000);
+            task.on('state_changed',
+              (snap) => onProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
+              (err) => { clearTimeout(tid); reject(err); },
+              async () => { clearTimeout(tid); try { resolve(await getDownloadURL(task.snapshot.ref)); } catch (e) { reject(e); } }
+            );
+          });
+        } catch (e) { lastErr = e; }
+      }
+      throw lastErr || new Error('Firebase upload failed');
+    };
+
+    // --- Execute: try server first, then Firebase ---
+    try {
+      return await uploadViaServer();
+    } catch (serverErr: any) {
+      const msg = serverErr?.message || '';
+
+      // Auth errors: surface immediately, no fallback
+      if (msg === 'SESSION_EXPIRED') {
+        throw new Error('Your session has expired. Please log in again.');
+      }
+
+      // Server failed (413, network, timeout) → try Firebase
+      console.warn('Server upload failed, trying Firebase:', msg);
+      try {
+        return await uploadViaFirebase();
+      } catch (fbErr: any) {
+        console.error('Firebase also failed:', fbErr);
+        // Give a clear final error
+        throw new Error(
+          msg === 'FILE_TOO_LARGE_FOR_SERVER'
+            ? 'File is too large. Please try a smaller file (under 50MB).'
+            : msg === 'NETWORK_ERROR'
+              ? 'Network error. Please check your internet connection.'
+              : msg === 'TIMEOUT'
+                ? 'Upload timed out. Please try again with a better connection.'
+                : `Upload failed: ${msg}`
+        );
       }
     }
-
-    // Both bucket attempts failed
-    throw new Error(
-      lastError?.message?.includes('timed out')
-        ? 'Upload timed out. Please check your internet connection and try again.'
-        : lastError?.message?.includes('unauthorized') || lastError?.message?.includes('permission')
-          ? 'Storage permission denied. Please contact the administrator.'
-          : `Failed to upload file: ${lastError?.message || 'Unknown error'}`
-    );
   };
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.branch || !formData.title || !formData.description || !formData.author) {
+    if (!formData.branch || !formData.title || !formData.author) {
       toast({ title: "Wait!", description: "Please fill in all the details including your name.", variant: "destructive" });
       return;
     }
@@ -922,7 +948,7 @@ export default function UploadPage() {
       await materialService.uploadMaterial({
         title: formData.title,
         subject: formData.subject || 'General',
-        description: formData.description,
+        description: formData.description || formData.title,
         branch: formData.branch,
         semester: formData.semester,
         type: formData.type,
@@ -1442,17 +1468,7 @@ export default function UploadPage() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="description" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Brief Description</Label>
-                  <Textarea 
-                    id="description" 
-                    placeholder="What is inside this file?"
-                    className="min-h-[120px] rounded-xl p-4 bg-secondary/20 border-none shadow-inner"
-                    value={formData.description}
-                    onChange={(e) => setFormData({...formData, description: e.target.value})}
-                    required
-                  />
-                </div>
+
 
                 <div className="space-y-4">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
