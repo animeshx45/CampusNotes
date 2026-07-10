@@ -1569,7 +1569,7 @@ export default function UploadPage() {
                       <div className="flex flex-col items-center gap-2">
                         <Upload className="h-10 w-10 text-primary mb-2" />
                         <p className="font-bold">{selectedFile ? selectedFile.name : 'Click to Pick a File'}</p>
-                        <p className="text-xs text-muted-foreground">PDF, Images (Max 20MB)</p>
+                        <p className="text-xs text-muted-foreground">PDF, Images (Max 50MB)</p>
                       </div>
                     </div>
                   )}
