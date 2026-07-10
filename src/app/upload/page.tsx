@@ -770,7 +770,7 @@ export default function UploadPage() {
   };
 
   const uploadFileHelper = async (file: File, onProgress: (progress: number) => void): Promise<string> => {
-    // Helper: Upload to server via XHR with credentials (cookies) and dynamic timeout
+    // Helper: Upload to server via XHR with FormData (multipart) and credentials
     const uploadViaServer = async (timeoutMs: number) => {
       return new Promise<string>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -799,13 +799,14 @@ export default function UploadPage() {
               reject(err);
             }
           } else if (xhr.status === 401) {
-            // Auth error — surface it clearly so user knows to re-login
             let errorMsg = 'Your session has expired. Please log in again and retry.';
             try {
               const errResult = JSON.parse(xhr.responseText);
               if (errResult?.error) errorMsg = errResult.error;
             } catch (e) { /* ignore */ }
             reject(new Error(errorMsg));
+          } else if (xhr.status === 413) {
+            reject(new Error('FILE_TOO_LARGE'));
           } else {
             let errorMsg = `Upload failed (status ${xhr.status})`;
             try {
@@ -825,13 +826,12 @@ export default function UploadPage() {
         });
 
         xhr.open('POST', '/api/upload');
-        // Set filename header (encoded to safely support non-ascii characters)
-        xhr.setRequestHeader('x-file-name', encodeURIComponent(file.name));
-        // Set content type header
-        xhr.setRequestHeader('content-type', file.type || 'application/octet-stream');
         
-        // Send raw file binary data directly
-        xhr.send(file);
+        // Use FormData (multipart/form-data) instead of raw binary.
+        // This avoids platform body-parser issues that cause 413 errors.
+        const formData = new FormData();
+        formData.append('file', file, file.name);
+        xhr.send(formData);
       });
     };
 
@@ -854,7 +854,7 @@ export default function UploadPage() {
       const fileRef = ref(storage, `materials/${Date.now()}-${file.name}`);
       const uploadTask = uploadBytesResumable(fileRef, file);
 
-      // Wrap in a race between the upload and a 90-second timeout
+      // Wrap in a race between the upload and a 120-second timeout
       const uploadPromise = new Promise<string>((resolve, reject) => {
         uploadTask.on('state_changed', 
           (snapshot) => {
@@ -876,35 +876,19 @@ export default function UploadPage() {
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => {
           try { uploadTask.cancel(); } catch (e) { /* ignore */ }
-          reject(new Error("Firebase upload timed out after 90 seconds."));
-        }, 90000);
+          reject(new Error("Firebase upload timed out after 120 seconds."));
+        }, 120000);
       });
 
       return Promise.race([uploadPromise, timeoutPromise]);
     };
 
     // === UPLOAD STRATEGY ===
-    // - Files >= 10MB: Upload directly to Firebase Storage (bypassing server) to avoid MongoDB's 16MB limit and serverless request payload limits.
-    // - Files < 10MB: Attempt to upload via the server API route first. If the server throws a 413 Payload Too Large (e.g. platform limit) or has a network issue, fall back to Firebase Storage.
+    // All files: try server upload first (via FormData).
+    // If server returns 413 or network fails, fall back to Firebase Storage.
+    // Auth errors (401) are never retried — surface them immediately.
 
     const fileSizeMB = file.size / (1024 * 1024);
-
-    if (fileSizeMB >= 10) {
-      console.log(`File is large (${fileSizeMB.toFixed(1)}MB), uploading directly to Firebase Storage...`);
-      try {
-        return await uploadToFirebase();
-      } catch (firebaseError) {
-        console.warn("Firebase Storage failed:", firebaseError);
-        try {
-          return await uploadToFirebase(`gs://studio-864601925-cef48.appspot.com`);
-        } catch (bucketError) {
-          console.warn("Explicit bucket also failed:", bucketError);
-        }
-      }
-      throw new Error("Failed to upload large file. Please check your internet connection and try again.");
-    }
-
-    // Attempt server upload for files under 10MB
     const dynamicTimeout = Math.max(60000, 60000 + Math.ceil(fileSizeMB / 5) * 30000);
     console.log(`Uploading ${fileSizeMB.toFixed(1)}MB file via server (timeout: ${dynamicTimeout / 1000}s)...`);
 
@@ -913,22 +897,20 @@ export default function UploadPage() {
     } catch (serverError: any) {
       const errorMessage = serverError?.message || '';
       
-      // If it's an auth error, don't try Firebase fallback — surface it immediately
+      // Auth errors — surface immediately, no fallback
       if (errorMessage.includes('session has expired') || errorMessage.includes('Unauthorized') || errorMessage.includes('log in')) {
         throw serverError;
       }
 
-      // If the server rejected it as too large (413), or if we had a network/timeout error,
-      // fallback to Firebase Storage.
+      // For 413 or any other server failure, fall back to Firebase Storage
       console.log(`Server upload failed: ${errorMessage}. Falling back to Firebase Storage...`);
-      onProgress(0); // Reset progress when intentionally switching to Firebase Storage
+      // NOTE: We do NOT reset progress to 0 here — Firebase will update it as it progresses
       
       try {
         return await uploadToFirebase();
       } catch (firebaseError) {
         console.warn("Firebase Storage fallback failed:", firebaseError);
         try {
-          onProgress(0);
           return await uploadToFirebase(`gs://studio-864601925-cef48.appspot.com`);
         } catch (bucketError) {
           console.warn("Explicit bucket fallback also failed:", bucketError);
