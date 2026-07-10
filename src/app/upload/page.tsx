@@ -880,15 +880,27 @@ export default function UploadPage() {
     };
 
     // === UPLOAD STRATEGY ===
-    // Files <=50MB: Upload via server API route (MongoDB storage).
-    //   - Server route handles auth, stores file, returns URL.
-    //   - If server fails, the error is surfaced immediately — no silent fallback
-    //     that would reset the progress bar to 0%.
-    // Files >50MB are rejected at the file picker level (handleFileChange).
+    // - Files >= 10MB: Upload directly to Firebase Storage (bypassing server) to avoid MongoDB's 16MB limit and serverless request payload limits.
+    // - Files < 10MB: Attempt to upload via the server API route first. If the server throws a 413 Payload Too Large (e.g. platform limit) or has a network issue, fall back to Firebase Storage.
 
     const fileSizeMB = file.size / (1024 * 1024);
 
-    // Scale timeout with file size: 60s base + 30s per 5MB
+    if (fileSizeMB >= 10) {
+      console.log(`File is large (${fileSizeMB.toFixed(1)}MB), uploading directly to Firebase Storage...`);
+      try {
+        return await uploadToFirebase();
+      } catch (firebaseError) {
+        console.warn("Firebase Storage failed:", firebaseError);
+        try {
+          return await uploadToFirebase(`gs://studio-864601925-cef48.appspot.com`);
+        } catch (bucketError) {
+          console.warn("Explicit bucket also failed:", bucketError);
+        }
+      }
+      throw new Error("Failed to upload large file. Please check your internet connection and try again.");
+    }
+
+    // Attempt server upload for files under 10MB
     const dynamicTimeout = Math.max(60000, 60000 + Math.ceil(fileSizeMB / 5) * 30000);
     console.log(`Uploading ${fileSizeMB.toFixed(1)}MB file via server (timeout: ${dynamicTimeout / 1000}s)...`);
 
@@ -902,29 +914,24 @@ export default function UploadPage() {
         throw serverError;
       }
 
-      // For network/timeout errors on large files (>30MB), try Firebase Storage as a fallback
-      if (fileSizeMB >= 30) {
-        console.log(`Server upload failed for large file (${fileSizeMB.toFixed(1)}MB), trying Firebase Storage...`);
-        onProgress(0); // Reset progress only when intentionally switching to a new upload method
-        
+      // If the server rejected it as too large (413), or if we had a network/timeout error,
+      // fallback to Firebase Storage.
+      console.log(`Server upload failed: ${errorMessage}. Falling back to Firebase Storage...`);
+      onProgress(0); // Reset progress when intentionally switching to Firebase Storage
+      
+      try {
+        return await uploadToFirebase();
+      } catch (firebaseError) {
+        console.warn("Firebase Storage fallback failed:", firebaseError);
         try {
-          return await uploadToFirebase();
-        } catch (firebaseError) {
-          console.warn("Firebase Storage failed:", firebaseError);
-          
-          try {
-            onProgress(0);
-            return await uploadToFirebase(`gs://studio-864601925-cef48.appspot.com`);
-          } catch (bucketError) {
-            console.warn("Explicit bucket also failed:", bucketError);
-          }
+          onProgress(0);
+          return await uploadToFirebase(`gs://studio-864601925-cef48.appspot.com`);
+        } catch (bucketError) {
+          console.warn("Explicit bucket fallback also failed:", bucketError);
         }
-        
-        throw new Error("Failed to upload large file. Please check your internet connection and try again.");
       }
-
-      // For smaller files, just propagate the server error directly
-      throw serverError;
+      
+      throw new Error("Failed to upload file. Please check your internet connection and try again.");
     }
   };
 
