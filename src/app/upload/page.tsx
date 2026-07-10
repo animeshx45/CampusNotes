@@ -774,8 +774,6 @@ export default function UploadPage() {
     const uploadViaServer = async (timeoutMs: number) => {
       return new Promise<string>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        const fd = new FormData();
-        fd.append('file', file);
 
         xhr.timeout = timeoutMs;
         // Ensure cookies (JWT token) are sent with the request
@@ -827,7 +825,13 @@ export default function UploadPage() {
         });
 
         xhr.open('POST', '/api/upload');
-        xhr.send(fd);
+        // Set filename header (encoded to safely support non-ascii characters)
+        xhr.setRequestHeader('x-file-name', encodeURIComponent(file.name));
+        // Set content type header
+        xhr.setRequestHeader('content-type', file.type || 'application/octet-stream');
+        
+        // Send raw file binary data directly
+        xhr.send(file);
       });
     };
 

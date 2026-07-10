@@ -27,28 +27,45 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized: Expired or invalid token.' }, { status: 401 });
     }
 
-    const formData = await request.formData();
-    const file = formData.get('file') as File | null;
+    let fileBuffer: Buffer;
+    let fileName: string;
+    let contentType: string;
 
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    const requestContentType = request.headers.get('content-type') || '';
+    if (requestContentType.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      const file = formData.get('file') as File | null;
+      if (!file) {
+        return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      }
+      const bytes = await file.arrayBuffer();
+      fileBuffer = Buffer.from(bytes);
+      fileName = file.name;
+      contentType = file.type || 'application/pdf';
+    } else {
+      const fileNameHeader = request.headers.get('x-file-name') || 'file.pdf';
+      fileName = decodeURIComponent(fileNameHeader);
+      contentType = requestContentType || 'application/pdf';
+      const bytes = await request.arrayBuffer();
+      fileBuffer = Buffer.from(bytes);
+    }
+
+    if (fileBuffer.length === 0) {
+      return NextResponse.json({ error: 'No file provided or empty payload' }, { status: 400 });
     }
 
     // In development mode, save the file to local disk (public/uploads) to prevent slow remote GridFS uploads
     if (process.env.NODE_ENV === 'development') {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      const cleanName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+      const cleanName = fileName.replace(/[^a-zA-Z0-9.\-_]/g, '_');
       const safeFileName = `${Date.now()}-${cleanName}`;
       const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
 
       await fs.mkdir(uploadsDir, { recursive: true });
 
       const filePath = path.join(uploadsDir, safeFileName);
-      await fs.writeFile(filePath, buffer);
+      await fs.writeFile(filePath, fileBuffer);
 
-      console.log(`[Dev Mode] Saved file to local disk: ${filePath} (${buffer.length} bytes)`);
+      console.log(`[Dev Mode] Saved file to local disk: ${filePath} (${fileBuffer.length} bytes)`);
 
       const fileUrl = `/api/upload?id=${safeFileName}`;
       return NextResponse.json({ url: fileUrl });
@@ -56,20 +73,17 @@ export async function POST(request: NextRequest) {
 
     await connectToDatabase();
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
     // Save to MaterialFile model in MongoDB (fast, no stream/timeout issues on serverless)
     const newFile = await MaterialFile.create({
-      fileName: file.name,
-      contentType: file.type || 'application/pdf',
-      data: buffer.toString('base64')
+      fileName: fileName,
+      contentType: contentType,
+      data: fileBuffer.toString('base64')
     });
 
     const fileId = newFile._id.toString();
     const fileUrl = `/api/upload?id=${fileId}`;
 
-    console.log(`Saved file to MaterialFile: ${file.name} (ID: ${fileId}, Size: ${buffer.length} bytes)`);
+    console.log(`Saved file to MaterialFile: ${fileName} (ID: ${fileId}, Size: ${fileBuffer.length} bytes)`);
 
     return NextResponse.json({ url: fileUrl });
   } catch (error: any) {
