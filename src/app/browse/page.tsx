@@ -942,26 +942,26 @@ export default function BrowsePage() {
 
             {!activeFolder ? (
               foldersToShow.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 animate-in fade-in duration-300">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 animate-in fade-in duration-300">
                   {foldersToShow.map(folder => (
                     <Card 
                       key={folder.name}
-                      className="group cursor-pointer border-primary/5 hover:border-primary/20 hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden bg-card/85 flex flex-col p-3 relative hover:-translate-y-1 border"
+                      className="group cursor-pointer border-primary/5 hover:border-primary/20 hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden bg-card/85 flex flex-col p-4 relative hover:-translate-y-1 border"
                       onClick={() => setActiveFolder(folder.name)}
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-sm">
-                          <Folder className="h-4.5 w-4.5" />
+                        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-sm">
+                          <Folder className="h-5 w-5" />
                         </div>
                         <Badge variant="secondary" className="rounded-full px-2 py-0.5 font-bold text-[10px] bg-primary/5 text-primary border-none">
-                          {folder.files.length}
+                          {folder.files.length} {folder.files.length === 1 ? 'file' : 'files'}
                         </Badge>
                       </div>
-                      <h3 className="text-xs font-headline font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 mt-1 uppercase leading-tight">
+                      <h3 className="text-sm font-headline font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 mt-1 uppercase leading-tight">
                         {folder.name}
                       </h3>
-                      <div className="flex items-center gap-1 text-[9px] font-black text-primary uppercase tracking-widest mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        Open <ChevronRight className="h-2.5 w-2.5" />
+                      <div className="flex items-center gap-1 text-[9px] font-black text-primary uppercase tracking-widest mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        Open Folder <ChevronRight className="h-2.5 w-2.5" />
                       </div>
                     </Card>
                   ))}
@@ -1009,43 +1009,31 @@ export default function BrowsePage() {
 
                   if (folderFiles.length > 0) {
                     return (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {folderFiles.map((material) => (
-                          <Card key={material.id} className="group hover:shadow-3xl transition-all duration-500 border-primary/5 rounded-[2.5rem] overflow-hidden bg-card/80 hover:-translate-y-2 border shadow-lg flex flex-col">
-                            <CardHeader className="p-8 pb-4">
+                          <Card key={material.id} className="group hover:shadow-xl transition-all duration-500 border-primary/5 rounded-2xl overflow-hidden bg-card/80 hover:-translate-y-1 border shadow-md flex flex-col">
+                            <CardHeader className="p-4 pb-2">
                               <div className="flex justify-between items-start">
-                                <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-lg">
-                                  {material.type === 'YouTube Playlist' ? <Video className="h-7 w-7" /> : material.branch === 'Common to All' ? <Globe className="h-7 w-7" /> : <FileText className="h-7 w-7" />}
+                                <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-sm">
+                                  {material.type === 'YouTube Playlist' ? <Video className="h-4 w-4" /> : material.branch === 'Common to All' ? <Globe className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
                                 </div>
-                                <div className="text-right flex flex-col gap-1 items-end">
-                                  <Badge variant="outline" className="rounded-full px-4 py-1 border-primary/20 font-bold text-[10px]">Sem {material.semester}</Badge>
-                                  {material.branch === 'Common to All' && (
-                                    <Badge className="bg-accent text-accent-foreground rounded-full px-3 py-0.5 font-black text-[9px] uppercase tracking-widest">Universal</Badge>
-                                  )}
-                                </div>
+                                <Badge variant="outline" className="rounded-full px-2 py-0.5 border-primary/20 font-bold text-[9px]">Sem {material.semester}</Badge>
                               </div>
-                              <CardTitle className="text-2xl font-headline font-bold group-hover:text-primary transition-colors mt-6 leading-tight line-clamp-2">{material.title}</CardTitle>
-                              <p className="text-[11px] font-bold text-muted-foreground mt-2 flex items-center gap-2 opacity-70">
-                                <GraduationCap className="h-3.5 w-3.5" /> {material.branch}
-                              </p>
+                              <CardTitle className="text-sm font-headline font-bold group-hover:text-primary transition-colors mt-3 leading-tight line-clamp-2">{material.title}</CardTitle>
                             </CardHeader>
-                            <CardContent className="px-8 pb-8 flex-grow space-y-6">
-                              <p className="text-muted-foreground leading-relaxed text-sm line-clamp-3">{material.description}</p>
-                              
-                              <div className="flex items-center justify-between pt-6 border-t border-primary/5">
-                                <div className="flex flex-col">
-                                  <span className="text-[9px] uppercase font-black tracking-widest text-muted-foreground mb-0.5">Contributor</span>
-                                  <span className="text-sm font-bold text-foreground">{material.author}</span>
-                                </div>
-                                <div className="flex items-center gap-4 text-muted-foreground">
-                                   <div className="flex items-center gap-1.5"><Download className="h-4 w-4" /> <span className="text-xs font-black">{material.downloadCount || 0}</span></div>
+                            <CardContent className="px-4 pb-3 flex-grow space-y-2">
+                              <p className="text-muted-foreground text-xs line-clamp-2 leading-relaxed">{material.description}</p>
+                              <div className="flex items-center justify-between pt-2 border-t border-primary/5">
+                                <span className="text-[10px] font-bold text-muted-foreground truncate max-w-[60%]">{material.author}</span>
+                                <div className="flex items-center gap-1 text-muted-foreground">
+                                  <Download className="h-3 w-3" /> <span className="text-[10px] font-black">{material.downloadCount || 0}</span>
                                 </div>
                               </div>
                             </CardContent>
                             <CardFooter className="p-0 border-t border-primary/5">
-                              <Button className="w-full h-16 rounded-none font-black text-lg bg-primary hover:bg-primary/90 transition-all gap-2" asChild>
+                              <Button className="w-full h-10 rounded-none font-bold text-xs bg-primary hover:bg-primary/90 transition-all gap-1.5" asChild>
                                 <Link href={`/material/${material.id}`}>
-                                  Access Repository <ArrowRight className="h-5 w-5 group-hover:translate-x-1.5 transition-transform" />
+                                  View <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
                                 </Link>
                               </Button>
                             </CardFooter>
