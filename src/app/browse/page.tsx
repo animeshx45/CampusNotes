@@ -653,14 +653,46 @@ export default function BrowsePage() {
     setActiveFolder(null);
   }, [selectedBranch, selectedSemester, searchQuery]);
 
+  const normalizeSubjectName = (subject: string): string => {
+    if (!subject) return 'General';
+    const clean = subject.trim().replace(/\s+/g, ' ');
+    const upper = clean.toUpperCase();
+    
+    if (upper === 'MATHEMATICS I' || upper === 'ENGINEERING MATHEMATICS I' || upper === 'MATHEMATICS-I' || upper === 'MATHEMATICS - I') {
+      return 'Engineering Mathematics I';
+    }
+    if (upper === 'MATHEMATICS II' || upper === 'ENGINEERING MATHEMATICS II' || upper === 'MATHEMATICS-II' || upper === 'MATHEMATICS - II') {
+      return 'Mathematics II';
+    }
+    if (upper === 'MATHEMATICS III' || upper === 'ENGINEERING MATHEMATICS III' || upper === 'MATHEMATICS-III' || upper === 'MATHEMATICS - III') {
+      return 'Mathematics III';
+    }
+    
+    return clean;
+  };
+
   const filteredMaterials = useMemo(() => {
-    const combined = [...MOCK_MATERIALS, ...(dbMaterials || [])];
+    const combinedRaw = [...MOCK_MATERIALS, ...(dbMaterials || [])];
+    
+    const combined = combinedRaw.map((m: any) => {
+      const normSubject = normalizeSubjectName(m.subject || m.title.split('(')[0] || '');
+      if (normSubject === 'Mathematics II') {
+        return {
+          ...m,
+          subject: 'Mathematics II',
+          semester: 2,
+          branch: 'Common to All'
+        };
+      }
+      return {
+        ...m,
+        subject: normSubject
+      };
+    });
     
     return combined.filter(m => {
       // Exclude Engineering & Applied Physics Laboratory
       if (m.subject === 'Engineering & Applied Physics Laboratory') return false;
-      // Exclude Mathematics II from Semester 1
-      if (m.semester === 1 && m.subject === 'Mathematics II') return false;
 
       // If a specific branch is selected, show its materials AND "Common to All" materials
       const branchMatch = selectedBranch === 'all' || 

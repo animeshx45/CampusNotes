@@ -763,7 +763,42 @@ function MaterialDetailPageContent({ params }: { params: Promise<{ id: string }>
     };
   }, [id]);
 
-  const material = mockMaterial || dbMaterial || fallbackMaterial;
+  const normalizeSubjectName = (subject: string): string => {
+    if (!subject) return 'General';
+    const clean = subject.trim().replace(/\s+/g, ' ');
+    const upper = clean.toUpperCase();
+    
+    if (upper === 'MATHEMATICS I' || upper === 'ENGINEERING MATHEMATICS I' || upper === 'MATHEMATICS-I' || upper === 'MATHEMATICS - I') {
+      return 'Engineering Mathematics I';
+    }
+    if (upper === 'MATHEMATICS II' || upper === 'ENGINEERING MATHEMATICS II' || upper === 'MATHEMATICS-II' || upper === 'MATHEMATICS - II') {
+      return 'Mathematics II';
+    }
+    if (upper === 'MATHEMATICS III' || upper === 'ENGINEERING MATHEMATICS III' || upper === 'MATHEMATICS-III' || upper === 'MATHEMATICS - III') {
+      return 'Mathematics III';
+    }
+    
+    return clean;
+  };
+
+  const materialRaw = mockMaterial || dbMaterial || fallbackMaterial;
+
+  const material = useMemo(() => {
+    if (!materialRaw) return null;
+    const normSubject = normalizeSubjectName(materialRaw.subject || materialRaw.title.split('(')[0] || '');
+    if (normSubject === 'Mathematics II') {
+      return {
+        ...materialRaw,
+        subject: 'Mathematics II',
+        semester: 2 as Semester,
+        branch: 'Common to All' as Branch
+      };
+    }
+    return {
+      ...materialRaw,
+      subject: normSubject
+    };
+  }, [materialRaw]);
 
   const isOwner = !!(user && (
     (dbMaterial && (user.id === dbMaterial.uploaderId || user.uid === dbMaterial.uploaderId || user.fullName === dbMaterial.author)) ||
