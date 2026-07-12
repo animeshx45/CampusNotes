@@ -14,15 +14,49 @@ export default function PlacementMaterialsPage() {
   const [materials, setMaterials] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const getFallbackFolders = () => {
+    const companies = [
+      'ACCENTURE',
+      'CAPGEMINI',
+      'Delloite',
+      'IBM',
+      'INFOSYS',
+      'TCS',
+      'WIPRO',
+      'ZENPACT'
+    ];
+    return companies.map(company => ({
+      id: `fallback-${company.toLowerCase()}`,
+      title: `${company} Placement Materials`,
+      subject: company,
+      description: `${company}-specific placement prep materials, including past papers, coding questions, and interview preparation resources.`,
+      branch: 'Placement Materials',
+      semester: 1,
+      type: 'Folder',
+      fileUrl: 'folder',
+      author: 'Training & Placement Cell',
+      uploaderId: 'system',
+      downloadCount: 0,
+      views: 0,
+      status: 'approved',
+      folderFiles: []
+    }));
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
         const res = await fetch("/api/placement-materials");
-        const json = await res.json();
-        setMaterials(json.data || []);
+        if (res.ok) {
+          const json = await res.json();
+          setMaterials(json.data && json.data.length > 0 ? json.data : getFallbackFolders());
+        } else {
+          setMaterials(getFallbackFolders());
+        }
       } catch (err) {
         console.error("Failed to load placement materials", err);
+        setMaterials(getFallbackFolders());
       } finally {
         setIsLoading(false);
       }

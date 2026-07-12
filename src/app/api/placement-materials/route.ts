@@ -55,13 +55,39 @@ export async function GET() {
       // Re-fetch seeded materials
       materials = await prisma.studyMaterial.findMany({
         where: { branch: 'Placement Materials' },
-        orderBy: { title: 'asc' }, // Sort by title so they show up alphabetically
+        orderBy: { title: 'asc' },
       });
     }
 
     return NextResponse.json({ count: materials.length, data: materials });
   } catch (error: any) {
-    console.error('Failed to query/seed placement materials:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    console.error('Failed to query/seed placement materials, returning fallback folders:', error);
+    const companies = [
+      'ACCENTURE',
+      'CAPGEMINI',
+      'Delloite',
+      'IBM',
+      'INFOSYS',
+      'TCS',
+      'WIPRO',
+      'ZENPACT'
+    ];
+    const fallbackData = companies.map(company => ({
+      id: `fallback-${company.toLowerCase()}`,
+      title: `${company} Placement Materials`,
+      subject: company,
+      description: `${company}-specific placement prep materials, including past papers, coding questions, and interview preparation resources.`,
+      branch: 'Placement Materials',
+      semester: 1,
+      type: 'Folder',
+      fileUrl: 'folder',
+      author: 'Training & Placement Cell',
+      uploaderId: 'system',
+      downloadCount: 0,
+      views: 0,
+      status: 'approved',
+      folderFiles: []
+    }));
+    return NextResponse.json({ count: fallbackData.length, data: fallbackData });
   }
 }

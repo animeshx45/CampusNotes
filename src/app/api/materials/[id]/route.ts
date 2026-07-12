@@ -29,6 +29,31 @@ export async function GET(
   try {
     const { id } = await params;
 
+    if (id.startsWith('fallback-')) {
+      const companyName = id.replace('fallback-', '').toUpperCase();
+      const formattedSubject = companyName === 'DELLOITE' ? 'Delloite' : (companyName.charAt(0) + companyName.slice(1).toLowerCase());
+      
+      const fallbackMaterial = {
+        id,
+        title: `${formattedSubject} Placement Materials`,
+        subject: formattedSubject,
+        description: `${formattedSubject}-specific placement prep materials, including past papers, coding questions, and interview preparation resources.`,
+        branch: 'Placement Materials',
+        semester: 1,
+        type: 'Folder',
+        fileUrl: 'folder',
+        author: 'Training & Placement Cell',
+        uploaderId: 'system',
+        downloadCount: 0,
+        views: 0,
+        status: 'approved',
+        folderFiles: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      return NextResponse.json({ data: fallbackMaterial });
+    }
+
     const material = await prisma.studyMaterial.findUnique({
       where: { id },
     });
@@ -55,6 +80,11 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
+    
+    if (id.startsWith('fallback-')) {
+      return NextResponse.json({ data: { id, success: true } });
+    }
+
     const body = await request.json();
 
     // Build the update payload
@@ -109,6 +139,10 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+
+    if (id.startsWith('fallback-')) {
+      return NextResponse.json({ success: true });
+    }
 
     await prisma.studyMaterial.delete({
       where: { id },

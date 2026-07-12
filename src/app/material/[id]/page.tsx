@@ -742,7 +742,29 @@ function MaterialDetailPageContent({ params }: { params: Promise<{ id: string }>
   const [dbMaterial, setDbMaterial] = useState<StudyMaterial | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const material = mockMaterial || dbMaterial;
+  const fallbackMaterial = useMemo(() => {
+    if (!id.startsWith('fallback-')) return null;
+    const companyName = id.replace('fallback-', '').toUpperCase();
+    const formattedSubject = companyName === 'DELLOITE' ? 'Delloite' : (companyName.charAt(0) + companyName.slice(1).toLowerCase());
+    return {
+      id,
+      title: `${formattedSubject} Placement Materials`,
+      subject: formattedSubject,
+      description: `${formattedSubject}-specific placement prep materials, including past papers, coding questions, and interview preparation resources.`,
+      branch: 'Placement Materials' as Branch,
+      semester: 1 as Semester,
+      type: 'Folder' as MaterialType,
+      fileUrl: 'folder',
+      author: 'Training & Placement Cell',
+      uploaderId: 'system',
+      downloadCount: 0,
+      views: 0,
+      status: 'approved' as const,
+      folderFiles: []
+    };
+  }, [id]);
+
+  const material = mockMaterial || dbMaterial || fallbackMaterial;
 
   const isOwner = !!(user && (
     (dbMaterial && (user.id === dbMaterial.uploaderId || user.uid === dbMaterial.uploaderId || user.fullName === dbMaterial.author)) ||
@@ -815,7 +837,7 @@ function MaterialDetailPageContent({ params }: { params: Promise<{ id: string }>
   }, [currentFileUrl, isYoutube]);
 
   useEffect(() => {
-    if (id.startsWith('it-') || id.startsWith('cse-') || id.startsWith('chem-') || id.includes('s3-') || id.includes('s4-') || id.includes('s5-') || id.includes('s6-') || id.includes('s7-') || id.includes('s8-') || id.startsWith('common-')) {
+    if (id.startsWith('fallback-') || id.startsWith('it-') || id.startsWith('cse-') || id.startsWith('chem-') || id.includes('s3-') || id.includes('s4-') || id.includes('s5-') || id.includes('s6-') || id.includes('s7-') || id.includes('s8-') || id.startsWith('common-')) {
       setIsLoading(false);
       return;
     }
