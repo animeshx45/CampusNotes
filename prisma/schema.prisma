@@ -1,0 +1,63 @@
+// Prisma schema for CockroachDB — study materials, files, and upload chunks
+// MongoDB continues to handle auth, community, and contact data via Mongoose.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("DATABASE_URL")
+}
+
+/// Study material metadata (notes, papers, assignments, etc.)
+model StudyMaterial {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title         String
+  subject       String   @default("General")
+  description   String
+  branch        String
+  semester      Int
+  type          String
+  fileUrl       String
+  author        String
+  uploaderId    String   @default("public-user")
+  downloadCount Int      @default(0)
+  views         Int      @default(0)
+  status        String   @default("approved") // pending | approved | rejected
+
+  // Optional folder-files stored as JSON array
+  // Each element: { name: string, fileUrl: string, type: string }
+  folderFiles   Json?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("study_materials")
+}
+
+/// Binary file storage (replaces MongoDB GridFS and legacy MaterialFile base64)
+model MaterialFile {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fileName    String
+  contentType String   @default("application/pdf")
+  data        Bytes    // BYTEA column — raw binary data
+
+  createdAt   DateTime @default(now())
+
+  @@map("material_files")
+}
+
+/// Temporary chunks for resumable / chunked uploads
+model UploadChunk {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionId  String
+  chunkIndex Int
+  data       Bytes    // Raw binary chunk data
+
+  createdAt  DateTime @default(now())
+
+  // Unique constraint so upserts work correctly
+  @@unique([sessionId, chunkIndex])
+  @@map("upload_chunks")
+}

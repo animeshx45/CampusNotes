@@ -12,8 +12,14 @@ import {
 import { ForumPost, ForumReply } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { useUser } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@/context/AuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
 
 export default function ForumThreadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -448,34 +454,36 @@ export default function ForumThreadPage({ params }: { params: Promise<{ id: stri
                          </button>
                       </div>
                    </div>
-                    <div className="flex gap-1 shrink-0">
-                      {canEditReply(reply) && (
-                        <Button 
-                          type="button"
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 rounded-full text-primary hover:bg-primary/10"
-                          onClick={() => handleStartEditReply(reply.id || (reply as any)._id, reply.content)}
-                          title="Edit Comment"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                     <div className="flex gap-1 shrink-0">
+                      {(canEditReply(reply) || canDeleteReply(reply)) && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-32 bg-popover border border-white/10 rounded-xl shadow-xl">
+                            {canEditReply(reply) && (
+                              <DropdownMenuItem 
+                                onClick={() => handleStartEditReply(reply.id || (reply as any)._id, reply.content)}
+                                className="flex items-center gap-2 cursor-pointer font-semibold text-xs"
+                              >
+                                <Edit className="h-3.5 w-3.5 text-primary" />
+                                <span>Edit</span>
+                              </DropdownMenuItem>
+                            )}
+                            {canDeleteReply(reply) && (
+                              <DropdownMenuItem 
+                                onClick={() => handleDeleteReply(reply.id || (reply as any)._id)}
+                                className="flex items-center gap-2 cursor-pointer font-semibold text-xs text-destructive focus:text-destructive focus:bg-destructive/10"
+                              >
+                                <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                <span>Delete</span>
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       )}
-                      {canDeleteReply(reply) && (
-                        <Button 
-                          type="button"
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 rounded-full text-destructive hover:text-destructive hover:bg-destructive/10"
-                          onClick={() => handleDeleteReply(reply.id || (reply as any)._id)}
-                          title="Delete Comment"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground">
-                         <MoreVertical className="h-4 w-4" />
-                      </Button>
                     </div>
                 </div>
               ))

@@ -21,6 +21,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { materialService } from '@/services/material-service';
 import { Branch, MaterialType, Semester, FolderFile } from '@/lib/types';
+// Firebase imports kept for potential future use but chunked upload is primary
 import { initializeFirebase } from '@/firebase';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { getAuth, signInAnonymously } from 'firebase/auth';
@@ -47,7 +48,6 @@ const getSubjectsForFilter = (branch: Branch, semester: number): string[] => {
       'Engineering Physics',
       'Basic English and Communication Skills',
       'Engineering Mechanics',
-      'Mathematics I',
       'Basic Electrical Engineering',
       'English Language Lab',
       'Engineering & Applied Physics Laboratory',
@@ -63,7 +63,6 @@ const getSubjectsForFilter = (branch: Branch, semester: number): string[] => {
       'Computer Programming',
       'Computer Programming Laboratory',
       'Fundamental Knowledge of Accreditation',
-      'Advanced English Communication Skills',
       'Mathematics II'
     ];
   }
@@ -718,11 +717,11 @@ export default function UploadPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      const maxLimit = 50 * 1024 * 1024; // 50MB limit
+      const maxLimit = 100 * 1024 * 1024; // 100MB limit
       if (file.size > maxLimit) {
         toast({
           title: "File too large!",
-          description: "Maximum allowed file size is 50MB.",
+          description: "Maximum allowed file size is 100MB.",
           variant: "destructive"
         });
         e.target.value = ''; // Reset input
@@ -752,12 +751,12 @@ export default function UploadPage() {
         return;
       }
 
-      const maxLimit = 50 * 1024 * 1024; // 50MB limit per file
+      const maxLimit = 100 * 1024 * 1024; // 100MB limit per file
       const oversized = allowedFiles.filter(f => f.size > maxLimit);
       if (oversized.length > 0) {
         toast({
           title: "Some files are too large!",
-          description: "All files inside the folder must be under 50MB.",
+          description: "All files inside the folder must be under 100MB.",
           variant: "destructive"
         });
         e.target.value = '';
@@ -771,120 +770,130 @@ export default function UploadPage() {
 
   const uploadFileHelper = async (file: File, onProgress: (progress: number) => void): Promise<string> => {
     // ============================================================
-    // UPLOAD STRATEGY: Server API with XHR (for progress) → Firebase fallback
+    // CHUNKED UPLOAD — Google Drive style
     // ============================================================
-    // Primary: Upload via XHR to /api/upload with FormData.
-    //   - Server stores in MongoDB GridFS (handles files up to 50MB)
-    //   - XHR gives us real upload progress tracking
-    // Fallback: If server returns 413 or fails, try Firebase Storage.
+    // The file is split into small 5MB chunks. Each chunk is uploaded
+    // as a separate HTTP request, so:
+    //   - No body size limit issues (each request is only 5MB)
+    //   - No 413 errors ever
+    //   - No timeout issues (each chunk completes in seconds)
+    //   - Smooth progress tracking
+    //   - Failed chunks auto-retry 3 times
+    //   - Works with any file size up to 100MB
     // ============================================================
 
-    // --- Method 1: Server upload via XHR with FormData ---
-    const uploadViaServer = (): Promise<string> => {
+    const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB per chunk
+    const MAX_RETRIES = 3;
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+
+    // Helper: send a single chunk via XHR (for intra-chunk progress)
+    const sendChunk = (sessionId: string, chunkIndex: number, blob: Blob): Promise<void> => {
       return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        const fileSizeMB = file.size / (1024 * 1024);
-        // Dynamic timeout: at least 60s, +30s per 5MB
-        const timeoutMs = Math.max(60000, 60000 + Math.ceil(fileSizeMB / 5) * 30000);
-        xhr.timeout = timeoutMs;
+        xhr.timeout = 60_000; // 60s per chunk is generous
         xhr.withCredentials = true;
 
         xhr.upload.addEventListener('progress', (e) => {
           if (e.lengthComputable) {
-            onProgress(Math.round((e.loaded / e.total) * 100));
+            // Smooth progress: base from completed chunks + intra-chunk progress
+            const chunkProgress = e.loaded / e.total;
+            const overall = ((chunkIndex + chunkProgress) / totalChunks) * 100;
+            onProgress(Math.min(Math.round(overall), 99)); // Cap at 99 until server confirms
           }
         });
 
         xhr.addEventListener('load', () => {
           if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              const res = JSON.parse(xhr.responseText);
-              if (res?.url) resolve(res.url);
-              else reject(new Error('Server returned no URL'));
-            } catch { reject(new Error('Invalid server response')); }
+            resolve();
           } else if (xhr.status === 401) {
             reject(new Error('SESSION_EXPIRED'));
-          } else if (xhr.status === 413) {
-            reject(new Error('FILE_TOO_LARGE_FOR_SERVER'));
           } else {
-            let msg = `Server error (${xhr.status})`;
+            let msg = `Chunk upload failed (${xhr.status})`;
             try { const r = JSON.parse(xhr.responseText); if (r?.error) msg = r.error; } catch {}
             reject(new Error(msg));
           }
         });
 
-        xhr.addEventListener('error', () => reject(new Error('NETWORK_ERROR')));
-        xhr.addEventListener('timeout', () => reject(new Error('TIMEOUT')));
+        xhr.addEventListener('error', () => reject(new Error('Network error')));
+        xhr.addEventListener('timeout', () => reject(new Error('Chunk timed out')));
 
-        xhr.open('POST', '/api/upload');
+        xhr.open('POST', '/api/upload-chunk');
         const fd = new FormData();
-        fd.append('file', file, file.name);
+        fd.append('sessionId', sessionId);
+        fd.append('chunkIndex', String(chunkIndex));
+        fd.append('chunk', blob);
         xhr.send(fd);
       });
     };
 
-    // --- Method 2: Direct Firebase Storage upload ---
-    const uploadViaFirebase = async (): Promise<string> => {
-      const { firebaseApp } = initializeFirebase();
-      const auth = getAuth(firebaseApp);
-      if (!auth.currentUser) {
-        try { await signInAnonymously(auth); } catch { /* proceed anyway */ }
-      }
-
-      const buckets = [undefined, 'gs://studio-864601925-cef48.appspot.com'];
-      let lastErr: any = null;
-
-      for (const bucket of buckets) {
+    // Helper: retry wrapper
+    const sendChunkWithRetry = async (sessionId: string, index: number, blob: Blob) => {
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
         try {
-          const storage = bucket ? getStorage(firebaseApp, bucket) : getStorage(firebaseApp);
-          const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-          const fileRef = ref(storage, `materials/${Date.now()}-${safeName}`);
-
-          return await new Promise<string>((resolve, reject) => {
-            const task = uploadBytesResumable(fileRef, file, {
-              contentType: file.type || 'application/octet-stream'
-            });
-            const tid = setTimeout(() => { try { task.cancel(); } catch {} reject(new Error('Firebase timeout')); }, 180_000);
-            task.on('state_changed',
-              (snap) => onProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
-              (err) => { clearTimeout(tid); reject(err); },
-              async () => { clearTimeout(tid); try { resolve(await getDownloadURL(task.snapshot.ref)); } catch (e) { reject(e); } }
-            );
-          });
-        } catch (e) { lastErr = e; }
+          await sendChunk(sessionId, index, blob);
+          return;
+        } catch (err: any) {
+          // Don't retry auth errors
+          if (err?.message === 'SESSION_EXPIRED') throw err;
+          if (attempt === MAX_RETRIES) throw err;
+          // Wait before retry (exponential backoff: 1s, 2s, 4s)
+          await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt - 1)));
+        }
       }
-      throw lastErr || new Error('Firebase upload failed');
     };
 
-    // --- Execute: try server first, then Firebase ---
-    try {
-      return await uploadViaServer();
-    } catch (serverErr: any) {
-      const msg = serverErr?.message || '';
+    // === Step 1: Initialize upload session ===
+    const initRes = await fetch('/api/upload-chunk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ action: 'init' })
+    });
+    if (!initRes.ok) {
+      if (initRes.status === 401) throw new Error('Your session has expired. Please log in again.');
+      throw new Error('Failed to initialize upload. Please try again.');
+    }
+    const { sessionId } = await initRes.json();
 
-      // Auth errors: surface immediately, no fallback
-      if (msg === 'SESSION_EXPIRED') {
-        throw new Error('Your session has expired. Please log in again.');
-      }
+    // === Step 2: Upload all chunks ===
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * CHUNK_SIZE;
+      const end = Math.min(start + CHUNK_SIZE, file.size);
+      const chunkBlob = file.slice(start, end);
 
-      // Server failed (413, network, timeout) → try Firebase
-      console.warn('Server upload failed, trying Firebase:', msg);
       try {
-        return await uploadViaFirebase();
-      } catch (fbErr: any) {
-        console.error('Firebase also failed:', fbErr);
-        // Give a clear final error
-        throw new Error(
-          msg === 'FILE_TOO_LARGE_FOR_SERVER'
-            ? 'File is too large. Please try a smaller file (under 50MB).'
-            : msg === 'NETWORK_ERROR'
-              ? 'Network error. Please check your internet connection.'
-              : msg === 'TIMEOUT'
-                ? 'Upload timed out. Please try again with a better connection.'
-                : `Upload failed: ${msg}`
-        );
+        await sendChunkWithRetry(sessionId, i, chunkBlob);
+      } catch (err: any) {
+        if (err?.message === 'SESSION_EXPIRED') {
+          throw new Error('Your session has expired. Please log in again.');
+        }
+        throw new Error(`Upload failed on part ${i + 1}/${totalChunks}. Please check your connection and try again.`);
       }
     }
+
+    // === Step 3: Tell server to assemble the file ===
+    onProgress(99); // Show 99% while server assembles
+    const completeRes = await fetch('/api/upload-chunk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        action: 'complete',
+        sessionId,
+        fileName: file.name,
+        fileContentType: file.type || 'application/pdf',
+        totalChunks
+      })
+    });
+
+    if (!completeRes.ok) {
+      const err = await completeRes.json().catch(() => ({ error: 'Server error' }));
+      throw new Error(err.error || 'Failed to finalize upload.');
+    }
+
+    const { url } = await completeRes.json();
+    onProgress(100);
+    return url;
   };
 
   const handleUpload = async (e: React.FormEvent) => {

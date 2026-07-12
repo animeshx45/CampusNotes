@@ -53,7 +53,6 @@ const getSubjectsForFilter = (branch: Branch, semester: number): string[] => {
       'Engineering Physics',
       'Basic English and Communication Skills',
       'Engineering Mechanics',
-      'Mathematics I',
       'Basic Electrical Engineering',
       'English Language Lab',
       'Engineering & Applied Physics Laboratory',
@@ -69,7 +68,6 @@ const getSubjectsForFilter = (branch: Branch, semester: number): string[] => {
       'Computer Programming',
       'Computer Programming Laboratory',
       'Fundamental Knowledge of Accreditation',
-      'Advanced English Communication Skills',
       'Mathematics II'
     ];
   }

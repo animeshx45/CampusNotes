@@ -9,7 +9,8 @@ import { BRANCHES } from '@/lib/mock-data';
 import { 
   Search, BookOpen, Users, ArrowRight, GraduationCap, 
   FileText, Download, Code, Cpu, Zap, Hammer, Beaker, Building2, Droplets, Microscope, Globe,
-  Sparkles, BrainCircuit, Rocket, Loader2, Bell, Share2, MessageCircle, ShieldCheck, AlertTriangle, Heart
+  Sparkles, BrainCircuit, Rocket, Loader2, Bell, Share2, MessageCircle, ShieldCheck, AlertTriangle, Heart,
+  Briefcase,
 } from 'lucide-react';
 import Image from 'next/image';
 import {
@@ -38,6 +39,7 @@ const BRANCH_ICONS: Record<string, any> = {
   'Electronics & Communication Engineering': Droplets,
   'Metallurgical & Materials Engineering': Microscope,
   'Common to All': Globe,
+  'Placement Materials': Briefcase,
 };
 
 export default function Home() {
@@ -356,10 +358,14 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
-          {BRANCHES.map((branch) => {
+          {[...BRANCHES, 'Placement Materials'].map((branch) => {
             const Icon = BRANCH_ICONS[branch] || BookOpen;
             return (
-              <Link key={branch} href={`/browse?branch=${encodeURIComponent(branch)}`} className="group">
+              <Link 
+                key={branch} 
+                href={branch === 'Placement Materials' ? '/placement-materials' : `/browse?branch=${encodeURIComponent(branch)}`} 
+                className="group"
+              >
                 <Card className="hover:bg-primary/95 transition-all duration-500 cursor-pointer rounded-[2.5rem] md:rounded-[3rem] overflow-hidden border border-white/10 bg-white/5 backdrop-blur-xl hover:-translate-y-4 shadow-sm hover:shadow-[0_40px_80px_-20px_rgba(22,163,74,0.35)] h-full gpu-smooth">
                   <CardContent className="flex flex-col items-center justify-center p-8 md:p-14 gap-6 text-center h-full">
                     <div className="p-5 md:p-8 rounded-2xl bg-white/5 group-hover:bg-white/20 transition-all duration-700 shadow-inner group-hover:rotate-12 border border-white/5">

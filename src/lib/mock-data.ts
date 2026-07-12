@@ -40,7 +40,6 @@ const generateFirstYearSyllabus = (): StudyMaterial[] => {
     { id: 'PHT:101', title: 'Engineering Physics', type: 'Note' },
     { id: 'HST:101', title: 'Basic English and Communication Skills', type: 'Note' },
     { id: 'CVT:101', title: 'Engineering Mechanics', type: 'Note' },
-    { id: 'MAT:101', title: 'Mathematics I', type: 'Note' },
     { id: 'EET:101', title: 'Basic Electrical Engineering', type: 'Note' },
     { id: 'HSL:101', title: 'English Language Lab', type: 'Lab Manual' },
     { id: 'PHL:101', title: 'Engineering & Applied Physics Laboratory', type: 'Lab Manual' },
@@ -74,7 +73,6 @@ const generateFirstYearSyllabus = (): StudyMaterial[] => {
     { id: 'ITT:101', title: 'Computer Programming', type: 'Note' },
     { id: 'ITL:101', title: 'Computer Programming Laboratory', type: 'Lab Manual' },
     { id: 'NBA:101', title: 'Fundamental Knowledge of Accreditation', type: 'Note' },
-    { id: 'HST102-B23', title: 'Advanced English Communication Skills', type: 'Note' },
     { id: 'MAT102-B23', title: 'Mathematics II', type: 'Note' }
   ];
 
