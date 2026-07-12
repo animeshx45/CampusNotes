@@ -2,8 +2,7 @@
 // MongoDB continues to handle auth, community, and contact data via Mongoose.
 
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "windows-arm64"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
