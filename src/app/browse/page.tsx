@@ -34,7 +34,6 @@ const getSubjectsForFilter = (branch: Branch, semester: number): string[] => {
       'Engineering Mechanics',
       'Basic Electrical Engineering',
       'English Language Lab',
-      'Engineering & Applied Physics Laboratory',
       'Workshop Practice'
     ];
   }
@@ -658,6 +657,11 @@ export default function BrowsePage() {
     const combined = [...MOCK_MATERIALS, ...(dbMaterials || [])];
     
     return combined.filter(m => {
+      // Exclude Engineering & Applied Physics Laboratory
+      if (m.subject === 'Engineering & Applied Physics Laboratory') return false;
+      // Exclude Mathematics II from Semester 1
+      if (m.semester === 1 && m.subject === 'Mathematics II') return false;
+
       // If a specific branch is selected, show its materials AND "Common to All" materials
       const branchMatch = selectedBranch === 'all' || 
                           m.branch === selectedBranch || 

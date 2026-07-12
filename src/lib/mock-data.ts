@@ -42,7 +42,6 @@ const generateFirstYearSyllabus = (): StudyMaterial[] => {
     { id: 'CVT:101', title: 'Engineering Mechanics', type: 'Note' },
     { id: 'EET:101', title: 'Basic Electrical Engineering', type: 'Note' },
     { id: 'HSL:101', title: 'English Language Lab', type: 'Lab Manual' },
-    { id: 'PHL:101', title: 'Engineering & Applied Physics Laboratory', type: 'Lab Manual' },
     { id: 'WSL:101', title: 'Workshop Practice', type: 'Lab Manual' }
   ];
 
