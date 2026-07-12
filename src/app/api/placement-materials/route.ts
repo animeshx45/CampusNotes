@@ -9,11 +9,11 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     });
 
-    const hasCompanies = materials.some(m => m.subject === 'ACCENTURE');
+    const hasEmptyCompanies = materials.length > 0 && materials.some(m => m.subject === 'ACCENTURE') && materials.every(m => !m.folderFiles || (Array.isArray(m.folderFiles) && m.folderFiles.length === 0));
 
-    // 2. If 0 or old mock data found, let's clear and seed company placement folders
-    if (materials.length === 0 || !hasCompanies) {
-      console.log('Company-specific placement materials not found. Clearing old and seeding...');
+    // 2. If 0 or old mock data found, let's clear and seed empty company placement folders
+    if (materials.length === 0 || !hasEmptyCompanies) {
+      console.log('Empty company-specific placement materials not found. Clearing old and seeding...');
       
       await prisma.studyMaterial.deleteMany({
         where: { branch: 'Placement Materials' }
@@ -40,21 +40,10 @@ export async function GET() {
         fileUrl: 'folder',
         author: 'Training & Placement Cell',
         uploaderId: 'system',
-        downloadCount: Math.floor(Math.random() * 200) + 50,
-        views: Math.floor(Math.random() * 400) + 100,
+        downloadCount: 0,
+        views: 0,
         status: 'approved',
-        folderFiles: [
-          {
-            name: `${company} Prep Guide.pdf`,
-            fileUrl: 'https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pgh.pdf',
-            type: 'pdf'
-          },
-          {
-            name: `${company} Past Interview Questions.pdf`,
-            fileUrl: 'https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pgh.pdf',
-            type: 'pdf'
-          }
-        ]
+        folderFiles: []
       }));
 
       for (const mat of seedMaterials) {
