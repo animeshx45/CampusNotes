@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Menu, Home as HomeIcon, Users, Info, Mail, ChevronRight, X, Briefcase } from 'lucide-react';
+import { Menu, Home as HomeIcon, Users, Info, Mail, ChevronRight, X } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -23,7 +23,6 @@ export function Navbar() {
   const navLinks = [
     { name: 'Home', href: '/', icon: HomeIcon },
     { name: 'Community', href: '/forum', icon: Users },
-    { name: 'Placements', href: '/placement-materials', icon: Briefcase },
     { name: 'About', href: '/about', icon: Info },
     { name: 'Contact Us', href: '/contact', icon: Mail },
   ];

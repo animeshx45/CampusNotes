@@ -9,100 +9,53 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     });
 
-    // 2. If 0 found, let's seed mock placement folders
-    if (materials.length === 0) {
-      console.log('No placement materials found in database. Seeding initial placement folders...');
+    const hasCompanies = materials.some(m => m.subject === 'ACCENTURE');
+
+    // 2. If 0 or old mock data found, let's clear and seed company placement folders
+    if (materials.length === 0 || !hasCompanies) {
+      console.log('Company-specific placement materials not found. Clearing old and seeding...');
       
-      const seedMaterials = [
-        {
-          title: 'Aptitude & Quantitative Reasoning Guide',
-          subject: 'Quantitative Aptitude',
-          description: 'Comprehensive formulas sheet, shortcut methods for logical and numerical questions, and past assessment sample papers.',
-          branch: 'Placement Materials',
-          semester: 1,
-          type: 'Folder',
-          fileUrl: 'folder',
-          author: 'Training & Placement Cell',
-          uploaderId: 'system',
-          downloadCount: 145,
-          views: 312,
-          status: 'approved',
-          folderFiles: [
-            {
-              name: 'Quantitative Aptitude Formulas.pdf',
-              fileUrl: 'https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pgh.pdf',
-              type: 'pdf'
-            },
-            {
-              name: 'Logical Reasoning Shortcuts.pdf',
-              fileUrl: 'https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pgh.pdf',
-              type: 'pdf'
-            },
-            {
-              name: 'Data Interpretation Practice.pdf',
-              fileUrl: 'https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pgh.pdf',
-              type: 'pdf'
-            }
-          ]
-        },
-        {
-          title: 'Coding Interview Prep (DSA)',
-          subject: 'Data Structures & Algorithms',
-          description: 'Topic-wise coding problems sheets, algorithmic cheatsheets for DP & Graphs, and standard interview coding questions.',
-          branch: 'Placement Materials',
-          semester: 1,
-          type: 'Folder',
-          fileUrl: 'folder',
-          author: 'Senior Coding Club',
-          uploaderId: 'system',
-          downloadCount: 289,
-          views: 540,
-          status: 'approved',
-          folderFiles: [
-            {
-              name: 'DSA cheatsheet.pdf',
-              fileUrl: 'https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pgh.pdf',
-              type: 'pdf'
-            },
-            {
-              name: 'LeetCode Pattern-wise Problems.pdf',
-              fileUrl: 'https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pgh.pdf',
-              type: 'pdf'
-            },
-            {
-              name: 'System Design Basics.pdf',
-              fileUrl: 'https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pgh.pdf',
-              type: 'pdf'
-            }
-          ]
-        },
-        {
-          title: 'Resume Templates & HR Prep Guide',
-          subject: 'Interview Prep',
-          description: 'ATS-friendly resume templates (LaTeX/Word format), behavioral interview questions (STAR method), and HR prep checklist.',
-          branch: 'Placement Materials',
-          semester: 1,
-          type: 'Folder',
-          fileUrl: 'folder',
-          author: 'T&P Senior Mentors',
-          uploaderId: 'system',
-          downloadCount: 198,
-          views: 420,
-          status: 'approved',
-          folderFiles: [
-            {
-              name: 'ATS Resume LaTeX Template.pdf',
-              fileUrl: 'https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pgh.pdf',
-              type: 'pdf'
-            },
-            {
-              name: 'Behavioral Questions & Tips.pdf',
-              fileUrl: 'https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pgh.pdf',
-              type: 'pdf'
-            }
-          ]
-        }
+      await prisma.studyMaterial.deleteMany({
+        where: { branch: 'Placement Materials' }
+      });
+
+      const companies = [
+        'ACCENTURE',
+        'CAPGEMINI',
+        'Delloite',
+        'IBM',
+        'INFOSYS',
+        'TCS',
+        'WIPRO',
+        'ZENPACT'
       ];
+
+      const seedMaterials = companies.map(company => ({
+        title: `${company} Placement Materials`,
+        subject: company,
+        description: `${company}-specific placement prep materials, including past papers, coding questions, and interview preparation resources.`,
+        branch: 'Placement Materials',
+        semester: 1,
+        type: 'Folder',
+        fileUrl: 'folder',
+        author: 'Training & Placement Cell',
+        uploaderId: 'system',
+        downloadCount: Math.floor(Math.random() * 200) + 50,
+        views: Math.floor(Math.random() * 400) + 100,
+        status: 'approved',
+        folderFiles: [
+          {
+            name: `${company} Prep Guide.pdf`,
+            fileUrl: 'https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pgh.pdf',
+            type: 'pdf'
+          },
+          {
+            name: `${company} Past Interview Questions.pdf`,
+            fileUrl: 'https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pgh.pdf',
+            type: 'pdf'
+          }
+        ]
+      }));
 
       for (const mat of seedMaterials) {
         await prisma.studyMaterial.create({
@@ -113,7 +66,7 @@ export async function GET() {
       // Re-fetch seeded materials
       materials = await prisma.studyMaterial.findMany({
         where: { branch: 'Placement Materials' },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { title: 'asc' }, // Sort by title so they show up alphabetically
       });
     }
 

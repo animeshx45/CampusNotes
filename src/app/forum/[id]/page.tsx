@@ -434,56 +434,44 @@ export default function ForumThreadPage({ params }: { params: Promise<{ id: stri
                       )}
                       <div className="flex items-center gap-4 pt-1">
                          <button 
-                          className={`flex items-center gap-1.5 text-[10px] font-black transition-colors uppercase tracking-widest ${
-                            user && reply.likes?.includes(user.id || user.uid || '') 
-                              ? 'text-primary hover:text-primary/80' 
-                              : 'text-muted-foreground hover:text-primary'
-                          }`}
-                          onClick={() => handleToggleLikeReply(reply.id || (reply as any)._id)}
-                         >
-                            <ThumbsUp className={`h-3 w-3 ${user && reply.likes?.includes(user.id || user.uid || '') ? 'fill-current' : ''}`} /> 
-                            {reply.likes?.length ? `${reply.likes.length} Likes` : 'Like'}
-                         </button>
-                         <button 
-                          className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest"
-                          onClick={() => {
-                            setReplyContent(`@${reply.authorName} `);
-                          }}
-                         >
-                            <Reply className="h-3 w-3" /> Reply
-                         </button>
+                           className={`flex items-center gap-1.5 text-[10px] font-black transition-colors uppercase tracking-widest ${
+                             user && reply.likes?.includes(user.id || user.uid || '') 
+                               ? 'text-primary hover:text-primary/80' 
+                               : 'text-muted-foreground hover:text-primary'
+                           }`}
+                           onClick={() => handleToggleLikeReply(reply.id || (reply as any)._id)}
+                          >
+                             <ThumbsUp className={`h-3 w-3 ${user && reply.likes?.includes(user.id || user.uid || '') ? 'fill-current' : ''}`} /> 
+                             {reply.likes?.length ? `${reply.likes.length} Likes` : 'Like'}
+                          </button>
+                          <button 
+                           className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest"
+                           onClick={() => {
+                             setReplyContent(`@${reply.authorName} `);
+                           }}
+                          >
+                             <Reply className="h-3 w-3" /> Reply
+                          </button>
+                          {canEditReply(reply) && (
+                            <button 
+                             className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest"
+                             onClick={() => handleStartEditReply(reply.id || (reply as any)._id, reply.content)}
+                            >
+                               <Edit className="h-3 w-3" /> Edit
+                            </button>
+                          )}
+                          {canDeleteReply(reply) && (
+                            <button 
+                             className="flex items-center gap-1.5 text-[10px] font-black text-destructive hover:text-destructive/80 transition-colors uppercase tracking-widest"
+                             onClick={() => handleDeleteReply(reply.id || (reply as any)._id)}
+                            >
+                               <Trash2 className="h-3 w-3" /> Delete
+                            </button>
+                          )}
                       </div>
                    </div>
-                     <div className="flex gap-1 shrink-0">
-                      {(canEditReply(reply) || canDeleteReply(reply)) && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-32 bg-popover border border-white/10 rounded-xl shadow-xl">
-                            {canEditReply(reply) && (
-                              <DropdownMenuItem 
-                                onClick={() => handleStartEditReply(reply.id || (reply as any)._id, reply.content)}
-                                className="flex items-center gap-2 cursor-pointer font-semibold text-xs"
-                              >
-                                <Edit className="h-3.5 w-3.5 text-primary" />
-                                <span>Edit</span>
-                              </DropdownMenuItem>
-                            )}
-                            {canDeleteReply(reply) && (
-                              <DropdownMenuItem 
-                                onClick={() => handleDeleteReply(reply.id || (reply as any)._id)}
-                                className="flex items-center gap-2 cursor-pointer font-semibold text-xs text-destructive focus:text-destructive focus:bg-destructive/10"
-                              >
-                                <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                                <span>Delete</span>
-                              </DropdownMenuItem>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
+                    <div className="flex gap-1 shrink-0">
+                      {/* Action buttons are displayed inline in the action bar */}
                     </div>
                 </div>
               ))
