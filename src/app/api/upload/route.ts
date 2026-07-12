@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/cockroachdb';
-import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
+import { connectToDatabase } from '@/lib/db';
+import MaterialFile from '@/lib/models/MaterialFile';
+import mongoose from 'mongoose';
+import { Readable } from 'stream';
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -84,18 +85,47 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ url: fileUrl });
     }
 
-    // --- Production: Store file in CockroachDB via Prisma ---
-    const materialFile = await prisma.materialFile.create({
-      data: {
-        fileName,
-        contentType,
-        data: new Uint8Array(fileBuffer), // Cast to Uint8Array for Prisma Bytes type
-      },
+    // --- Production: Store file in MongoDB GridFS ---
+    await connectToDatabase();
+    const conn = mongoose.connection;
+    if (!conn.db) {
+      throw new Error('Database connection not established');
+    }
+
+    const bucket = new mongoose.mongo.GridFSBucket(conn.db, {
+      bucketName: 'study_materials',
+      chunkSizeBytes: 2 * 1024 * 1024 // 2MB chunks for efficiency
     });
 
-    const fileUrl = `/api/upload?id=${materialFile.id}`;
+    // Upload the file to GridFS using a stream
+    const fileId = await new Promise<string>((resolve, reject) => {
+      const readableStream = new Readable();
+      readableStream.push(fileBuffer);
+      readableStream.push(null);
 
-    console.log(`Saved file to CockroachDB: ${fileName} (ID: ${materialFile.id}, Size: ${fileBuffer.length} bytes)`);
+      const uploadStream = bucket.openUploadStream(fileName, {
+        metadata: {
+          contentType: contentType,
+          originalName: fileName,
+          uploadedAt: new Date().toISOString(),
+          sizeBytes: fileBuffer.length
+        }
+      });
+
+      readableStream.pipe(uploadStream);
+
+      uploadStream.on('finish', () => {
+        resolve(uploadStream.id.toString());
+      });
+
+      uploadStream.on('error', (err) => {
+        reject(err);
+      });
+    });
+
+    const fileUrl = `/api/upload?id=${fileId}`;
+
+    console.log(`Saved file to GridFS: ${fileName} (ID: ${fileId}, Size: ${fileBuffer.length} bytes)`);
 
     return NextResponse.json({ url: fileUrl });
   } catch (error: any) {
@@ -110,6 +140,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
+import { cookies } from 'next/headers';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -119,19 +150,16 @@ export async function GET(request: NextRequest) {
       return new NextResponse('File ID parameter is required', { status: 400 });
     }
 
-    // --- Check if it's a local dev file (not a UUID) ---
-    const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-    if (!UUID_REGEX.test(fileId)) {
-      // Try to serve from local disk (dev mode uploads)
+    if (!mongoose.Types.ObjectId.isValid(fileId)) {
+      // Check if it's a file saved locally in development mode
       try {
         const filePath = path.join(process.cwd(), 'public', 'uploads', fileId);
         // Check if file exists
         await fs.access(filePath);
-
+        
         // Read file contents
-        const localBuffer = await fs.readFile(filePath);
-
+        const fileBuffer = await fs.readFile(filePath);
+        
         // Determine content type
         let ct = 'application/pdf';
         if (fileId.toLowerCase().endsWith('.png')) {
@@ -144,7 +172,7 @@ export async function GET(request: NextRequest) {
           ct = 'image/gif';
         }
 
-        return new NextResponse(localBuffer, {
+        return new NextResponse(fileBuffer, {
           headers: {
             'Content-Type': ct,
             'Content-Disposition': `inline; filename="${encodeURIComponent(fileId)}"`,
@@ -156,22 +184,55 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // --- Production: Retrieve from CockroachDB via Prisma ---
-    const materialFile = await prisma.materialFile.findUnique({
-      where: { id: fileId },
+    await connectToDatabase();
+    const conn = mongoose.connection;
+    if (!conn.db) {
+      throw new Error('Database connection not established');
+    }
+
+    const bucket = new mongoose.mongo.GridFSBucket(conn.db, {
+      bucketName: 'study_materials',
+      chunkSizeBytes: 2 * 1024 * 1024
     });
 
-    if (!materialFile) {
+    const objectId = new mongoose.Types.ObjectId(fileId);
+
+    // 1. Try to find the file in GridFS
+    const files = await bucket.find({ _id: objectId }).toArray();
+
+    if (!files || files.length === 0) {
+      // 2. Fallback to old MaterialFile schema (legacy base64 storage)
+      const oldFile = await MaterialFile.findById(fileId);
+      if (oldFile) {
+        const oldBuffer = Buffer.from(oldFile.data, 'base64');
+        return new NextResponse(oldBuffer, {
+          headers: {
+            'Content-Type': oldFile.contentType || 'application/pdf',
+            'Content-Disposition': `inline; filename="${encodeURIComponent(oldFile.fileName)}"`,
+            'Cache-Control': 'public, max-age=31536000, immutable'
+          }
+        });
+      }
       return new NextResponse('File not found', { status: 404 });
     }
 
-    // materialFile.data is a Buffer (Prisma Bytes type)
-    const buffer = Buffer.from(materialFile.data);
+    const fileRecord = files[0];
+    const downloadStream = bucket.openDownloadStream(objectId);
 
-    return new NextResponse(buffer, {
+    // Read the stream into a single buffer to guarantee safe serverless delivery
+    const chunks: any[] = [];
+    await new Promise<void>((resolve, reject) => {
+      downloadStream.on('data', (chunk: any) => chunks.push(Buffer.from(chunk)));
+      downloadStream.on('end', () => resolve());
+      downloadStream.on('error', (err: any) => reject(err));
+    });
+
+    const fileBuffer = Buffer.concat(chunks);
+
+    return new NextResponse(fileBuffer, {
       headers: {
-        'Content-Type': materialFile.contentType || 'application/pdf',
-        'Content-Disposition': `inline; filename="${encodeURIComponent(materialFile.fileName)}"`,
+        'Content-Type': (fileRecord.metadata as any)?.contentType || 'application/pdf',
+        'Content-Disposition': `inline; filename="${encodeURIComponent(fileRecord.filename)}"`,
         'Cache-Control': 'public, max-age=31536000, immutable'
       }
     });

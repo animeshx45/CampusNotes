@@ -1,22 +1,22 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/cockroachdb';
+import { connectToDatabase } from '@/lib/db';
+import StudyMaterial from '@/lib/models/StudyMaterial';
 
 export async function GET() {
   try {
+    await connectToDatabase();
+
     // 1. Fetch placement materials
-    let materials = await prisma.studyMaterial.findMany({
-      where: { branch: 'Placement Materials' },
-      orderBy: { createdAt: 'desc' },
-    });
+    let materials = await StudyMaterial.find({ branch: 'Placement Materials' }).lean();
 
     const hasEmptyCompanies = materials.length > 0 && materials.some(m => m.subject === 'ACCENTURE') && materials.every(m => !m.folderFiles || (Array.isArray(m.folderFiles) && m.folderFiles.length === 0));
 
     // 2. If 0 or old mock data found, let's clear and seed empty company placement folders
     if (materials.length === 0 || !hasEmptyCompanies) {
-      console.log('Empty company-specific placement materials not found. Clearing old and seeding...');
+      console.log('Empty company-specific placement materials not found. Clearing old and seeding in MongoDB...');
       
-      await prisma.studyMaterial.deleteMany({
-        where: { branch: 'Placement Materials' }
+      await StudyMaterial.deleteMany({
+        branch: 'Placement Materials'
       });
 
       const companies = [
@@ -47,19 +47,19 @@ export async function GET() {
       }));
 
       for (const mat of seedMaterials) {
-        await prisma.studyMaterial.create({
-          data: mat as any
-        });
+        await StudyMaterial.create(mat);
       }
 
       // Re-fetch seeded materials
-      materials = await prisma.studyMaterial.findMany({
-        where: { branch: 'Placement Materials' },
-        orderBy: { title: 'asc' },
-      });
+      materials = await StudyMaterial.find({ branch: 'Placement Materials' }).sort({ title: 'asc' }).lean();
     }
 
-    return NextResponse.json({ count: materials.length, data: materials });
+    const data = materials.map((m: any) => ({
+      ...m,
+      id: m._id.toString()
+    }));
+
+    return NextResponse.json({ count: data.length, data });
   } catch (error: any) {
     console.error('Failed to query/seed placement materials, returning fallback folders:', error);
     const companies = [

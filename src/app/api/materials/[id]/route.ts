@@ -19,7 +19,9 @@
 
 
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/cockroachdb';
+import { connectToDatabase } from '@/lib/db';
+import StudyMaterial from '@/lib/models/StudyMaterial';
+import mongoose from 'mongoose';
 
 // GET /api/materials/[id] - Get a single material
 export async function GET(
@@ -54,9 +56,13 @@ export async function GET(
       return NextResponse.json({ data: fallbackMaterial });
     }
 
-    const material = await prisma.studyMaterial.findUnique({
-      where: { id },
-    });
+    // Check if it's a valid ObjectId first. If it's a mock ID (starts with CSE, common, etc.), return null
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ data: null }, { status: 404 });
+    }
+
+    await connectToDatabase();
+    const material = await StudyMaterial.findById(id);
 
     if (!material) {
       return NextResponse.json({ data: null }, { status: 404 });
@@ -64,10 +70,6 @@ export async function GET(
 
     return NextResponse.json({ data: material });
   } catch (error: any) {
-    // If the id is not a valid UUID, Prisma throws — treat as 404
-    if (error.code === 'P2023' || error.message?.includes('Malformed ObjectID')) {
-      return NextResponse.json({ data: null }, { status: 404 });
-    }
     console.error('Failed to fetch material:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
@@ -87,46 +89,35 @@ export async function PUT(
 
     const body = await request.json();
 
-    // Build the update payload
-    let updateData: any = {};
-
-    if (body.incrementViews) {
-      // Prisma doesn't have $inc — use an atomic increment
-      updateData = { views: { increment: 1 } };
-    } else if (body.incrementDownloads) {
-      updateData = { downloadCount: { increment: 1 } };
-    } else {
-      // Normal full update — pick only known fields to prevent overwriting system columns
-      const { title, subject, description, branch, semester, type, fileUrl, author, uploaderId, status, folderFiles } = body;
-      updateData = {
-        ...(title !== undefined && { title }),
-        ...(subject !== undefined && { subject }),
-        ...(description !== undefined && { description }),
-        ...(branch !== undefined && { branch }),
-        ...(semester !== undefined && { semester: Number(semester) }),
-        ...(type !== undefined && { type }),
-        ...(fileUrl !== undefined && { fileUrl }),
-        ...(author !== undefined && { author }),
-        ...(uploaderId !== undefined && { uploaderId }),
-        ...(status !== undefined && { status }),
-        ...(folderFiles !== undefined && { folderFiles }),
-      };
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ error: 'Invalid ID format' }, { status: 400 });
     }
 
-    const updatedMaterial = await prisma.studyMaterial.update({
-      where: { id },
-      data: updateData,
-    });
+    await connectToDatabase();
+
+    // Support increments (like incrementing views or downloads) or full edits
+    const updateData: any = {};
+    if (body.incrementViews) {
+      updateData.$inc = { views: 1 };
+    } else if (body.incrementDownloads) {
+      updateData.$inc = { downloadCount: 1 };
+    } else {
+      // Normal update
+      Object.assign(updateData, body);
+    }
+
+    const updatedMaterial = await StudyMaterial.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true }
+    );
+
+    if (!updatedMaterial) {
+      return NextResponse.json({ error: 'Material not found' }, { status: 404 });
+    }
 
     return NextResponse.json({ data: updatedMaterial });
   } catch (error: any) {
-    // P2025 = record not found
-    if (error.code === 'P2025') {
-      return NextResponse.json({ error: 'Material not found' }, { status: 404 });
-    }
-    if (error.code === 'P2023') {
-      return NextResponse.json({ error: 'Invalid ID format' }, { status: 400 });
-    }
     console.error('Failed to update material:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
@@ -144,18 +135,19 @@ export async function DELETE(
       return NextResponse.json({ success: true });
     }
 
-    await prisma.studyMaterial.delete({
-      where: { id },
-    });
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ error: 'Invalid ID format' }, { status: 400 });
+    }
+
+    await connectToDatabase();
+    const deletedMaterial = await StudyMaterial.findByIdAndDelete(id);
+
+    if (!deletedMaterial) {
+      return NextResponse.json({ error: 'Material not found' }, { status: 404 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    if (error.code === 'P2025') {
-      return NextResponse.json({ error: 'Material not found' }, { status: 404 });
-    }
-    if (error.code === 'P2023') {
-      return NextResponse.json({ error: 'Invalid ID format' }, { status: 400 });
-    }
     console.error('Failed to delete material:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }

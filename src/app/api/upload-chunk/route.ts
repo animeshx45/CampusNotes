@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/cockroachdb';
+import { connectToDatabase } from '@/lib/db';
+import UploadChunk from '@/lib/models/UploadChunk';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
+import { Readable } from 'stream';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
@@ -22,6 +25,7 @@ async function authenticate() {
 export async function POST(request: NextRequest) {
   try {
     await authenticate();
+    await connectToDatabase();
 
     const contentType = request.headers.get('content-type') || '';
 
@@ -42,9 +46,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Verify all chunks exist
-        const chunkCount = await prisma.uploadChunk.count({
-          where: { sessionId },
-        });
+        const chunkCount = await UploadChunk.countDocuments({ sessionId });
         if (chunkCount < totalChunks) {
           return NextResponse.json({
             error: `Only ${chunkCount}/${totalChunks} chunks received. Please retry the upload.`
@@ -52,10 +54,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Retrieve all chunks in order
-        const chunks = await prisma.uploadChunk.findMany({
-          where: { sessionId },
-          orderBy: { chunkIndex: 'asc' },
-        });
+        const chunks = await UploadChunk.find({ sessionId }).sort({ chunkIndex: 1 }).lean();
 
         // Verify sequential completeness
         for (let i = 0; i < totalChunks; i++) {
@@ -66,24 +65,52 @@ export async function POST(request: NextRequest) {
 
         // Assemble all chunk buffers into a single file buffer
         const fileBuffer = Buffer.concat(
-          chunks.map((c) => Buffer.from(c.data))
+          chunks.map((c: any) => Buffer.from(c.data.buffer || c.data))
         );
 
-        // Store the assembled file in CockroachDB
+        // Store the assembled file in GridFS (production standard for study materials)
         const finalFileName = fileName || 'file.pdf';
-        const materialFile = await prisma.materialFile.create({
-          data: {
-            fileName: finalFileName,
-            contentType: fileContentType || 'application/pdf',
-            data: new Uint8Array(fileBuffer),
-          },
+        const conn = mongoose.connection;
+        if (!conn.db) {
+          throw new Error('Database connection not established');
+        }
+
+        const bucket = new mongoose.mongo.GridFSBucket(conn.db, {
+          bucketName: 'study_materials',
+          chunkSizeBytes: 2 * 1024 * 1024 // 2MB chunks for efficiency
+        });
+
+        // Upload the file to GridFS using a stream
+        const fileId = await new Promise<string>((resolve, reject) => {
+          const readableStream = new Readable();
+          readableStream.push(fileBuffer);
+          readableStream.push(null);
+
+          const uploadStream = bucket.openUploadStream(finalFileName, {
+            metadata: {
+              contentType: fileContentType || 'application/pdf',
+              originalName: finalFileName,
+              uploadedAt: new Date().toISOString(),
+              sizeBytes: fileBuffer.length
+            }
+          });
+
+          readableStream.pipe(uploadStream);
+
+          uploadStream.on('finish', () => {
+            resolve(uploadStream.id.toString());
+          });
+
+          uploadStream.on('error', (err) => {
+            reject(err);
+          });
         });
 
         // Clean up temp chunks in the background
-        prisma.uploadChunk.deleteMany({ where: { sessionId } }).catch(() => {});
+        UploadChunk.deleteMany({ sessionId }).catch(() => {});
 
-        const fileUrl = `/api/upload?id=${materialFile.id}`;
-        console.log(`Chunked upload complete: ${finalFileName} → CockroachDB ${materialFile.id} (${totalChunks} chunks)`);
+        const fileUrl = `/api/upload?id=${fileId}`;
+        console.log(`Chunked upload complete: ${finalFileName} → GridFS ${fileId} (${totalChunks} chunks)`);
         return NextResponse.json({ url: fileUrl });
       }
 
@@ -105,13 +132,11 @@ export async function POST(request: NextRequest) {
       const buffer = Buffer.from(bytes);
 
       // Upsert: if the client retries a chunk, overwrite it
-      await prisma.uploadChunk.upsert({
-        where: {
-          sessionId_chunkIndex: { sessionId, chunkIndex },
-        },
-        update: { data: new Uint8Array(buffer) },
-        create: { sessionId, chunkIndex, data: new Uint8Array(buffer) },
-      });
+      await UploadChunk.findOneAndUpdate(
+        { sessionId, chunkIndex },
+        { data: buffer },
+        { upsert: true, new: true }
+      );
 
       return NextResponse.json({ ok: true, chunk: chunkIndex });
     }

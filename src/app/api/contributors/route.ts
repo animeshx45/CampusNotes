@@ -1,17 +1,17 @@
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import User from '@/lib/models/User';
-import { prisma } from '@/lib/cockroachdb';
+import StudyMaterial from '@/lib/models/StudyMaterial';
 import ForumPost from '@/lib/models/ForumPost';
 
 export async function GET() {
   try {
     await connectToDatabase();
 
-    // Fetch users & forum posts from MongoDB, materials from CockroachDB
+    // Fetch users, study materials, & forum posts from MongoDB
     const [users, materials, posts] = await Promise.all([
       User.find({}, { password: 0 }).lean(),
-      prisma.studyMaterial.findMany({ where: { status: 'approved' } }),
+      StudyMaterial.find({ status: 'approved' }).lean(),
       ForumPost.find({}).lean(),
     ]);
 

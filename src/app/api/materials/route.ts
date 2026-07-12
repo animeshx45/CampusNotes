@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/cockroachdb';
+import { connectToDatabase } from '@/lib/db';
+import StudyMaterial from '@/lib/models/StudyMaterial';
 
 // GET /api/materials - Get all study materials (optional filtering by branch/semester)
 export async function GET(request: Request) {
@@ -8,27 +9,26 @@ export async function GET(request: Request) {
     const branch = searchParams.get('branch');
     const semester = searchParams.get('semester');
 
-    const where: any = {};
+    await connectToDatabase();
+
+    const query: any = {};
     if (branch && branch !== 'all') {
-      where.branch = branch;
+      query.branch = branch;
     }
     if (semester && semester !== 'all') {
       const semNum = parseInt(semester);
       if (!isNaN(semNum)) {
-        where.semester = semNum;
+        query.semester = semNum;
       }
     }
 
     // Return materials sorted by newest first
-    const materials = await prisma.studyMaterial.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-    });
+    const materials = await StudyMaterial.find(query).sort({ createdAt: -1 }).lean();
 
-    // Map CockroachDB UUID `id` to match the existing API shape
-    const data = materials.map((m) => ({
+    // Map MongoDB `_id` to match expected client-side `id` shape
+    const data = materials.map((m: any) => ({
       ...m,
-      id: m.id, // UUID string — replaces the old MongoDB _id
+      id: m._id.toString(),
     }));
 
     return NextResponse.json({ data });
@@ -50,22 +50,22 @@ export async function POST(request: Request) {
 
     const cleanSubject = (subject || 'General').trim();
 
-    const newMaterial = await prisma.studyMaterial.create({
-      data: {
-        title,
-        subject: cleanSubject,
-        description,
-        branch,
-        semester: Number(semester),
-        type,
-        fileUrl,
-        author,
-        uploaderId: uploaderId || 'public-user',
-        downloadCount: 0,
-        views: 0,
-        status: 'approved',
-        folderFiles: folderFiles && folderFiles.length > 0 ? folderFiles : undefined,
-      },
+    await connectToDatabase();
+
+    const newMaterial = await StudyMaterial.create({
+      title,
+      subject: cleanSubject,
+      description,
+      branch,
+      semester: Number(semester),
+      type,
+      fileUrl,
+      author,
+      uploaderId: uploaderId || 'public-user',
+      downloadCount: 0,
+      views: 0,
+      status: 'approved',
+      folderFiles: folderFiles || []
     });
 
     return NextResponse.json({ data: newMaterial });
