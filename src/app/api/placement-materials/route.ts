@@ -6,30 +6,25 @@ export async function GET() {
   try {
     await connectToDatabase();
 
-    // 1. Fetch placement materials
-    let materials = await StudyMaterial.find({ branch: 'Placement Materials' }).lean();
+    // 1. Fetch all placement materials
+    let allMaterials = await StudyMaterial.find({ branch: 'Placement Materials' }).lean();
 
-    const hasEmptyCompanies = materials.length > 0 && materials.some(m => m.subject === 'ACCENTURE') && materials.every(m => m.semester === 8 && (!m.folderFiles || (Array.isArray(m.folderFiles) && m.folderFiles.length === 0)));
+    const companies = [
+      'ACCENTURE',
+      'CAPGEMINI',
+      'Delloite',
+      'IBM',
+      'INFOSYS',
+      'TCS',
+      'WIPRO',
+      'ZENPACT'
+    ];
 
-    // 2. If 0 or old mock data found, let's clear and seed empty company placement folders
-    if (materials.length === 0 || !hasEmptyCompanies) {
-      console.log('Empty company-specific placement materials not found. Clearing old and seeding in MongoDB...');
-      
-      await StudyMaterial.deleteMany({
-        branch: 'Placement Materials'
-      });
+    // Check if company folders are seeded
+    let folderDocs = allMaterials.filter((m: any) => m.type === 'Folder');
 
-      const companies = [
-        'ACCENTURE',
-        'CAPGEMINI',
-        'Delloite',
-        'IBM',
-        'INFOSYS',
-        'TCS',
-        'WIPRO',
-        'ZENPACT'
-      ];
-
+    if (folderDocs.length === 0) {
+      console.log('Seeding company placement folders...');
       const seedMaterials = companies.map(company => ({
         title: `${company} Placement Materials`,
         subject: company,
@@ -50,14 +45,45 @@ export async function GET() {
         await StudyMaterial.create(mat);
       }
 
-      // Re-fetch seeded materials
-      materials = await StudyMaterial.find({ branch: 'Placement Materials' }).sort({ title: 'asc' }).lean();
+      // Re-fetch everything
+      allMaterials = await StudyMaterial.find({ branch: 'Placement Materials' }).lean();
+      folderDocs = allMaterials.filter((m: any) => m.type === 'Folder');
     }
 
-    const data = materials.map((m: any) => ({
-      ...m,
-      id: m._id.toString()
-    }));
+    // Group individual files by company subject
+    const companyStats: Record<string, { count: number; views: number; downloads: number; files: any[] }> = {};
+    companies.forEach(c => {
+      companyStats[c.toUpperCase()] = { count: 0, views: 0, downloads: 0, files: [] };
+    });
+
+    allMaterials.forEach((m: any) => {
+      const subject = (m.subject || '').toUpperCase().trim();
+      if (companies.includes(subject)) {
+        if (m.type !== 'Folder') {
+          companyStats[subject].count += 1;
+          companyStats[subject].views += (m.views || 0);
+          companyStats[subject].downloads += (m.downloadCount || 0);
+          companyStats[subject].files.push({
+            name: m.title,
+            fileUrl: m.fileUrl,
+            type: m.type === 'image' ? 'image' : 'pdf'
+          });
+        }
+      }
+    });
+
+    // Construct the final list of company folders with dynamic files and counts
+    const data = folderDocs.map((m: any) => {
+      const subject = (m.subject || '').toUpperCase().trim();
+      const stats = companyStats[subject] || { count: 0, views: 0, downloads: 0, files: [] };
+      return {
+        ...m,
+        id: m._id.toString(),
+        views: stats.views || m.views || 0,
+        downloadCount: stats.downloads || m.downloadCount || 0,
+        folderFiles: stats.files
+      };
+    });
 
     return NextResponse.json({ count: data.length, data });
   } catch (error: any) {

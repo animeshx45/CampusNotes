@@ -42,6 +42,18 @@ interface BulkUploadItem {
 }
 
 const getSubjectsForFilter = (branch: Branch, semester: number): string[] => {
+  if (branch === 'Placement Materials') {
+    return [
+      'ACCENTURE',
+      'CAPGEMINI',
+      'Delloite',
+      'IBM',
+      'INFOSYS',
+      'TCS',
+      'WIPRO',
+      'ZENPACT'
+    ];
+  }
   if (semester === 1) {
     return [
       'Elements of Mechanical Engineering',

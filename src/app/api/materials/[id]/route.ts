@@ -62,10 +62,24 @@ export async function GET(
     }
 
     await connectToDatabase();
-    const material = await StudyMaterial.findById(id);
+    let material = await StudyMaterial.findById(id).lean();
 
     if (!material) {
       return NextResponse.json({ data: null }, { status: 404 });
+    }
+
+    if (material.type === 'Folder' && material.branch === 'Placement Materials') {
+      const files = await StudyMaterial.find({
+        branch: 'Placement Materials',
+        subject: material.subject,
+        type: { $ne: 'Folder' }
+      }).lean();
+
+      material.folderFiles = files.map((f: any) => ({
+        name: f.title,
+        fileUrl: f.fileUrl,
+        type: f.type === 'image' ? 'image' : 'pdf'
+      }));
     }
 
     return NextResponse.json({ data: material });

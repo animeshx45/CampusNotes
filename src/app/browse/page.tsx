@@ -26,6 +26,18 @@ import Autoplay from "embla-carousel-autoplay";
 import placeholderData from "@/app/lib/placeholder-images.json";
 
 const getSubjectsForFilter = (branch: Branch, semester: number): string[] => {
+  if (branch === 'Placement Materials') {
+    return [
+      'ACCENTURE',
+      'CAPGEMINI',
+      'Delloite',
+      'IBM',
+      'INFOSYS',
+      'TCS',
+      'WIPRO',
+      'ZENPACT'
+    ];
+  }
   if (semester === 1) {
     return [
       'Elements of Mechanical Engineering',
@@ -748,7 +760,7 @@ export default function BrowsePage() {
 
   const subjectFolders = useMemo(() => {
     const foldersMap: Record<string, StudyMaterial[]> = {};
-    const semestersToPopulate = selectedSemester === 'all' ? [1, 2, 3, 4, 5, 6, 7] : [parseInt(selectedSemester)];
+    const semestersToPopulate = selectedSemester === 'all' ? [1, 2, 3, 4, 5, 6, 7, 8] : [parseInt(selectedSemester)];
     
     semestersToPopulate.forEach(semNum => {
       if (isNaN(semNum)) return;
@@ -759,7 +771,7 @@ export default function BrowsePage() {
         });
       } else {
         const branchesToPopulate = selectedBranch === 'all' 
-          ? ['Mechanical Engineering', 'Chemical Engineering', 'Electronics & Communication Engineering', 'Metallurgical & Materials Engineering', 'Computer Science & Engineering', 'Information Technology', 'Civil Engineering', 'Electrical Engineering'] 
+          ? ['Mechanical Engineering', 'Chemical Engineering', 'Electronics & Communication Engineering', 'Metallurgical & Materials Engineering', 'Computer Science & Engineering', 'Information Technology', 'Civil Engineering', 'Electrical Engineering', 'Placement Materials'] 
           : [selectedBranch];
         branchesToPopulate.forEach(br => {
           const whitelisted = getSubjectsForFilter(br as Branch, semNum);
