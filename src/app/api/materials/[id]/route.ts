@@ -41,7 +41,7 @@ export async function GET(
         subject: formattedSubject,
         description: `${formattedSubject}-specific placement prep materials, including past papers, coding questions, and interview preparation resources.`,
         branch: 'Placement Materials',
-        semester: 1,
+        semester: 8,
         type: 'Folder',
         fileUrl: 'folder',
         author: 'Training & Placement Cell',

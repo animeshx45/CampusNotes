@@ -9,7 +9,7 @@ export async function GET() {
     // 1. Fetch placement materials
     let materials = await StudyMaterial.find({ branch: 'Placement Materials' }).lean();
 
-    const hasEmptyCompanies = materials.length > 0 && materials.some(m => m.subject === 'ACCENTURE') && materials.every(m => !m.folderFiles || (Array.isArray(m.folderFiles) && m.folderFiles.length === 0));
+    const hasEmptyCompanies = materials.length > 0 && materials.some(m => m.subject === 'ACCENTURE') && materials.every(m => m.semester === 8 && (!m.folderFiles || (Array.isArray(m.folderFiles) && m.folderFiles.length === 0)));
 
     // 2. If 0 or old mock data found, let's clear and seed empty company placement folders
     if (materials.length === 0 || !hasEmptyCompanies) {
@@ -35,7 +35,7 @@ export async function GET() {
         subject: company,
         description: `${company}-specific placement prep materials, including past papers, coding questions, and interview preparation resources.`,
         branch: 'Placement Materials',
-        semester: 1,
+        semester: 8,
         type: 'Folder',
         fileUrl: 'folder',
         author: 'Training & Placement Cell',
@@ -78,7 +78,7 @@ export async function GET() {
       subject: company,
       description: `${company}-specific placement prep materials, including past papers, coding questions, and interview preparation resources.`,
       branch: 'Placement Materials',
-      semester: 1,
+      semester: 8,
       type: 'Folder',
       fileUrl: 'folder',
       author: 'Training & Placement Cell',

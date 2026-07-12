@@ -751,7 +751,7 @@ function MaterialDetailPageContent({ params }: { params: Promise<{ id: string }>
       subject: formattedSubject,
       description: `${formattedSubject}-specific placement prep materials, including past papers, coding questions, and interview preparation resources.`,
       branch: 'Placement Materials' as Branch,
-      semester: 1 as Semester,
+      semester: 8 as Semester,
       type: 'Folder' as MaterialType,
       fileUrl: 'folder',
       author: 'Training & Placement Cell',
