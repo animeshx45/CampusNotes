@@ -691,6 +691,12 @@ export default function UploadPage() {
     }
   }, [formData.semester, formData.branch]);
 
+  useEffect(() => {
+    if (formData.branch === 'Placement Materials') {
+      setFormData(prev => ({ ...prev, semester: 8 }));
+    }
+  }, [formData.branch]);
+
   // Auth guard - early returns AFTER all hooks
   if (isUserLoading) {
     return (
@@ -1448,17 +1454,19 @@ export default function UploadPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="semester" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Semester</Label>
-                    <Select onValueChange={(v) => setFormData({...formData, semester: parseInt(v) as Semester})} value={formData.semester?.toString()}>
-                      <SelectTrigger id="semester" className="rounded-xl h-12 bg-secondary/20 border-none shadow-inner">
-                        <SelectValue placeholder="Which semester?" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {SEMESTERS.map(s => <SelectItem key={s} value={s.toString()}>Semester {s}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {formData.branch !== 'Placement Materials' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="semester" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Semester</Label>
+                      <Select onValueChange={(v) => setFormData({...formData, semester: parseInt(v) as Semester})} value={formData.semester?.toString()}>
+                        <SelectTrigger id="semester" className="rounded-xl h-12 bg-secondary/20 border-none shadow-inner">
+                          <SelectValue placeholder="Which semester?" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SEMESTERS.map(s => <SelectItem key={s} value={s.toString()}>Semester {s}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

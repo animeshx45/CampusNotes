@@ -5,6 +5,8 @@ import mongoose from 'mongoose';
 import { Readable } from 'stream';
 import { promises as fs } from 'fs';
 import path from 'path';
+import jwt from 'jsonwebtoken';
+import { cookies } from 'next/headers';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
@@ -140,7 +142,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-import { cookies } from 'next/headers';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);

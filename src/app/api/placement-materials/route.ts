@@ -21,7 +21,7 @@ export async function GET() {
     ];
 
     // Check if company folders are seeded
-    let folderDocs = allMaterials.filter((m: any) => m.type === 'Folder');
+    let folderDocs = allMaterials.filter((m: any) => m.type === 'Folder' && m.uploaderId === 'system');
 
     if (folderDocs.length === 0) {
       console.log('Seeding company placement folders...');
@@ -47,19 +47,33 @@ export async function GET() {
 
       // Re-fetch everything
       allMaterials = await StudyMaterial.find({ branch: 'Placement Materials' }).lean();
-      folderDocs = allMaterials.filter((m: any) => m.type === 'Folder');
+      folderDocs = allMaterials.filter((m: any) => m.type === 'Folder' && m.uploaderId === 'system');
     }
 
     // Group individual files by company subject
     const companyStats: Record<string, { count: number; views: number; downloads: number; files: any[] }> = {};
+    const upperCompanies = companies.map(c => c.toUpperCase());
     companies.forEach(c => {
       companyStats[c.toUpperCase()] = { count: 0, views: 0, downloads: 0, files: [] };
     });
 
     allMaterials.forEach((m: any) => {
       const subject = (m.subject || '').toUpperCase().trim();
-      if (companies.includes(subject)) {
-        if (m.type !== 'Folder') {
+      if (upperCompanies.includes(subject)) {
+        if (m.type === 'Folder' && m.uploaderId !== 'system') {
+          companyStats[subject].views += (m.views || 0);
+          companyStats[subject].downloads += (m.downloadCount || 0);
+          if (m.folderFiles && Array.isArray(m.folderFiles)) {
+            m.folderFiles.forEach((file: any) => {
+              companyStats[subject].count += 1;
+              companyStats[subject].files.push({
+                name: file.name,
+                fileUrl: file.fileUrl,
+                type: file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'pdf' : 'image')
+              });
+            });
+          }
+        } else if (m.type !== 'Folder') {
           companyStats[subject].count += 1;
           companyStats[subject].views += (m.views || 0);
           companyStats[subject].downloads += (m.downloadCount || 0);

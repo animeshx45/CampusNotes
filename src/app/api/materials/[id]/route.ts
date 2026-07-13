@@ -71,15 +71,32 @@ export async function GET(
     if (material.type === 'Folder' && material.branch === 'Placement Materials') {
       const files = await StudyMaterial.find({
         branch: 'Placement Materials',
-        subject: material.subject,
-        type: { $ne: 'Folder' }
+        subject: { $regex: new RegExp(`^${material.subject}$`, 'i') },
+        _id: { $ne: new mongoose.Types.ObjectId(id) }
       }).lean();
 
-      material.folderFiles = files.map((f: any) => ({
-        name: f.title,
-        fileUrl: f.fileUrl,
-        type: f.type === 'image' ? 'image' : 'pdf'
-      }));
+      const folderFiles: any[] = [];
+      files.forEach((f: any) => {
+        if (f.type === 'Folder') {
+          if (f.folderFiles && Array.isArray(f.folderFiles)) {
+            f.folderFiles.forEach((file: any) => {
+              folderFiles.push({
+                name: file.name,
+                fileUrl: file.fileUrl,
+                type: file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'pdf' : 'image')
+              });
+            });
+          }
+        } else {
+          folderFiles.push({
+            name: f.title,
+            fileUrl: f.fileUrl,
+            type: f.type === 'image' ? 'image' : 'pdf'
+          });
+        }
+      });
+
+      material.folderFiles = folderFiles;
     }
 
     return NextResponse.json({ data: material });

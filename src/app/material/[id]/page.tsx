@@ -16,7 +16,7 @@ import {
   BrainCircuit, Download, FileText, Share2, MessageSquare, 
   Info, Sparkles, AlertCircle, Loader2, Zap, ArrowLeft, 
   ExternalLink, Youtube, Monitor, Eye, ShieldCheck, Trash2, Edit,
-  Terminal, Lightbulb, CheckCircle2, Rocket, FolderOpen
+  Terminal, Lightbulb, CheckCircle2, Rocket, FolderOpen, Upload
 } from 'lucide-react';
 import { generateStudyMaterialSummary } from '@/ai/flows/generate-study-material-summary';
 import { generateExamQuestions } from '@/ai/flows/generate-exam-questions-flow';
@@ -771,7 +771,8 @@ function MaterialDetailPageContent({ params }: { params: Promise<{ id: string }>
       downloadCount: 0,
       views: 0,
       status: 'approved' as const,
-      folderFiles: []
+      folderFiles: [],
+      createdAt: new Date().toISOString()
     };
   }, [id]);
 
@@ -822,6 +823,126 @@ function MaterialDetailPageContent({ params }: { params: Promise<{ id: string }>
   const [detectedType, setDetectedType] = useState<'pdf' | 'image' | 'youtube' | 'other' | null>(null);
   const [selectedFolderFileIndex, setSelectedFolderFileIndex] = useState<number>(0);
   const [isPreviewDialogOpen, setIsPreviewDialogOpen] = useState<boolean>(false);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState<boolean>(false);
+  const [uploadForm, setUploadForm] = useState({
+    title: '',
+    description: '',
+    type: 'Note' as MaterialType
+  });
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [isUploadingFiles, setIsUploadingFiles] = useState<boolean>(false);
+
+  const handleUploadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!uploadFile || !material) return;
+
+    setIsUploadingFiles(true);
+    try {
+      // 1. Initialize chunked upload session
+      const initRes = await fetch('/api/upload-chunk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'init' })
+      });
+
+      if (!initRes.ok) {
+        throw new Error('Failed to initialize upload session');
+      }
+
+      const { sessionId } = await initRes.json();
+
+      // 2. Upload file chunk-by-chunk (5MB chunk size)
+      const CHUNK_SIZE = 5 * 1024 * 1024;
+      const totalChunks = Math.ceil(uploadFile.size / CHUNK_SIZE);
+
+      for (let i = 0; i < totalChunks; i++) {
+        const chunk = uploadFile.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+        const chunkForm = new FormData();
+        chunkForm.append('sessionId', sessionId);
+        chunkForm.append('chunkIndex', i.toString());
+        chunkForm.append('chunk', chunk);
+
+        const chunkRes = await fetch('/api/upload-chunk', {
+          method: 'POST',
+          body: chunkForm
+        });
+
+        if (!chunkRes.ok) {
+          throw new Error(`Failed to upload chunk ${i + 1}`);
+        }
+      }
+
+      // 3. Complete chunk upload
+      const completeRes = await fetch('/api/upload-chunk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'complete',
+          sessionId,
+          fileName: uploadFile.name,
+          fileContentType: uploadFile.type,
+          totalChunks
+        })
+      });
+
+      if (!completeRes.ok) {
+        const err = await completeRes.json();
+        throw new Error(err.error || 'Failed to assemble file chunks');
+      }
+
+      const { url: fileUrl } = await completeRes.json();
+
+      // 4. Create study material document associated with this folder's parameters!
+      const payload = {
+        title: uploadForm.title || uploadFile.name,
+        subject: material.subject,
+        description: uploadForm.description || `Notes for ${material.subject}`,
+        branch: material.branch,
+        semester: material.semester,
+        type: uploadForm.type,
+        fileUrl,
+        author: user?.fullName || user?.username || 'Student'
+      };
+
+      const saveRes = await fetch('/api/materials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!saveRes.ok) {
+        const err = await saveRes.json();
+        throw new Error(err.error || 'Failed to save material details');
+      }
+
+      toast({
+        title: "Success!",
+        description: "File uploaded successfully to this folder.",
+      });
+
+      setIsUploadDialogOpen(false);
+      setUploadFile(null);
+      setUploadForm({ title: '', description: '', type: 'Note' });
+      
+      // Refresh the page data
+      setIsLoading(true);
+      const res = await fetch(`/api/materials/${id}`);
+      if (res.ok) {
+        const json = await res.json();
+        setDbMaterial(json.data);
+      }
+      setIsLoading(false);
+    } catch (err: any) {
+      console.error(err);
+      toast({
+        title: "Upload Failed",
+        description: err.message || "An unexpected error occurred.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploadingFiles(false);
+    }
+  };
 
   const isYoutube = !!(material && material.type === 'YouTube Playlist');
   const isFolder = !!(material && (material.type === 'Folder' || (material.folderFiles && material.folderFiles.length > 0)));
@@ -1252,8 +1373,27 @@ function MaterialDetailPageContent({ params }: { params: Promise<{ id: string }>
                 </h3>
               </div>
             </div>
-            <div className="text-xs text-muted-foreground">
-              {material.folderFiles.length} files
+            <div className="flex items-center gap-4">
+              <span className="text-zinc-400 text-xs font-semibold">
+                {material.folderFiles.length} files
+              </span>
+              <Button
+                size="sm"
+                onClick={() => {
+                  if (!user) {
+                    toast({
+                      title: "Authentication Required",
+                      description: "Please log in to upload files to this folder.",
+                      variant: "destructive"
+                    });
+                    return;
+                  }
+                  setIsUploadDialogOpen(true);
+                }}
+                className="rounded-xl font-headline font-black text-[10px] tracking-widest uppercase h-9 bg-primary hover:bg-primary/90 text-white px-4 active:scale-95 shadow-md flex items-center gap-1.5"
+              >
+                <Upload className="h-3.5 w-3.5" /> Upload File
+              </Button>
             </div>
           </div>
 
@@ -1774,6 +1914,113 @@ function MaterialDetailPageContent({ params }: { params: Promise<{ id: string }>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
                   </>
                 ) : 'Save Changes'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Upload File to Folder Dialog */}
+      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+        <DialogContent className="bg-zinc-950 border-white/10 text-white rounded-[2rem] p-8 max-w-lg shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-headline font-bold text-2xl text-primary flex items-center gap-2">
+              <Upload className="h-6 w-6" /> Upload File to Folder
+            </DialogTitle>
+            <DialogDescription className="text-zinc-400 text-sm">
+              Add a new resource directly into this folder. It will inherit the folder's branch, semester, and subject automatically.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleUploadSubmit} className="space-y-6 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="upload-title" className="text-xs font-bold uppercase tracking-wider text-zinc-400">Title</Label>
+              <Input 
+                id="upload-title"
+                value={uploadForm.title}
+                onChange={(e) => setUploadForm(prev => ({ ...prev, title: e.target.value }))}
+                className="bg-zinc-900 border-white/10 text-white rounded-xl h-12 focus-visible:ring-primary focus-visible:ring-1"
+                placeholder="e.g. End-Sem Exam Solved Paper"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="upload-type" className="text-xs font-bold uppercase tracking-wider text-zinc-400">Resource Type</Label>
+                <Select 
+                  value={uploadForm.type} 
+                  onValueChange={(val: MaterialType) => setUploadForm(prev => ({ ...prev, type: val }))}
+                >
+                  <SelectTrigger className="bg-zinc-900 border-white/10 text-white rounded-xl h-12">
+                    <SelectValue placeholder="Select Type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-xl">
+                    {MATERIAL_TYPES.filter(t => t !== 'Folder').map(t => (
+                      <SelectItem key={t} value={t} className="hover:bg-white/10 focus:bg-white/10 focus:text-white text-zinc-200">
+                        {t}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="upload-description" className="text-xs font-bold uppercase tracking-wider text-zinc-400">Description</Label>
+              <Textarea 
+                id="upload-description"
+                value={uploadForm.description}
+                onChange={(e) => setUploadForm(prev => ({ ...prev, description: e.target.value }))}
+                className="bg-zinc-900 border-white/10 text-white rounded-xl min-h-[80px] focus-visible:ring-primary focus-visible:ring-1"
+                placeholder="Describe what's in this file..."
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-zinc-400">Pick PDF / Image File</Label>
+              <div className="relative border border-dashed border-white/20 rounded-xl p-6 text-center hover:border-primary transition-colors cursor-pointer bg-zinc-900/50">
+                <input 
+                  type="file" 
+                  className="absolute inset-0 opacity-0 cursor-pointer" 
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setUploadFile(e.target.files[0]);
+                    }
+                  }}
+                  accept=".pdf,.jpg,.png"
+                  required
+                />
+                <div className="flex flex-col items-center gap-1">
+                  <Upload className="h-6 w-6 text-primary mb-1 animate-pulse" />
+                  <p className="font-bold text-xs">
+                    {uploadFile ? uploadFile.name : 'Select File'}
+                  </p>
+                  <p className="text-[10px] text-zinc-400">PDF or Images (Max 50MB)</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 justify-end pt-4 border-t border-white/5">
+              <Button 
+                type="button" 
+                variant="ghost" 
+                onClick={() => setIsUploadDialogOpen(false)} 
+                className="rounded-full px-6 hover:bg-white/10 hover:text-white"
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isUploadingFiles} 
+                className="rounded-full px-8 bg-white text-black hover:bg-zinc-200 font-bold"
+              >
+                {isUploadingFiles ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading...
+                  </>
+                ) : 'Upload to Folder'}
               </Button>
             </div>
           </form>

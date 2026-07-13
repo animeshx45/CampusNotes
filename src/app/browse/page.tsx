@@ -665,6 +665,12 @@ export default function BrowsePage() {
     setActiveFolder(null);
   }, [selectedBranch, selectedSemester, searchQuery]);
 
+  useEffect(() => {
+    if (selectedBranch === 'Placement Materials' && selectedSemester !== 'all') {
+      setSelectedSemester('all');
+    }
+  }, [selectedBranch, selectedSemester]);
+
   const normalizeSubjectName = (subject: string): string => {
     if (!subject) return 'General';
     const clean = subject.trim().replace(/\s+/g, ' ');
@@ -706,6 +712,9 @@ export default function BrowsePage() {
       // Exclude Engineering & Applied Physics Laboratory
       if (m.subject === 'Engineering & Applied Physics Laboratory') return false;
 
+      // Exclude system seeded folders
+      if (m.uploaderId === 'system' && m.type === 'Folder') return false;
+
       // If a specific branch is selected, show its materials AND "Common to All" materials
       const branchMatch = selectedBranch === 'all' || 
                           m.branch === selectedBranch || 
@@ -726,12 +735,12 @@ export default function BrowsePage() {
     const unique = new Set<string>();
     const semNum = parseInt(selectedSemester);
     if (!isNaN(semNum)) {
-      const branchToQuery = (semNum === 1 || semNum === 2) ? 'Common to All' : selectedBranch;
+      const branchToQuery = (selectedBranch !== 'Placement Materials' && (semNum === 1 || semNum === 2)) ? 'Common to All' : selectedBranch;
       const whitelisted = getSubjectsForFilter(branchToQuery as Branch, semNum);
       whitelisted.forEach(sub => unique.add(sub));
     } else {
       [1, 2, 3, 4, 5, 6, 7].forEach(s => {
-        const branchToQuery = (s === 1 || s === 2) ? 'Common to All' : selectedBranch;
+        const branchToQuery = (selectedBranch !== 'Placement Materials' && (s === 1 || s === 2)) ? 'Common to All' : selectedBranch;
         const branches = branchToQuery === 'all' 
           ? ['Mechanical Engineering', 'Chemical Engineering', 'Electronics & Communication Engineering', 'Metallurgical & Materials Engineering', 'Computer Science & Engineering', 'Information Technology', 'Civil Engineering', 'Electrical Engineering'] 
           : [branchToQuery];
@@ -764,7 +773,7 @@ export default function BrowsePage() {
     
     semestersToPopulate.forEach(semNum => {
       if (isNaN(semNum)) return;
-      if (semNum === 1 || semNum === 2) {
+      if (selectedBranch !== 'Placement Materials' && (semNum === 1 || semNum === 2)) {
         const whitelisted = getSubjectsForFilter('Common to All', semNum);
         whitelisted.forEach(sub => {
           foldersMap[sub.trim().toUpperCase()] = [];
@@ -953,30 +962,32 @@ export default function BrowsePage() {
                     </select>
                   </div>
 
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Semester Cycle</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      <Button 
-                        variant={selectedSemester === 'all' ? 'default' : 'ghost'} 
-                        size="sm" 
-                        className="rounded-xl h-10 font-bold transition-all shadow-sm"
-                        onClick={() => setSelectedSemester('all')}
-                      >
-                        All
-                      </Button>
-                      {SEMESTERS.map(sem => (
+                  {selectedBranch !== 'Placement Materials' && (
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Semester Cycle</label>
+                      <div className="grid grid-cols-3 gap-2">
                         <Button 
-                          key={sem}
-                          variant={selectedSemester === sem.toString() ? 'default' : 'ghost'} 
+                          variant={selectedSemester === 'all' ? 'default' : 'ghost'} 
                           size="sm" 
                           className="rounded-xl h-10 font-bold transition-all shadow-sm"
-                          onClick={() => setSelectedSemester(sem.toString())}
+                          onClick={() => setSelectedSemester('all')}
                         >
-                          S{sem}
+                          All
                         </Button>
-                      ))}
+                        {SEMESTERS.map(sem => (
+                          <Button 
+                            key={sem}
+                            variant={selectedSemester === sem.toString() ? 'default' : 'ghost'} 
+                            size="sm" 
+                            className="rounded-xl h-10 font-bold transition-all shadow-sm"
+                            onClick={() => setSelectedSemester(sem.toString())}
+                          >
+                            S{sem}
+                          </Button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </Card>
