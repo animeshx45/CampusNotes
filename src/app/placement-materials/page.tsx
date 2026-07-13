@@ -127,28 +127,7 @@ export default function PlacementMaterialsPage() {
                     </div>
                   </div>
 
-                  {/* Folder Contents Preview */}
-                  {item.folderFiles && item.folderFiles.length > 0 && (
-                    <div className="border-t border-white/5 pt-4 space-y-2.5">
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/80">Folder Contents:</p>
-                      <div className="space-y-1.5">
-                        {item.folderFiles.slice(0, 3).map((file: any, index: number) => (
-                          <div 
-                            key={index} 
-                            className="flex items-center gap-2 text-xs text-muted-foreground bg-white/5 p-2 rounded-lg border border-white/5 truncate hover:text-white transition-colors"
-                          >
-                            <FileText className="h-3.5 w-3.5 text-accent shrink-0" />
-                            <span className="truncate">{file.name}</span>
-                          </div>
-                        ))}
-                        {item.folderFiles.length > 3 && (
-                          <p className="text-[10px] text-muted-foreground italic pl-1">
-                            + {item.folderFiles.length - 3} more files
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
+
 
                   {/* Footer Stats and Button */}
                   <div className="border-t border-white/5 pt-4 flex items-center justify-between mt-auto">
