@@ -33,7 +33,8 @@ export async function GET(
 
     if (id.startsWith('fallback-')) {
       const companyName = id.replace('fallback-', '').toUpperCase();
-      const formattedSubject = companyName === 'DELLOITE' ? 'Delloite' : (companyName.charAt(0) + companyName.slice(1).toLowerCase());
+      const isDeloitte = companyName === 'DELLOITE' || companyName === 'DELLIOTE' || companyName === 'DELOITTE';
+      const formattedSubject = isDeloitte ? 'Delloite' : (companyName.charAt(0) + companyName.slice(1).toLowerCase());
       
       const fallbackMaterial = {
         id,
@@ -69,9 +70,17 @@ export async function GET(
     }
 
     if (material.type === 'Folder' && material.branch === 'Placement Materials') {
+      const isDeloitte = material.subject.toUpperCase().includes('DELLOITE') || 
+                         material.subject.toUpperCase().includes('DELLIOTE') || 
+                         material.subject.toUpperCase().includes('DELOITTE');
+      
+      const subjectRegex = isDeloitte 
+        ? 'delloite|delliote|deloitte' 
+        : material.subject;
+
       const files = await StudyMaterial.find({
         branch: 'Placement Materials',
-        subject: { $regex: new RegExp(material.subject, 'i') },
+        subject: { $regex: new RegExp(subjectRegex, 'i') },
         _id: { $ne: new mongoose.Types.ObjectId(id) }
       }).lean();
 

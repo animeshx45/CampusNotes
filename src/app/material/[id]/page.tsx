@@ -756,7 +756,8 @@ function MaterialDetailPageContent({ params }: { params: Promise<{ id: string }>
   const fallbackMaterial = useMemo(() => {
     if (!id.startsWith('fallback-')) return null;
     const companyName = id.replace('fallback-', '').toUpperCase();
-    const formattedSubject = companyName === 'DELLOITE' ? 'Delloite' : (companyName.charAt(0) + companyName.slice(1).toLowerCase());
+    const isDeloitte = companyName === 'DELLOITE' || companyName === 'DELLIOTE' || companyName === 'DELOITTE';
+    const formattedSubject = isDeloitte ? 'Delloite' : (companyName.charAt(0) + companyName.slice(1).toLowerCase());
     return {
       id,
       title: `${formattedSubject} Placement Materials`,

@@ -58,7 +58,10 @@ export async function GET() {
     });
 
     allMaterials.forEach((m: any) => {
-      const subject = (m.subject || '').toUpperCase().trim();
+      const rawSubject = (m.subject || '').toUpperCase().trim();
+      const subject = (rawSubject.includes('DELLOITE') || rawSubject.includes('DELLIOTE') || rawSubject.includes('DELOITTE'))
+        ? 'DELLOITE'
+        : rawSubject;
       const matchedCompany = upperCompanies.find(c => subject.includes(c) || c.includes(subject));
       if (matchedCompany) {
         if (m.type === 'Folder' && m.uploaderId !== 'system') {

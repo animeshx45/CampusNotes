@@ -798,7 +798,10 @@ export default function BrowsePage() {
       let mappedSub = cleanSub;
       if (m.branch === 'Placement Materials') {
         const whitelistedCompanies = ['ACCENTURE', 'CAPGEMINI', 'DELLOITE', 'IBM', 'INFOSYS', 'TCS', 'WIPRO', 'ZENPACT'];
-        const matched = whitelistedCompanies.find(c => cleanSub.includes(c) || c.includes(cleanSub));
+        const normalizedSub = (cleanSub.includes('DELLOITE') || cleanSub.includes('DELLIOTE') || cleanSub.includes('DELOITTE'))
+          ? 'DELLOITE'
+          : cleanSub;
+        const matched = whitelistedCompanies.find(c => normalizedSub.includes(c) || c.includes(normalizedSub));
         if (matched) {
           mappedSub = matched;
         }
@@ -1075,7 +1078,10 @@ export default function BrowsePage() {
                     let mappedSub = cleanSub;
                     if (m.branch === 'Placement Materials') {
                       const whitelistedCompanies = ['ACCENTURE', 'CAPGEMINI', 'DELLOITE', 'IBM', 'INFOSYS', 'TCS', 'WIPRO', 'ZENPACT'];
-                      const matched = whitelistedCompanies.find(c => cleanSub.includes(c) || c.includes(cleanSub));
+                      const normalizedSub = (cleanSub.includes('DELLOITE') || cleanSub.includes('DELLIOTE') || cleanSub.includes('DELOITTE'))
+                        ? 'DELLOITE'
+                        : cleanSub;
+                      const matched = whitelistedCompanies.find(c => normalizedSub.includes(c) || c.includes(normalizedSub));
                       if (matched) {
                         mappedSub = matched;
                       }
