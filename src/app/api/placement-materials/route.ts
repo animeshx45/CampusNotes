@@ -59,14 +59,15 @@ export async function GET() {
 
     allMaterials.forEach((m: any) => {
       const subject = (m.subject || '').toUpperCase().trim();
-      if (upperCompanies.includes(subject)) {
+      const matchedCompany = upperCompanies.find(c => subject.includes(c) || c.includes(subject));
+      if (matchedCompany) {
         if (m.type === 'Folder' && m.uploaderId !== 'system') {
-          companyStats[subject].views += (m.views || 0);
-          companyStats[subject].downloads += (m.downloadCount || 0);
+          companyStats[matchedCompany].views += (m.views || 0);
+          companyStats[matchedCompany].downloads += (m.downloadCount || 0);
           if (m.folderFiles && Array.isArray(m.folderFiles)) {
             m.folderFiles.forEach((file: any) => {
-              companyStats[subject].count += 1;
-              companyStats[subject].files.push({
+              companyStats[matchedCompany].count += 1;
+              companyStats[matchedCompany].files.push({
                 name: file.name,
                 fileUrl: file.fileUrl,
                 type: file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'pdf' : 'image')
@@ -74,10 +75,10 @@ export async function GET() {
             });
           }
         } else if (m.type !== 'Folder') {
-          companyStats[subject].count += 1;
-          companyStats[subject].views += (m.views || 0);
-          companyStats[subject].downloads += (m.downloadCount || 0);
-          companyStats[subject].files.push({
+          companyStats[matchedCompany].count += 1;
+          companyStats[matchedCompany].views += (m.views || 0);
+          companyStats[matchedCompany].downloads += (m.downloadCount || 0);
+          companyStats[matchedCompany].files.push({
             name: m.title,
             fileUrl: m.fileUrl,
             type: m.type === 'image' ? 'image' : 'pdf'

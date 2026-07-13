@@ -794,10 +794,20 @@ export default function BrowsePage() {
     filteredMaterials.forEach(m => {
       const sub = m.subject || m.title.split('(')[0].trim() || 'General';
       const cleanSub = sub.trim().toUpperCase();
-      if (!foldersMap[cleanSub]) {
-        foldersMap[cleanSub] = [];
+      
+      let mappedSub = cleanSub;
+      if (m.branch === 'Placement Materials') {
+        const whitelistedCompanies = ['ACCENTURE', 'CAPGEMINI', 'DELLOITE', 'IBM', 'INFOSYS', 'TCS', 'WIPRO', 'ZENPACT'];
+        const matched = whitelistedCompanies.find(c => cleanSub.includes(c) || c.includes(cleanSub));
+        if (matched) {
+          mappedSub = matched;
+        }
       }
-      foldersMap[cleanSub].push(m);
+
+      if (!foldersMap[mappedSub]) {
+        foldersMap[mappedSub] = [];
+      }
+      foldersMap[mappedSub].push(m);
     });
 
     return Object.entries(foldersMap).map(([name, files]) => ({
@@ -1061,7 +1071,16 @@ export default function BrowsePage() {
                 {(() => {
                   const folderFiles = materialsToShow.filter(m => {
                     const sub = m.subject || m.title.split('(')[0].trim() || 'General';
-                    return sub.trim().toUpperCase() === activeFolder;
+                    const cleanSub = sub.trim().toUpperCase();
+                    let mappedSub = cleanSub;
+                    if (m.branch === 'Placement Materials') {
+                      const whitelistedCompanies = ['ACCENTURE', 'CAPGEMINI', 'DELLOITE', 'IBM', 'INFOSYS', 'TCS', 'WIPRO', 'ZENPACT'];
+                      const matched = whitelistedCompanies.find(c => cleanSub.includes(c) || c.includes(cleanSub));
+                      if (matched) {
+                        mappedSub = matched;
+                      }
+                    }
+                    return mappedSub === activeFolder;
                   });
 
                   if (folderFiles.length > 0) {

@@ -71,7 +71,7 @@ export async function GET(
     if (material.type === 'Folder' && material.branch === 'Placement Materials') {
       const files = await StudyMaterial.find({
         branch: 'Placement Materials',
-        subject: { $regex: new RegExp(`^${material.subject}$`, 'i') },
+        subject: { $regex: new RegExp(material.subject, 'i') },
         _id: { $ne: new mongoose.Types.ObjectId(id) }
       }).lean();
 
