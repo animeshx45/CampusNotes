@@ -993,7 +993,7 @@ export default function UploadPage() {
         description: "Your folder notes have been shared with everyone.",
       });
       
-      setTimeout(() => router.push('/browse'), 2000);
+      setTimeout(() => router.push('/'), 2000);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -1335,7 +1335,7 @@ export default function UploadPage() {
     const hasRemainingErrors = items.some(item => item.status === 'error');
     if (!hasRemainingErrors && successCount > 0) {
       setIsSuccess(true);
-      setTimeout(() => router.push('/browse'), 2000);
+      setTimeout(() => router.push('/'), 2000);
     }
   };
 
@@ -1372,7 +1372,7 @@ export default function UploadPage() {
           <p className="text-muted-foreground max-w-md mx-auto">Thanks for helping out. Your uploads are now in the library for everyone to see.</p>
         </div>
         <div className="flex gap-4">
-          <Button onClick={() => router.push('/browse')} className="rounded-xl px-8 h-12 font-bold">Go to Library</Button>
+          <Button onClick={() => router.push('/')} className="rounded-xl px-8 h-12 font-bold">Go to Home Page</Button>
           <Button variant="outline" onClick={() => {
             setIsSuccess(false);
             setBulkLinkItems([]);

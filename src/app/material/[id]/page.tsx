@@ -721,7 +721,7 @@ function MarkdownRenderer({ text }: { text: string }) {
 }
 
 const getSimulatedFileSize = (filename?: string): string => {
-  if (!filename || typeof filename !== 'string') return '2.4 MB';
+  if (!filename || typeof filename !== 'string') return '12.4 MB';
   const name = filename.toLowerCase();
   if (name.includes('adobe scan 16-mar-2023')) return '125 KB';
   if (name.includes('bee .pdf') || name.includes('bee_.pdf')) return '185 KB';
@@ -736,8 +736,14 @@ const getSimulatedFileSize = (filename?: string): string => {
   if (name.includes('tb-1') || name.includes('tb-1.pdf')) return '19.6 MB';
   if (name.includes('tb-2') || name.includes('tb-2.pdf')) return '50.9 MB';
   
-  // Default fallback size
-  return '2.4 MB';
+  // Compute a simple deterministic hash of the filename
+  let hash = 0;
+  for (let i = 0; i < filename.length; i++) {
+    hash = filename.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const absHash = Math.abs(hash);
+  const sizeMb = 1 + (absHash % 491) / 10; // ranges from 1.0 to 50.0 MB
+  return `${sizeMb.toFixed(1)} MB`;
 };
 
 function MaterialDetailPageContent({ params }: { params: Promise<{ id: string }> }) {
